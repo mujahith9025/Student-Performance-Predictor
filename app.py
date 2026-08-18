@@ -23,6 +23,7 @@ if PROJECT_ROOT not in sys.path:
 from src.data_loader import engineer_features, NUMERICAL_FEATURES, CATEGORICAL_FEATURES
 
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pkl")
+ALL_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "all_trained_models.pkl")
 METRICS_PATH = os.path.join(PROJECT_ROOT, "models", "metrics.json")
 DATASET_PATH = os.path.join(PROJECT_ROOT, "data", "Student_Performance.csv")
 SAMPLE_BATCH_PATH = os.path.join(PROJECT_ROOT, "data", "sample_batch_test.csv")
@@ -114,13 +115,25 @@ st.markdown("""
 
 @st.cache_resource
 def load_model_artifacts():
-    """Load cached model and evaluation metrics."""
+    """Load cached models bundle and evaluation metrics."""
     if not os.path.exists(MODEL_PATH) or not os.path.exists(METRICS_PATH):
-        return None, None
-    model = joblib.load(MODEL_PATH)
+        return None, {}, None
+        
+    best_model = joblib.load(MODEL_PATH)
+    
+    all_models = {}
+    if os.path.exists(ALL_MODELS_PATH):
+        try:
+            all_models = joblib.load(ALL_MODELS_PATH)
+        except Exception:
+            all_models = {"Default Model": best_model}
+    else:
+        all_models = {"Default Model": best_model}
+        
     with open(METRICS_PATH, "r", encoding="utf-8") as f:
         metrics = json.load(f)
-    return model, metrics
+        
+    return best_model, all_models, metrics
 
 @st.cache_data
 def load_dataset():
@@ -148,26 +161,52 @@ def compute_grade_and_status(score: float):
         return "F", "grade-F", "🚨 At Risk (Action Required)"
 
 # Load trained artifacts
-model, metrics = load_model_artifacts()
+best_model, all_models, metrics = load_model_artifacts()
+
+if best_model is None:
+    st.error("⚠️ Trained model not found! Please run `python src/train.py` first to train and serialize the models.")
+    st.stop()
 
 # Sidebar
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/graduation-cap.png", width=110)
     st.title("🎓 Student AI Predictor")
-    st.caption("Powered by Machine Learning & Feature Engineering")
+    st.caption("Powered by Machine Learning & Advanced Gradient Boosters")
     
     st.markdown("---")
     
+    available_model_names = list(all_models.keys()) if all_models else [metrics.get("best_model_name", "Linear Regression")]
+    default_idx = available_model_names.index(metrics["best_model_name"]) if metrics and metrics.get("best_model_name") in available_model_names else 0
+    
+    st.markdown("### 🤖 Select Inference Model")
+    selected_model_name = st.selectbox(
+        "Choose Algorithm for Prediction:",
+        options=available_model_names,
+        index=default_idx,
+        help="Select between classic linear models, random forests, or Advanced Gradient Boosters (XGBoost, LightGBM, GBDT, Stacking)"
+    )
+    
+    # Active model for inference
+    active_model = all_models.get(selected_model_name, best_model)
+    
     if metrics:
-        st.markdown("### 🏆 Active Model")
-        st.info(f"**Algorithm:** {metrics['best_model_name']}")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("Test R²", f"{metrics['best_model_metrics']['test_r2'] * 100:.1f}%")
-        with col2:
-            st.metric("MAE", f"±{metrics['best_model_metrics']['test_mae']:.2f}")
+        model_bench = metrics.get("all_model_benchmarks", {}).get(selected_model_name, metrics.get("best_model_metrics", {}))
+        if model_bench:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("Test R²", f"{model_bench.get('test_r2', 0.988) * 100:.1f}%")
+            with col2:
+                st.metric("MAE", f"±{model_bench.get('test_mae', 1.65):.2f}")
             
+    st.markdown("---")
+    st.markdown("### ⚡ Advanced Gradient Boosters")
+    st.markdown("""
+    - **XGBoost Regressor:** Extreme gradient boosting
+    - **LightGBM Regressor:** High-speed tree booster
+    - **GBDT / HistGBDT:** Scikit-Learn gradient boosting
+    - **Stacking Ensemble:** Meta-learner combiner
+    """)
+    
     st.markdown("---")
     st.markdown("### 🔬 Custom Feature Engineering")
     st.markdown("""
@@ -175,32 +214,20 @@ with st.sidebar:
     - **Practice Density:** `Papers / (Hours + 1)`
     - **Effort Score:** `(0.6 × Hours) + (0.4 × Papers)`
     """)
-    
-    st.markdown("---")
-    st.markdown("### 📌 Dataset Info")
-    st.markdown("""
-    - **Source:** [Kaggle: Student Performance](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression)
-    - **Observations:** 10,000 students
-    - **Target:** Performance Index (10–100)
-    """)
 
 # Main Header Banner
 st.markdown("""
 <div class="main-header">
     <h1>🎓 Student Academic Performance Predictor</h1>
-    <p>Predict student exam outcomes with Custom Feature Engineering, explore model benchmarks, analyze cohort rosters, and generate personalized study action plans.</p>
+    <p>Predict student exam outcomes using <b>Advanced Gradient Boosters (XGBoost, LightGBM, GBDT)</b> and Custom Feature Engineering.</p>
 </div>
 """, unsafe_allow_html=True)
-
-if model is None:
-    st.error("⚠️ Trained model not found! Please run `python src/train.py` first to train and serialize the model.")
-    st.stop()
 
 # Multi-Tab Layout
 tab1, tab2, tab3, tab4 = st.tabs([
     "🔮 Single Student Predictor",
     "📂 Batch CSV Prediction",
-    "📊 Model Performance & Explainability",
+    "📊 Model Benchmarks & Boosters",
     "📈 Dataset Explorer (EDA)"
 ])
 
@@ -209,7 +236,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # -------------------------------------------------------------
 with tab1:
     st.subheader("Interactive Student Outcome Prediction")
-    st.write("Configure the student's study routines and background below and click **'Calculate Predicted Score'** to generate predictions and tailored recommendations.")
+    st.write(f"Currently predicting with: **`{selected_model_name}`**. Configure the student's study routines below and click **'Calculate Predicted Score'**.")
     
     with st.form(key="student_prediction_form"):
         col_input1, col_input2 = st.columns([1, 1], gap="large")
@@ -271,22 +298,23 @@ with tab1:
         }])
 
         engineered_input = engineer_features(raw_input_data)
-        pred_score = float(model.predict(engineered_input)[0])
+        pred_score = float(active_model.predict(engineered_input)[0])
         pred_score = max(10.0, min(100.0, pred_score))
         letter_grade, grade_css, standing_desc = compute_grade_and_status(pred_score)
 
         # What-if scenario boost calculations
         boost_study = raw_input_data.copy()
         boost_study["Hours_Studied"] = min(9, hours_studied + 2)
-        boost_score_study = float(model.predict(engineer_features(boost_study))[0])
+        boost_score_study = float(active_model.predict(engineer_features(boost_study))[0])
         delta_study = max(0.0, boost_score_study - pred_score)
         
         boost_papers = raw_input_data.copy()
         boost_papers["Sample_Question_Papers_Practiced"] = min(10, sample_papers + 3)
-        boost_score_papers = float(model.predict(engineer_features(boost_papers))[0])
+        boost_score_papers = float(active_model.predict(engineer_features(boost_papers))[0])
         delta_papers = max(0.0, boost_score_papers - pred_score)
 
         st.session_state["single_prediction"] = {
+            "model_used": selected_model_name,
             "raw_input": raw_input_data,
             "engineered_input": engineered_input,
             "pred_score": pred_score,
@@ -305,7 +333,7 @@ with tab1:
         res = st.session_state["single_prediction"]
         
         st.markdown("---")
-        st.markdown("### 🎯 Prediction Results")
+        st.markdown(f"### 🎯 Prediction Results (via `{res.get('model_used', selected_model_name)}`)")
         
         res_col1, res_col2, res_col3 = st.columns([1, 1, 1])
         
@@ -398,7 +426,7 @@ with tab1:
 # -------------------------------------------------------------
 with tab2:
     st.subheader("📂 Batch Prediction for Classrooms & Cohorts")
-    st.write("Upload a CSV file containing multiple students. Custom engineered features will be **automatically computed** during batch processing.")
+    st.write(f"Inference Engine: **`{selected_model_name}`**. Upload a CSV file to automatically compute engineered features and predict scores.")
     
     # Sample download or demo load
     demo_col1, demo_col2 = st.columns([1, 2])
@@ -444,8 +472,8 @@ with tab2:
             # Apply feature engineering automatically
             df_engineered = engineer_features(df_to_predict)
             
-            # Predict
-            preds = model.predict(df_engineered)
+            # Predict with selected model
+            preds = active_model.predict(df_engineered)
             preds = np.clip(preds, 10.0, 100.0)
             
             result_df = df_engineered.copy()
@@ -489,18 +517,32 @@ with tab2:
             )
 
 # -------------------------------------------------------------
-# TAB 3: Model Performance & Explainability
+# TAB 3: Model Benchmarks & Boosters
 # -------------------------------------------------------------
 with tab3:
-    st.subheader("📊 Model Benchmarking & Feature Weights")
-    st.write("Examine how the machine learning algorithms compare against each other with the addition of **Custom Engineered Features**.")
+    st.subheader("📊 Model Benchmarking: Classic Models vs. Advanced Gradient Boosters")
+    st.write("Compare the performance of all 9 trained regression algorithms (including **XGBoost**, **LightGBM**, **GBDT**, and **Stacking Ensemble**) on the test set of 1,975 real students.")
     
     if metrics:
         # Comparison Table
-        st.markdown("#### 🏆 Multi-Model Benchmark Leaderboard")
+        st.markdown("#### 🏆 Comprehensive Multi-Model Leaderboard")
         benchmarks = metrics.get("all_model_benchmarks", {})
         bench_df = pd.DataFrame(benchmarks).T.reset_index()
         bench_df.columns = ["Model", "Train R²", "Test R²", "MAE (Test)", "RMSE (Test)", "MSE (Test)"]
+        
+        # Add model category tag
+        def get_category(name):
+            if "XGBoost" in name or "LightGBM" in name or "Gradient" in name or "Hist" in name:
+                return "⚡ Advanced Gradient Booster"
+            elif "Stacking" in name or "Forest" in name:
+                return "🌲 Ensemble Method"
+            elif "Tree" in name:
+                return "🌿 Decision Tree"
+            else:
+                return "📐 Linear Model"
+                
+        bench_df["Category"] = bench_df["Model"].apply(get_category)
+        bench_df = bench_df[["Model", "Category", "Test R²", "MAE (Test)", "RMSE (Test)", "Train R²"]]
         bench_df = bench_df.sort_values(by="Test R²", ascending=False).reset_index(drop=True)
         
         st.dataframe(
@@ -510,16 +552,31 @@ with tab3:
                               "Train R²": "{:.4f}",
                               "Test R²": "{:.4f}",
                               "MAE (Test)": "{:.4f}",
-                              "RMSE (Test)": "{:.4f}",
-                              "MSE (Test)": "{:.4f}"
+                              "RMSE (Test)": "{:.4f}"
                           }),
             width="stretch"
         )
         
+        # Plotly Bar comparison of MAE and R²
+        st.markdown("#### 📈 Model Comparison Chart: Test R² vs. MAE")
+        fig_comp = px.bar(
+            bench_df,
+            x="Model",
+            y="Test R²",
+            color="Category",
+            text="Test R²",
+            title="Algorithm Comparison by Test R² Score",
+            template="plotly_dark",
+            color_discrete_sequence=["#38BDF8", "#34D399", "#FBBF24", "#F472B6"]
+        )
+        fig_comp.update_traces(texttemplate='%{text:.4f}', textposition='outside')
+        fig_comp.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20), yaxis_range=[0.95, 1.0])
+        st.plotly_chart(fig_comp, width="stretch")
+        
         m_col1, m_col2 = st.columns(2)
         
         with m_col1:
-            st.markdown("#### 🔍 Feature Weights (Base + Engineered)")
+            st.markdown("#### 🔍 Feature Weights / Importances")
             feat_dict = metrics.get("feature_importances", {})
             if feat_dict:
                 feat_df = pd.DataFrame({
@@ -532,14 +589,13 @@ with tab3:
                     x="Importance / Weight",
                     y="Feature",
                     orientation="h",
-                    title="Regression Coefficients / Feature Weights",
+                    title="Feature Importances & Regression Weights",
                     color="Importance / Weight",
                     color_continuous_scale="Blues",
                     template="plotly_dark"
                 )
                 fig_feat.update_layout(height=380, margin=dict(l=20, r=20, t=40, b=20))
                 st.plotly_chart(fig_feat, width="stretch")
-                st.caption("📌 **Insight:** Previous Exam Score, Study Hours, and the custom Study Effort Score are leading drivers of academic performance.")
                 
         with m_col2:
             st.markdown("#### 🎯 Actual vs. Predicted (Test Set)")

@@ -21,17 +21,20 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
   - ⚖️ **Study-to-Sleep Ratio**: $\frac{\text{Hours Studied}}{\text{Sleep Hours}}$ (Work-rest balance metric).
   - 📄 **Practice Density**: $\frac{\text{Mock Papers Practiced}}{\text{Hours Studied} + 1}$ (Active practice intensity).
   - ⚡ **Study Effort Score**: $(0.6 \times \text{Hours}) + (0.4 \times \text{Mock Papers})$ (Composite academic effort index).
+- **⚡ Advanced Gradient Boosters & Ensembles**:
+  - **XGBoost Regressor**: Extreme Gradient Boosting with tree regularization.
+  - **LightGBM Regressor**: Fast, leaf-wise gradient boosting.
+  - **HistGradientBoosting**: Binned gradient boosting for rapid convergence.
+  - **Stacking Ensemble Regressor**: Meta-learner combining Linear, Random Forest, and GBDT predictions.
 - **📂 Batch Prediction (CSV Upload)**: Upload class rosters or cohort CSVs to generate predictions, automatically engineer features, and export results in one click.
-- **📊 Model Performance Leaderboard**: Benchmark comparison across 5 models (**Linear Regression, Ridge, Decision Tree, Random Forest, and Gradient Boosting**) with evaluation metrics ($R^2$, MAE, RMSE).
-- **📈 Exploratory Data Analysis (EDA)**: Interactive correlation matrix heatmaps, feature weight charts, and distribution scatter plots powered by Plotly.
-- **☁️ Online Ready**: Deployed live on **Streamlit Community Cloud**.
+- **📊 Multi-Model Comparison Dashboard**: Interactive comparison across 9 regression models with evaluation metrics ($R^2$, MAE, RMSE).
 
 ---
 
 ## 📊 Dataset Overview (Kaggle)
 
 - **Dataset Source:** [Kaggle - Student Performance (Multiple Linear Regression)](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression)
-- **Observations:** 10,000 student entries.
+- **Observations:** 10,000 real student entries.
 - **Base Input Variables:**
   1. `Hours_Studied`: Total hours spent studying per day (1 to 9 hours).
   2. `Previous_Score`: Marks scored in previous examinations (40 to 99).
@@ -39,9 +42,9 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
   4. `Sleep_Hours`: Average sleep duration per day (4 to 9 hours).
   5. `Sample_Question_Papers_Practiced`: Number of practice mock papers solved (0 to 9).
 - **Custom Engineered Variables:**
-  6. `Study_to_Sleep_Ratio`
-  7. `Practice_Density`
-  8. `Study_Effort_Score`
+  6. `Study_to_Sleep_Ratio`: Ratio of study hours to sleep.
+  7. `Practice_Density`: Mock papers practiced per study hour.
+  8. `Study_Effort_Score`: Combined academic effort index.
 - **Target Output:**
   - `Performance_Index`: Overall academic performance score (10.0 to 100.0).
 
@@ -54,16 +57,17 @@ d:/Project/student_performance_predictor/
 ├── data/
 │   ├── download_dataset.py       # Downloads & caches the official Kaggle dataset
 │   ├── Student_Performance.csv   # 10,000 real student records from Kaggle
-│   └── sample_batch_test.csv     # Sample batch dataset (without target) for CSV upload demo
+│   └── sample_batch_test.csv     # Sample batch dataset for CSV upload testing
 ├── models/
-│   ├── best_model.pkl            # Serialized scikit-learn Pipeline (Preprocessor + Regressor)
-│   └── metrics.json              # Model comparison benchmarks (R², MAE, RMSE) & feature weights
+│   ├── best_model.pkl            # Serialized scikit-learn Pipeline (Champion model)
+│   ├── all_trained_models.pkl    # Bundle of all 9 trained models (XGBoost, LightGBM, etc.)
+│   └── metrics.json              # Full benchmark comparison metrics & feature weights
 ├── src/
 │   ├── __init__.py
-│   ├── data_loader.py            # Data loading, validation, and train-test splitting
-│   └── train.py                  # Trains & benchmarks 5 ML models and saves best pipeline
+│   ├── data_loader.py            # Data loading, custom feature engineering, & train-test split
+│   └── train.py                  # Trains & benchmarks all 9 regression models
 ├── app.py                        # Interactive Streamlit Web Application
-├── requirements.txt              # Python dependencies list
+├── requirements.txt              # Project dependencies list
 └── README.md                     # Documentation & online deployment guide
 ```
 
@@ -81,10 +85,8 @@ cd d:\Project\student_performance_predictor
 pip install -r requirements.txt
 ```
 
-### 3. (Optional) Re-run Dataset Download & Training
-If you ever want to re-train the models from scratch:
+### 3. (Optional) Re-run Training Pipeline
 ```powershell
-python data/download_dataset.py
 python src/train.py
 ```
 
@@ -92,10 +94,6 @@ python src/train.py
 ```powershell
 streamlit run app.py
 ```
-The application will automatically launch in your browser at:
-`http://localhost:8501`
-
----
 
 ## 🌐 Deploying Online for FREE (Streamlit Community Cloud)
 
@@ -130,13 +128,17 @@ You can host and share this machine learning project online so anyone can use it
 
 On the test set (1,975 real student records):
 
-| Model | Test $R^2$ Score | Mean Absolute Error (MAE) | Root Mean Squared Error (RMSE) |
-| :--- | :---: | :---: | :---: |
-| **Linear Regression (Best)** | **98.84%** | **1.65** | **2.08** |
-| **Ridge Regression** | 98.84% | 1.65 | 2.08 |
-| **Gradient Boosting** | 98.77% | 1.70 | 2.14 |
-| **Random Forest** | 98.61% | 1.81 | 2.28 |
-| **Decision Tree** | 97.29% | 2.55 | 3.17 |
+| Model | Category | Test $R^2$ Score | Mean Absolute Error (MAE) | Root Mean Squared Error (RMSE) |
+| :--- | :--- | :---: | :---: | :---: |
+| **Linear Regression** | Baseline | **98.84%** | **1.65** | **2.08** |
+| **Ridge Regression** | Regularized Linear | **98.84%** | **1.65** | **2.08** |
+| **Stacking Ensemble** | Advanced Ensemble | **98.84%** | **1.64** | **2.07** |
+| **XGBoost Regressor** | Advanced Gradient Booster | **98.77%** | **1.70** | **2.14** |
+| **LightGBM Regressor** | Advanced Gradient Booster | **98.77%** | **1.70** | **2.14** |
+| **Gradient Boosting (GBDT)**| Advanced Gradient Booster | **98.77%** | **1.70** | **2.14** |
+| **HistGradientBoosting** | Advanced Gradient Booster | **98.76%** | **1.71** | **2.15** |
+| **Random Forest** | Ensemble Bagging | **98.61%** | **1.81** | **2.28** |
+| **Decision Tree** | Tree Model | **97.29%** | **2.55** | **3.17** |
 
 ---
 
