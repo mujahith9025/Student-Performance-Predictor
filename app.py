@@ -209,169 +209,189 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # -------------------------------------------------------------
 with tab1:
     st.subheader("Interactive Student Outcome Prediction")
-    st.write("Adjust the student's study routines and background below to get real-time score predictions, custom engineered metrics, and tailored recommendations.")
+    st.write("Configure the student's study routines and background below and click **'Calculate Predicted Score'** to generate predictions and tailored recommendations.")
     
-    col_input1, col_input2 = st.columns([1, 1], gap="large")
-    
-    with col_input1:
-        st.markdown("#### 📚 Academic & Study Habits")
-        hours_studied = st.slider(
-            "⏱️ Daily Hours Studied",
-            min_value=1,
-            max_value=9,
-            value=5,
-            help="Average daily study time outside school (1 to 9 hours)"
-        )
+    with st.form(key="student_prediction_form"):
+        col_input1, col_input2 = st.columns([1, 1], gap="large")
         
-        previous_score = st.slider(
-            "📝 Previous Exam Score",
-            min_value=40,
-            max_value=100,
-            value=75,
-            help="Previous test score / marks obtained (40 to 100)"
-        )
-        
-        sample_papers = st.slider(
-            "📄 Practice Papers Practiced",
-            min_value=0,
-            max_value=10,
-            value=3,
-            help="Number of mock exam papers completed"
-        )
-        
-    with col_input2:
-        st.markdown("#### 🌿 Health & Extracurriculars")
-        sleep_hours = st.slider(
-            "😴 Daily Sleep Hours",
-            min_value=4,
-            max_value=10,
-            value=7,
-            help="Average daily sleep duration"
-        )
-        
-        extracurricular = st.radio(
-            "⚽ Participates in Extracurricular Activities?",
-            options=["Yes", "No"],
-            horizontal=True,
-            help="Sports, clubs, arts, volunteering, etc."
-        )
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        predict_btn = st.button("🚀 Calculate Predicted Score", type="primary", width="stretch")
-
-    # Base Input DataFrame
-    raw_input_data = pd.DataFrame([{
-        "Hours_Studied": hours_studied,
-        "Previous_Score": previous_score,
-        "Sleep_Hours": sleep_hours,
-        "Sample_Question_Papers_Practiced": sample_papers,
-        "Extracurricular_Activities": extracurricular
-    }])
-
-    # Apply Custom Feature Engineering
-    engineered_input = engineer_features(raw_input_data)
-
-    # Prediction
-    pred_score = float(model.predict(engineered_input)[0])
-    pred_score = max(10.0, min(100.0, pred_score))
-    letter_grade, grade_css, standing_desc = compute_grade_and_status(pred_score)
-
-    st.markdown("---")
-    st.markdown("### 🎯 Prediction Results")
-    
-    res_col1, res_col2, res_col3 = st.columns([1, 1, 1])
-    
-    with res_col1:
-        st.markdown(f"""
-        <div class="metric-card">
-            <span style="font-size: 0.95rem; color: #94A3B8; font-weight: 600;">PREDICTED PERFORMANCE INDEX</span>
-            <div class="score-badge">{pred_score:.1f}<span style="font-size: 1.2rem; color: #94A3B8;">/100</span></div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with res_col2:
-        st.markdown(f"""
-        <div class="metric-card">
-            <span style="font-size: 0.95rem; color: #94A3B8; font-weight: 600;">ESTIMATED LETTER GRADE</span><br><br>
-            <span class="grade-pill {grade_css}">{letter_grade}</span>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with res_col3:
-        st.markdown(f"""
-        <div class="metric-card">
-            <span style="font-size: 0.95rem; color: #94A3B8; font-weight: 600;">ACADEMIC STANDING</span>
-            <div style="font-size: 1.15rem; font-weight: 700; margin-top: 1rem; color: #E2E8F0;">
-                {standing_desc}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Progress bar
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.progress(pred_score / 100.0)
-
-    # Live Engineered Features Card
-    st.markdown("#### 🔬 Custom Engineered Metrics (Real-Time)")
-    eng_col1, eng_col2, eng_col3 = st.columns(3)
-    
-    with eng_col1:
-        ratio_val = engineered_input["Study_to_Sleep_Ratio"].iloc[0]
-        st.markdown(f"""
-        <div class="eng-badge">
-            <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">⚖️ STUDY-TO-SLEEP RATIO</span>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{ratio_val:.2f}</div>
-            <span style="font-size: 0.8rem; color: #CBD5E1;">{'Balanced ratio' if 0.5 <= ratio_val <= 1.0 else 'High intensity / low sleep' if ratio_val > 1.0 else 'Light study load'}</span>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with eng_col2:
-        dens_val = engineered_input["Practice_Density"].iloc[0]
-        st.markdown(f"""
-        <div class="eng-badge">
-            <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">📄 PRACTICE DENSITY</span>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{dens_val:.2f}</div>
-            <span style="font-size: 0.8rem; color: #CBD5E1;">Mock tests / study hour ratio</span>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with eng_col3:
-        eff_val = engineered_input["Study_Effort_Score"].iloc[0]
-        st.markdown(f"""
-        <div class="eng-badge">
-            <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">⚡ COMPOSITE EFFORT SCORE</span>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{eff_val:.2f} <span style="font-size: 0.9rem; color: #94A3B8;">/ 9.4</span></div>
-            <span style="font-size: 0.8rem; color: #CBD5E1;">Combined study + testing intensity</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Personalized Recommendations Box
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("#### 💡 Personalized Study Plan & Score Boost Insights")
-    
-    # Calculate what-if scenario (e.g. +2 study hours, +2 practice papers)
-    boost_study = raw_input_data.copy()
-    boost_study["Hours_Studied"] = min(9, hours_studied + 2)
-    boost_score_study = float(model.predict(engineer_features(boost_study))[0])
-    delta_study = max(0.0, boost_score_study - pred_score)
-    
-    boost_papers = raw_input_data.copy()
-    boost_papers["Sample_Question_Papers_Practiced"] = min(10, sample_papers + 3)
-    boost_score_papers = float(model.predict(engineer_features(boost_papers))[0])
-    delta_papers = max(0.0, boost_score_papers - pred_score)
-
-    rec_col1, rec_col2 = st.columns(2)
-    with rec_col1:
-        if hours_studied < 7:
-            st.info(f"📈 **Study Habit Boost:** Increasing daily study time by **2 hours** (to {hours_studied + 2} hrs) is predicted to increase performance by **+{delta_study:.1f} points**.")
-        else:
-            st.success("🌟 **Study Discipline:** Current study hours are already strong! Maintain consistency without burnout.")
+        with col_input1:
+            st.markdown("#### 📚 Academic & Study Habits")
+            hours_studied = st.slider(
+                "⏱️ Daily Hours Studied",
+                min_value=1,
+                max_value=9,
+                value=5,
+                help="Average daily study time outside school (1 to 9 hours)"
+            )
             
-    with rec_col2:
-        if sleep_hours < 7:
-            st.warning(f"😴 **Sleep Hygiene:** The student is sleeping {sleep_hours} hrs. Prioritizing **7-8 hours** of sleep enhances memory consolidation and prevents exam fatigue.")
-        else:
-            st.info(f"📄 **Mock Practice Boost:** Practicing **3 more question papers** is estimated to raise predicted score by **+{delta_papers:.1f} points**.")
+            previous_score = st.slider(
+                "📝 Previous Exam Score",
+                min_value=40,
+                max_value=100,
+                value=75,
+                help="Previous test score / marks obtained (40 to 100)"
+            )
+            
+            sample_papers = st.slider(
+                "📄 Practice Papers Practiced",
+                min_value=0,
+                max_value=10,
+                value=3,
+                help="Number of mock exam papers completed"
+            )
+            
+        with col_input2:
+            st.markdown("#### 🌿 Health & Extracurriculars")
+            sleep_hours = st.slider(
+                "😴 Daily Sleep Hours",
+                min_value=4,
+                max_value=10,
+                value=7,
+                help="Average daily sleep duration"
+            )
+            
+            extracurricular = st.radio(
+                "⚽ Participates in Extracurricular Activities?",
+                options=["Yes", "No"],
+                horizontal=True,
+                help="Sports, clubs, arts, volunteering, etc."
+            )
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            predict_btn = st.form_submit_button("🚀 Calculate Predicted Score", type="primary", width="stretch")
+
+    # If user clicked calculate, compute and store in session_state
+    if predict_btn:
+        raw_input_data = pd.DataFrame([{
+            "Hours_Studied": hours_studied,
+            "Previous_Score": previous_score,
+            "Sleep_Hours": sleep_hours,
+            "Sample_Question_Papers_Practiced": sample_papers,
+            "Extracurricular_Activities": extracurricular
+        }])
+
+        engineered_input = engineer_features(raw_input_data)
+        pred_score = float(model.predict(engineered_input)[0])
+        pred_score = max(10.0, min(100.0, pred_score))
+        letter_grade, grade_css, standing_desc = compute_grade_and_status(pred_score)
+
+        # What-if scenario boost calculations
+        boost_study = raw_input_data.copy()
+        boost_study["Hours_Studied"] = min(9, hours_studied + 2)
+        boost_score_study = float(model.predict(engineer_features(boost_study))[0])
+        delta_study = max(0.0, boost_score_study - pred_score)
+        
+        boost_papers = raw_input_data.copy()
+        boost_papers["Sample_Question_Papers_Practiced"] = min(10, sample_papers + 3)
+        boost_score_papers = float(model.predict(engineer_features(boost_papers))[0])
+        delta_papers = max(0.0, boost_score_papers - pred_score)
+
+        st.session_state["single_prediction"] = {
+            "raw_input": raw_input_data,
+            "engineered_input": engineered_input,
+            "pred_score": pred_score,
+            "letter_grade": letter_grade,
+            "grade_css": grade_css,
+            "standing_desc": standing_desc,
+            "hours_studied": hours_studied,
+            "sleep_hours": sleep_hours,
+            "sample_papers": sample_papers,
+            "delta_study": delta_study,
+            "delta_papers": delta_papers
+        }
+
+    # Render results only if prediction has been submitted
+    if "single_prediction" in st.session_state:
+        res = st.session_state["single_prediction"]
+        
+        st.markdown("---")
+        st.markdown("### 🎯 Prediction Results")
+        
+        res_col1, res_col2, res_col3 = st.columns([1, 1, 1])
+        
+        with res_col1:
+            st.markdown(f"""
+            <div class="metric-card">
+                <span style="font-size: 0.95rem; color: #94A3B8; font-weight: 600;">PREDICTED PERFORMANCE INDEX</span>
+                <div class="score-badge">{res['pred_score']:.1f}<span style="font-size: 1.2rem; color: #94A3B8;">/100</span></div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with res_col2:
+            st.markdown(f"""
+            <div class="metric-card">
+                <span style="font-size: 0.95rem; color: #94A3B8; font-weight: 600;">ESTIMATED LETTER GRADE</span><br><br>
+                <span class="grade-pill {res['grade_css']}">{res['letter_grade']}</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with res_col3:
+            st.markdown(f"""
+            <div class="metric-card">
+                <span style="font-size: 0.95rem; color: #94A3B8; font-weight: 600;">ACADEMIC STANDING</span>
+                <div style="font-size: 1.15rem; font-weight: 700; margin-top: 1rem; color: #E2E8F0;">
+                    {res['standing_desc']}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Progress bar
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.progress(res["pred_score"] / 100.0)
+
+        # Live Engineered Features Card
+        st.markdown("#### 🔬 Custom Engineered Metrics")
+        eng_col1, eng_col2, eng_col3 = st.columns(3)
+        
+        with eng_col1:
+            ratio_val = res["engineered_input"]["Study_to_Sleep_Ratio"].iloc[0]
+            st.markdown(f"""
+            <div class="eng-badge">
+                <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">⚖️ STUDY-TO-SLEEP RATIO</span>
+                <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{ratio_val:.2f}</div>
+                <span style="font-size: 0.8rem; color: #CBD5E1;">{'Balanced ratio' if 0.5 <= ratio_val <= 1.0 else 'High intensity / low sleep' if ratio_val > 1.0 else 'Light study load'}</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with eng_col2:
+            dens_val = res["engineered_input"]["Practice_Density"].iloc[0]
+            st.markdown(f"""
+            <div class="eng-badge">
+                <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">📄 PRACTICE DENSITY</span>
+                <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{dens_val:.2f}</div>
+                <span style="font-size: 0.8rem; color: #CBD5E1;">Mock tests / study hour ratio</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with eng_col3:
+            eff_val = res["engineered_input"]["Study_Effort_Score"].iloc[0]
+            st.markdown(f"""
+            <div class="eng-badge">
+                <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">⚡ COMPOSITE EFFORT SCORE</span>
+                <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{eff_val:.2f} <span style="font-size: 0.9rem; color: #94A3B8;">/ 9.4</span></div>
+                <span style="font-size: 0.8rem; color: #CBD5E1;">Combined study + testing intensity</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Personalized Recommendations Box
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("#### 💡 Personalized Study Plan & Score Boost Insights")
+
+        rec_col1, rec_col2 = st.columns(2)
+        with rec_col1:
+            if res["hours_studied"] < 7:
+                st.info(f"📈 **Study Habit Boost:** Increasing daily study time by **2 hours** (to {res['hours_studied'] + 2} hrs) is predicted to increase performance by **+{res['delta_study']:.1f} points**.")
+            else:
+                st.success("🌟 **Study Discipline:** Current study hours are already strong! Maintain consistency without burnout.")
+                
+        with rec_col2:
+            if res["sleep_hours"] < 7:
+                st.warning(f"😴 **Sleep Hygiene:** The student is sleeping {res['sleep_hours']} hrs. Prioritizing **7-8 hours** of sleep enhances memory consolidation and prevents exam fatigue.")
+            else:
+                st.info(f"📄 **Mock Practice Boost:** Practicing **3 more question papers** is estimated to raise predicted score by **+{res['delta_papers']:.1f} points**.")
+    else:
+        st.markdown("---")
+        st.info("👈 Set the student's study inputs above and click **'🚀 Calculate Predicted Score'** to generate the prediction.")
 
 # -------------------------------------------------------------
 # TAB 2: Batch CSV Prediction
