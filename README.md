@@ -1,9 +1,12 @@
 # 🎓 Student Academic Performance Predictor
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.9.0-orange.svg)](https://scikit-learn.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+> 🌐 **Live Demo:** Try the online web app directly in your browser:  
+> 👉 **[Launch Student Performance Predictor on Streamlit Cloud](https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/)**
 
 An end-to-end beginner-friendly Machine Learning project and interactive **Streamlit web application** that predicts a student's academic performance index based on study habits, previous exam scores, sleep patterns, practice tests, and extracurricular activities.
 
@@ -106,11 +109,12 @@ You can host and share this machine learning project online so anyone can use it
 ### Step 2: Deploy to Streamlit Cloud
 1. Go to [share.streamlit.io](https://share.streamlit.io/) and log in with your GitHub account.
 2. Click **"New app"**.
-3. Select your repository: `YOUR_USERNAME/student-performance-predictor`.
+3. Select repository: `mujahith9025/student-Performance-Predictor`.
 4. Set **Main file path** to: `app.py`.
 5. Click **"Deploy!"**.
 
-Streamlit will automatically build and host your web application with a live public URL (e.g. `https://student-performance-predictor.streamlit.app/`) that you can add to your portfolio or resume.
+🔗 **Live Public Application:**  
+[https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/](https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/)
 
 ---
 
