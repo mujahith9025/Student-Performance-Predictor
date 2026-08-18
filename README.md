@@ -17,10 +17,14 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 ## 📌 Features & Highlights
 
 - **🔮 Single Student Predictor**: Interactive sliders and dropdowns with real-time score prediction, letter grades (A+, A, B, C, D, F), academic standing indicators, and personalized study boost recommendations.
-- **📂 Batch Prediction (CSV Upload)**: Upload class rosters or cohort CSVs to generate predictions, cohort averages, pass rates, and export results in one click.
+- **🔬 Custom Feature Engineering**:
+  - ⚖️ **Study-to-Sleep Ratio**: $\frac{\text{Hours Studied}}{\text{Sleep Hours}}$ (Work-rest balance metric).
+  - 📄 **Practice Density**: $\frac{\text{Mock Papers Practiced}}{\text{Hours Studied} + 1}$ (Active practice intensity).
+  - ⚡ **Study Effort Score**: $(0.6 \times \text{Hours}) + (0.4 \times \text{Mock Papers})$ (Composite academic effort index).
+- **📂 Batch Prediction (CSV Upload)**: Upload class rosters or cohort CSVs to generate predictions, automatically engineer features, and export results in one click.
 - **📊 Model Performance Leaderboard**: Benchmark comparison across 5 models (**Linear Regression, Ridge, Decision Tree, Random Forest, and Gradient Boosting**) with evaluation metrics ($R^2$, MAE, RMSE).
 - **📈 Exploratory Data Analysis (EDA)**: Interactive correlation matrix heatmaps, feature weight charts, and distribution scatter plots powered by Plotly.
-- **☁️ Online Ready**: Optimized for 1-click cloud deployment on **Streamlit Community Cloud**.
+- **☁️ Online Ready**: Deployed live on **Streamlit Community Cloud**.
 
 ---
 
@@ -28,12 +32,16 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 
 - **Dataset Source:** [Kaggle - Student Performance (Multiple Linear Regression)](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression)
 - **Observations:** 10,000 student entries.
-- **Input Variables:**
+- **Base Input Variables:**
   1. `Hours_Studied`: Total hours spent studying per day (1 to 9 hours).
   2. `Previous_Score`: Marks scored in previous examinations (40 to 99).
   3. `Extracurricular_Activities`: Participation in extracurricular activities (`Yes` / `No`).
   4. `Sleep_Hours`: Average sleep duration per day (4 to 9 hours).
   5. `Sample_Question_Papers_Practiced`: Number of practice mock papers solved (0 to 9).
+- **Custom Engineered Variables:**
+  6. `Study_to_Sleep_Ratio`
+  7. `Practice_Density`
+  8. `Study_Effort_Score`
 - **Target Output:**
   - `Performance_Index`: Overall academic performance score (10.0 to 100.0).
 

@@ -20,6 +20,8 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
+from src.data_loader import engineer_features, NUMERICAL_FEATURES, CATEGORICAL_FEATURES
+
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pkl")
 METRICS_PATH = os.path.join(PROJECT_ROOT, "models", "metrics.json")
 DATASET_PATH = os.path.join(PROJECT_ROOT, "data", "Student_Performance.csv")
@@ -90,6 +92,14 @@ st.markdown("""
     .grade-D { background-color: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid #EF4444; }
     .grade-F { background-color: rgba(220, 38, 38, 0.3); color: #FCA5A5; border: 1px solid #DC2626; }
     
+    .eng-badge {
+        background: rgba(14, 165, 233, 0.15);
+        border: 1px solid rgba(14, 165, 233, 0.3);
+        border-radius: 10px;
+        padding: 0.85rem;
+        text-align: center;
+    }
+
     .stTabs [data-baseweb="tab-list"] {
         gap: 12px;
     }
@@ -114,9 +124,11 @@ def load_model_artifacts():
 
 @st.cache_data
 def load_dataset():
-    """Load cached dataset for EDA."""
+    """Load cached dataset and apply feature engineering for EDA."""
     if os.path.exists(DATASET_PATH):
         df = pd.read_csv(DATASET_PATH)
+        df.columns = [c.strip().replace(" ", "_") for c in df.columns]
+        df = engineer_features(df)
         return df
     return None
 
@@ -142,7 +154,7 @@ model, metrics = load_model_artifacts()
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/graduation-cap.png", width=110)
     st.title("🎓 Student AI Predictor")
-    st.caption("Powered by Machine Learning & Real Kaggle Data")
+    st.caption("Powered by Machine Learning & Feature Engineering")
     
     st.markdown("---")
     
@@ -157,22 +169,26 @@ with st.sidebar:
             st.metric("MAE", f"±{metrics['best_model_metrics']['test_mae']:.2f}")
             
     st.markdown("---")
-    st.markdown("### 📌 Dataset Info")
+    st.markdown("### 🔬 Custom Feature Engineering")
     st.markdown("""
-    - **Source:** [Kaggle: Student Performance](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression)
-    - **Real Observations:** 10,000 students
-    - **Variables:** Study Hours, Previous Scores, Sleep, Practice Papers, Extracurriculars
+    - **Study-to-Sleep Ratio:** `Hours_Studied / Sleep_Hours`
+    - **Practice Density:** `Papers / (Hours + 1)`
+    - **Effort Score:** `(0.6 × Hours) + (0.4 × Papers)`
     """)
     
     st.markdown("---")
-    st.markdown("### 🚀 Deployment Ready")
-    st.markdown("This Streamlit web app is ready for local execution and 1-click cloud deployment via **Streamlit Community Cloud**.")
+    st.markdown("### 📌 Dataset Info")
+    st.markdown("""
+    - **Source:** [Kaggle: Student Performance](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression)
+    - **Observations:** 10,000 students
+    - **Target:** Performance Index (10–100)
+    """)
 
 # Main Header Banner
 st.markdown("""
 <div class="main-header">
     <h1>🎓 Student Academic Performance Predictor</h1>
-    <p>Predict student exam outcomes, analyze study habits, explore real Kaggle data insights, and generate personalized academic recommendations.</p>
+    <p>Predict student exam outcomes with Custom Feature Engineering, explore model benchmarks, analyze cohort rosters, and generate personalized study action plans.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -193,7 +209,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # -------------------------------------------------------------
 with tab1:
     st.subheader("Interactive Student Outcome Prediction")
-    st.write("Adjust the student's study routines and background below to get real-time score predictions and tailored recommendations.")
+    st.write("Adjust the student's study routines and background below to get real-time score predictions, custom engineered metrics, and tailored recommendations.")
     
     col_input1, col_input2 = st.columns([1, 1], gap="large")
     
@@ -241,10 +257,10 @@ with tab1:
         )
         
         st.markdown("<br>", unsafe_allow_html=True)
-        predict_btn = st.button("🚀 Calculate Predicted Score", type="primary", use_container_width=True)
+        predict_btn = st.button("🚀 Calculate Predicted Score", type="primary", width="stretch")
 
-    # Input DataFrame
-    input_data = pd.DataFrame([{
+    # Base Input DataFrame
+    raw_input_data = pd.DataFrame([{
         "Hours_Studied": hours_studied,
         "Previous_Score": previous_score,
         "Sleep_Hours": sleep_hours,
@@ -252,9 +268,11 @@ with tab1:
         "Extracurricular_Activities": extracurricular
     }])
 
+    # Apply Custom Feature Engineering
+    engineered_input = engineer_features(raw_input_data)
+
     # Prediction
-    pred_score = float(model.predict(input_data)[0])
-    # Clip between 10 and 100 for safety
+    pred_score = float(model.predict(engineered_input)[0])
     pred_score = max(10.0, min(100.0, pred_score))
     letter_grade, grade_css, standing_desc = compute_grade_and_status(pred_score)
 
@@ -289,22 +307,57 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
 
-    # Progress bar visualization
+    # Progress bar
     st.markdown("<br>", unsafe_allow_html=True)
     st.progress(pred_score / 100.0)
 
+    # Live Engineered Features Card
+    st.markdown("#### 🔬 Custom Engineered Metrics (Real-Time)")
+    eng_col1, eng_col2, eng_col3 = st.columns(3)
+    
+    with eng_col1:
+        ratio_val = engineered_input["Study_to_Sleep_Ratio"].iloc[0]
+        st.markdown(f"""
+        <div class="eng-badge">
+            <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">⚖️ STUDY-TO-SLEEP RATIO</span>
+            <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{ratio_val:.2f}</div>
+            <span style="font-size: 0.8rem; color: #CBD5E1;">{'Balanced ratio' if 0.5 <= ratio_val <= 1.0 else 'High intensity / low sleep' if ratio_val > 1.0 else 'Light study load'}</span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with eng_col2:
+        dens_val = engineered_input["Practice_Density"].iloc[0]
+        st.markdown(f"""
+        <div class="eng-badge">
+            <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">📄 PRACTICE DENSITY</span>
+            <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{dens_val:.2f}</div>
+            <span style="font-size: 0.8rem; color: #CBD5E1;">Mock tests / study hour ratio</span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with eng_col3:
+        eff_val = engineered_input["Study_Effort_Score"].iloc[0]
+        st.markdown(f"""
+        <div class="eng-badge">
+            <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">⚡ COMPOSITE EFFORT SCORE</span>
+            <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{eff_val:.2f} <span style="font-size: 0.9rem; color: #94A3B8;">/ 9.4</span></div>
+            <span style="font-size: 0.8rem; color: #CBD5E1;">Combined study + testing intensity</span>
+        </div>
+        """, unsafe_allow_html=True)
+
     # Personalized Recommendations Box
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("#### 💡 Personalized Study Plan & Score Boost Insights")
     
     # Calculate what-if scenario (e.g. +2 study hours, +2 practice papers)
-    boost_study = input_data.copy()
+    boost_study = raw_input_data.copy()
     boost_study["Hours_Studied"] = min(9, hours_studied + 2)
-    boost_score_study = float(model.predict(boost_study)[0])
+    boost_score_study = float(model.predict(engineer_features(boost_study))[0])
     delta_study = max(0.0, boost_score_study - pred_score)
     
-    boost_papers = input_data.copy()
+    boost_papers = raw_input_data.copy()
     boost_papers["Sample_Question_Papers_Practiced"] = min(10, sample_papers + 3)
-    boost_score_papers = float(model.predict(boost_papers)[0])
+    boost_score_papers = float(model.predict(engineer_features(boost_papers))[0])
     delta_papers = max(0.0, boost_score_papers - pred_score)
 
     rec_col1, rec_col2 = st.columns(2)
@@ -325,7 +378,7 @@ with tab1:
 # -------------------------------------------------------------
 with tab2:
     st.subheader("📂 Batch Prediction for Classrooms & Cohorts")
-    st.write("Upload a CSV file containing multiple students to generate predictions, grade summaries, and exportable reports in one click.")
+    st.write("Upload a CSV file containing multiple students. Custom engineered features will be **automatically computed** during batch processing.")
     
     # Sample download or demo load
     demo_col1, demo_col2 = st.columns([1, 2])
@@ -338,7 +391,7 @@ with tab2:
                 data=csv_sample_bytes,
                 file_name="student_sample_template.csv",
                 mime="text/csv",
-                use_container_width=True
+                width="stretch"
             )
             
     uploaded_file = st.file_uploader(
@@ -368,12 +421,14 @@ with tab2:
         if missing_cols:
             st.error(f"Missing required columns in CSV: {missing_cols}")
         else:
-            # Generate predictions
-            features = df_to_predict[required_cols].copy()
-            preds = model.predict(features)
+            # Apply feature engineering automatically
+            df_engineered = engineer_features(df_to_predict)
+            
+            # Predict
+            preds = model.predict(df_engineered)
             preds = np.clip(preds, 10.0, 100.0)
             
-            result_df = df_to_predict.copy()
+            result_df = df_engineered.copy()
             result_df["Predicted_Score"] = np.round(preds, 1)
             result_df["Grade"] = [compute_grade_and_status(s)[0] for s in result_df["Predicted_Score"]]
             result_df["Status"] = [compute_grade_and_status(s)[2] for s in result_df["Predicted_Score"]]
@@ -397,11 +452,11 @@ with tab2:
                 template="plotly_dark"
             )
             fig_batch.update_layout(margin=dict(l=20, r=20, t=40, b=20), height=320)
-            st.plotly_chart(fig_batch, use_container_width=True)
+            st.plotly_chart(fig_batch, width="stretch")
             
             # Data table
-            st.markdown("#### 📋 Detailed Predictions Table")
-            st.dataframe(result_df, use_container_width=True, height=300)
+            st.markdown("#### 📋 Detailed Predictions Table (with Engineered Features)")
+            st.dataframe(result_df, width="stretch", height=320)
             
             # Download predicted CSV
             csv_output = result_df.to_csv(index=False).encode('utf-8')
@@ -417,8 +472,8 @@ with tab2:
 # TAB 3: Model Performance & Explainability
 # -------------------------------------------------------------
 with tab3:
-    st.subheader("📊 Model Benchmarking & Feature Explainability")
-    st.write("Examine how the machine learning algorithms compare against each other on the 10,000 real Kaggle student records.")
+    st.subheader("📊 Model Benchmarking & Feature Weights")
+    st.write("Examine how the machine learning algorithms compare against each other with the addition of **Custom Engineered Features**.")
     
     if metrics:
         # Comparison Table
@@ -438,13 +493,13 @@ with tab3:
                               "RMSE (Test)": "{:.4f}",
                               "MSE (Test)": "{:.4f}"
                           }),
-            use_container_width=True
+            width="stretch"
         )
         
         m_col1, m_col2 = st.columns(2)
         
         with m_col1:
-            st.markdown("#### 🔍 Feature Impact / Importance Weights")
+            st.markdown("#### 🔍 Feature Weights (Base + Engineered)")
             feat_dict = metrics.get("feature_importances", {})
             if feat_dict:
                 feat_df = pd.DataFrame({
@@ -462,9 +517,9 @@ with tab3:
                     color_continuous_scale="Blues",
                     template="plotly_dark"
                 )
-                fig_feat.update_layout(height=350, margin=dict(l=20, r=20, t=40, b=20))
-                st.plotly_chart(fig_feat, use_container_width=True)
-                st.caption("📌 **Insight:** Previous Exam Score and Study Hours have the strongest positive correlation with final performance.")
+                fig_feat.update_layout(height=380, margin=dict(l=20, r=20, t=40, b=20))
+                st.plotly_chart(fig_feat, width="stretch")
+                st.caption("📌 **Insight:** Previous Exam Score, Study Hours, and the custom Study Effort Score are leading drivers of academic performance.")
                 
         with m_col2:
             st.markdown("#### 🎯 Actual vs. Predicted (Test Set)")
@@ -500,25 +555,25 @@ with tab3:
                     xaxis_title="Actual Score",
                     yaxis_title="Predicted Score",
                     template="plotly_dark",
-                    height=350,
+                    height=380,
                     margin=dict(l=20, r=20, t=40, b=20)
                 )
-                st.plotly_chart(fig_scatter, use_container_width=True)
+                st.plotly_chart(fig_scatter, width="stretch")
 
 # -------------------------------------------------------------
 # TAB 4: Dataset Explorer (EDA)
 # -------------------------------------------------------------
 with tab4:
     st.subheader("📈 Kaggle Dataset Exploration & Visual Analytics")
-    st.write("Explore patterns, correlations, and distributions across the **10,000 real student records** from Kaggle.")
+    st.write("Explore patterns, correlations, and distributions across the **10,000 real student records** from Kaggle, including all newly engineered features.")
     
     df_raw = load_dataset()
     if df_raw is not None:
         eda_col1, eda_col2 = st.columns([1, 1])
         
         with eda_col1:
-            st.markdown("#### 📐 Statistical Summary")
-            st.dataframe(df_raw.describe().T, use_container_width=True)
+            st.markdown("#### 📐 Statistical Summary (with Engineered Features)")
+            st.dataframe(df_raw.describe().T, width="stretch")
             
         with eda_col2:
             st.markdown("#### 🔥 Correlation Heatmap")
@@ -530,21 +585,23 @@ with tab4:
                 corr,
                 text_auto=".2f",
                 color_continuous_scale="Viridis",
-                title="Feature Correlation Matrix",
+                title="Full Feature Correlation Matrix",
                 template="plotly_dark"
             )
-            fig_corr.update_layout(height=320, margin=dict(l=20, r=20, t=40, b=20))
-            st.plotly_chart(fig_corr, use_container_width=True)
+            fig_corr.update_layout(height=360, margin=dict(l=20, r=20, t=40, b=20))
+            st.plotly_chart(fig_corr, width="stretch")
             
         st.markdown("---")
         st.markdown("#### 🔍 Interactive Relationship Inspector")
         
+        all_numeric_cols = [c for c in df_raw.columns if np.issubdtype(df_raw[c].dtype, np.number) and c != "Performance_Index"]
+        
         sc_col1, sc_col2 = st.columns(2)
         with sc_col1:
             x_axis = st.selectbox(
-                "Select X-Axis Feature:",
-                options=["Hours_Studied", "Previous_Score", "Sleep_Hours", "Sample_Question_Papers_Practiced"],
-                index=0
+                "Select X-Axis Feature (Base or Engineered):",
+                options=all_numeric_cols,
+                index=all_numeric_cols.index("Study_Effort_Score") if "Study_Effort_Score" in all_numeric_cols else 0
             )
         with sc_col2:
             color_var = st.selectbox(
@@ -564,7 +621,7 @@ with tab4:
             template="plotly_dark",
             color_discrete_sequence=["#38BDF8", "#F472B6"]
         )
-        fig_custom.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
-        st.plotly_chart(fig_custom, use_container_width=True)
+        fig_custom.update_layout(height=420, margin=dict(l=20, r=20, t=40, b=20))
+        st.plotly_chart(fig_custom, width="stretch")
     else:
         st.warning("Dataset file not found at `data/Student_Performance.csv`.")
