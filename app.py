@@ -577,8 +577,8 @@ with tab4:
             
         with eda_col2:
             st.markdown("#### 🔥 Correlation Heatmap")
-            # Numeric correlation
-            numeric_df = df_raw.select_dtypes(include=[np.number])
+            # Numeric correlation using standard pandas type selector
+            numeric_df = df_raw.select_dtypes(include=['number'])
             corr = numeric_df.corr()
             
             fig_corr = px.imshow(
@@ -594,14 +594,18 @@ with tab4:
         st.markdown("---")
         st.markdown("#### 🔍 Interactive Relationship Inspector")
         
-        all_numeric_cols = [c for c in df_raw.columns if np.issubdtype(df_raw[c].dtype, np.number) and c != "Performance_Index"]
+        # Extract numeric columns safely across all Pandas/NumPy versions
+        all_numeric_cols = [c for c in df_raw.select_dtypes(include=['number']).columns if c != "Performance_Index"]
+        if not all_numeric_cols:
+            all_numeric_cols = NUMERICAL_FEATURES
         
         sc_col1, sc_col2 = st.columns(2)
         with sc_col1:
+            default_index = all_numeric_cols.index("Study_Effort_Score") if "Study_Effort_Score" in all_numeric_cols else 0
             x_axis = st.selectbox(
                 "Select X-Axis Feature (Base or Engineered):",
                 options=all_numeric_cols,
-                index=all_numeric_cols.index("Study_Effort_Score") if "Study_Effort_Score" in all_numeric_cols else 0
+                index=default_index
             )
         with sc_col2:
             color_var = st.selectbox(
