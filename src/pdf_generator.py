@@ -32,11 +32,14 @@ def create_student_pdf_report(
     habit_balance_score: float,
     shap_contributions: dict,
     shap_base_value: float,
-    recommendations: list
+    recommendations: list,
+    view_mode: str = "Student Mode",
+    teacher_notes: str = None,
+    risk_flags: list = None
 ) -> bytes:
     """
     Generates a professional academic diagnostic & prediction report as a PDF in memory.
-    Returns bytes suitable for Streamlit st.download_button.
+    Supports both Student Perspective and Teacher / Counselor Perspective with clinical notes.
     """
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -56,6 +59,8 @@ def create_student_pdf_report(
     muted_text = colors.HexColor("#64748B")
     card_bg = colors.HexColor("#F8FAFC")
     border_color = colors.HexColor("#CBD5E1")
+    alert_bg = colors.HexColor("#FEF2F2")
+    alert_border = colors.HexColor("#EF4444")
     
     title_style = ParagraphStyle(
         "DocTitle",
@@ -130,9 +135,11 @@ def create_student_pdf_report(
     
     # 1. Header Banner Table
     date_str = datetime.now().strftime("%B %d, %Y")
+    report_tag = "👩‍🏫 Educator Academic Diagnostic & Intervention Report" if "Teacher" in view_mode else "🧑‍🎓 Student Academic Outcome & Habit Report"
+    
     header_data = [
         [
-            Paragraph("<b>🎓 Student Academic Performance Predictor</b><br/><font color='#64748B' size=8>AI-Driven Outcome Prediction & Habit Diagnostic Report</font>", title_style),
+            Paragraph(f"<b>🎓 Student Academic Performance Predictor</b><br/><font color='#0284C7' size=8><b>{report_tag}</b></font>", title_style),
             Paragraph(f"<b>Report Date:</b> {date_str}<br/><b>Discipline:</b> {subject}<br/><b>Student:</b> {student_name}", subtitle_style)
         ]
     ]
@@ -144,6 +151,19 @@ def create_student_pdf_report(
     story.append(header_table)
     story.append(Spacer(1, 6))
     story.append(HRFlowable(width="100%", thickness=1.5, color=secondary_color, spaceBefore=2, spaceAfter=6))
+    
+    # Risk Flags (if in Teacher Mode)
+    if risk_flags and len(risk_flags) > 0 and "Teacher" in view_mode:
+        flags_text = "<b>🚨 Educator Risk & Early Warning Flags:</b><br/>" + "<br/>".join([f"• <font color='#DC2626'>{flag}</font>" for flag in risk_flags])
+        flag_table = Table([[Paragraph(flags_text, body_style)]], colWidths=[540])
+        flag_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), alert_bg),
+            ('BOX', (0,0), (-1,-1), 1, alert_border),
+            ('TOPPADDING', (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ]))
+        story.append(flag_table)
+        story.append(Spacer(1, 6))
     
     # 2. Executive Summary Metrics Cards
     story.append(Paragraph("<b>1. Predicted Academic Outcome & Confidence Bounds</b>", section_heading))
@@ -266,11 +286,25 @@ def create_student_pdf_report(
     story.append(Spacer(1, 8))
     
     # 5. Personalized Recommendations & Action Plan
-    story.append(Paragraph("<b>4. Personalized Study Action Plan & Improvement Recommendations</b>", section_heading))
+    rec_title = "<b>4. Educator Intervention Action Plan & Counseling Roadmap</b>" if "Teacher" in view_mode else "<b>4. Personalized Study Action Plan & Improvement Recommendations</b>"
+    story.append(Paragraph(rec_title, section_heading))
     for rec in recommendations:
         rec_p = Paragraph(f"• {rec}", body_style)
         story.append(rec_p)
         story.append(Spacer(1, 2.5))
+        
+    # Teacher Custom Advisory Notes (if present)
+    if teacher_notes and teacher_notes.strip():
+        story.append(Spacer(1, 6))
+        notes_html = f"<b>👩‍🏫 Educator Counseling & Diagnostic Notes:</b><br/>{teacher_notes.strip()}"
+        notes_table = Table([[Paragraph(notes_html, body_style)]], colWidths=[540])
+        notes_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#EFF6FF")),
+            ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#3B82F6")),
+            ('TOPPADDING', (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ]))
+        story.append(notes_table)
         
     story.append(Spacer(1, 8))
     

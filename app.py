@@ -10,7 +10,7 @@ import streamlit as st
 
 # Setup page config
 st.set_page_config(
-    page_title="Student Performance Predictor | Target Score Solver & PDF Reports",
+    page_title="Student Performance Predictor | Multi-Subject AI & Teacher-Student Modes",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -90,14 +90,23 @@ st.markdown("""
         box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
     }
     
-    .main-header h1 {
+    .main-header-teacher {
+        background: linear-gradient(135deg, #064E3B 0%, #059669 50%, #0D9488 100%);
+        padding: 1.8rem 2rem;
+        border-radius: 16px;
+        color: white;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.3);
+    }
+    
+    .main-header h1, .main-header-teacher h1 {
         font-size: 2.1rem;
         font-weight: 800;
         margin-bottom: 0.3rem;
         color: #ffffff;
     }
     
-    .main-header p {
+    .main-header p, .main-header-teacher p {
         font-size: 1.02rem;
         opacity: 0.92;
         margin-bottom: 0;
@@ -112,6 +121,18 @@ st.markdown("""
         font-weight: 700;
         font-size: 0.9rem;
         margin-top: 0.5rem;
+    }
+    
+    .perspective-pill {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        padding: 0.3rem 0.85rem;
+        border-radius: 9999px;
+        font-weight: 800;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        margin-left: 0.5rem;
     }
     
     .metric-card {
@@ -166,6 +187,14 @@ st.markdown("""
     .pathway-card:hover {
         transform: translateY(-3px);
         border-color: #38BDF8;
+    }
+    
+    .teacher-alert-box {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
     }
 
     .stTabs [data-baseweb="tab-list"] {
@@ -236,7 +265,16 @@ if not subject_models_bundle:
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/graduation-cap.png", width=110)
     st.title("🎓 Student AI Predictor")
-    st.caption("Target Score Solver, SHAP & PDF Reports")
+    
+    # 0. Teacher vs Student View Toggle
+    st.markdown("### 🎭 Interface Perspective")
+    view_mode = st.radio(
+        "Select User Persona Mode:",
+        options=["🧑‍🎓 Student Mode", "👩‍🏫 Teacher & Counselor Mode"],
+        index=0,
+        help="Switch between Student Mode (motivational & goal-oriented) and Teacher Mode (clinical diagnostics, early warning flags & intervention notes)."
+    )
+    is_teacher = "Teacher" in view_mode
     
     st.markdown("---")
     
@@ -300,29 +338,34 @@ with st.sidebar:
         with col2:
             st.metric("MAE", f"±{model_bench.get('test_mae', 1.65):.2f}")
 
-# Main Header Banner
+# Main Header Banner (Changes dynamically based on Student vs Teacher perspective)
+header_class = "main-header-teacher" if is_teacher else "main-header"
+header_title_prefix = "👩‍🏫 Educator Diagnostics & Academic Advisory" if is_teacher else f"{active_subject_meta['icon']} Student Academic Performance Predictor"
+header_subtext = "Conduct classroom risk diagnostics, prescribe target roadmaps, and generate counselor intervention PDF reports." if is_teacher else f"Predict scores, solve target goals, inspect SHAP Explainability & export personalized PDF reports for <b>{selected_subject}</b>."
+
 st.markdown(f"""
-<div class="main-header">
-    <h1>{active_subject_meta['icon']} Student Academic Performance Predictor</h1>
-    <p>Predict scores, run the <b>Reverse Goal Simulator ("Target Score Solver")</b>, inspect SHAP Explainability & export <b>PDF Reports</b> for <b>{selected_subject}</b>.</p>
+<div class="{header_class}">
+    <h1>{header_title_prefix}</h1>
+    <p>{header_subtext}</p>
     <div class="subject-pill">{active_subject_meta['icon']} Active Subject: {selected_subject} ({active_subject_meta['badge']})</div>
+    <div class="perspective-pill">{view_mode}</div>
 </div>
 """, unsafe_allow_html=True)
 
 # Multi-Tab Layout
 tab1, tab_goal, tab2, tab3, tab4 = st.tabs([
-    "🔮 Single Student Predictor",
-    "🎯 Reverse Goal Simulator",
-    "📂 Batch CSV Prediction",
+    "🔮 Single Student Predictor" if not is_teacher else "🔮 Individual Student Diagnostic",
+    "🎯 Reverse Goal Simulator" if not is_teacher else "🎯 Target Score Prescriptor",
+    "📂 Batch CSV Prediction" if not is_teacher else "📂 Cohort & Roster Risk Matrix",
     "📊 Benchmarks & Multi-Subject Matrix",
     "📈 Dataset Explorer (EDA & Habit Footprint)"
 ])
 
 # -------------------------------------------------------------
-# TAB 1: Single Student Predictor
+# TAB 1: Single Student Predictor / Diagnostic
 # -------------------------------------------------------------
 with tab1:
-    st.subheader(f"{active_subject_meta['icon']} {selected_subject} — Student Outcome Prediction")
+    st.subheader(f"{'👩‍🏫 Student Diagnostic Assessment' if is_teacher else '🔮 Student Outcome Prediction'} — {selected_subject}")
     st.write(f"Inference Model: **`{selected_model_name}`** | Confidence Level: **`{confidence_level_str}`** (Margin ±{cur_margin:.2f} pts).")
     
     with st.form(key=f"student_prediction_form_{selected_subject}"):
@@ -377,8 +420,19 @@ with tab1:
                 help="Sports, clubs, arts, volunteering, etc."
             )
             
+            # Teacher-specific Custom Notes Input
+            teacher_input_notes = ""
+            if is_teacher:
+                st.markdown("#### 📝 Educator Counseling Remarks (Included in PDF)")
+                teacher_input_notes = st.text_area(
+                    "Teacher / Counselor Advisory Remarks:",
+                    value="Student displays solid conceptual potential. Recommend increasing structured mock exam practice under timed conditions.",
+                    height=70
+                )
+            
             st.markdown("<br>", unsafe_allow_html=True)
-            predict_btn = st.form_submit_button(f"🚀 Predict {selected_subject} Score & Generate Insights", type="primary", width="stretch")
+            submit_label = f"🚀 Run Diagnostic & Generate Intervention Report" if is_teacher else f"🚀 Predict {selected_subject} Score & Generate Insights"
+            predict_btn = st.form_submit_button(submit_label, type="primary", width="stretch")
 
     # If user clicked calculate, compute and store in session_state
     if predict_btn:
@@ -424,6 +478,20 @@ with tab1:
         
         habit_balance_score = round((dim_study + dim_foundation + dim_practice + dim_sleep + dim_effort + dim_ec) / 6.0, 1)
 
+        # Teacher Mode Risk Flags
+        risk_flags = []
+        if pred_score < 50:
+            risk_flags.append("🚨 High Academic Risk: Projected score is below passing threshold (50/100).")
+        elif pred_score < 60:
+            risk_flags.append("⚠️ Borderline Standing: At risk of underperforming without immediate intervention.")
+            
+        if sleep_hours < 6:
+            risk_flags.append("😴 Severe Sleep Deficit: Sleeping less than 6 hours per day impairs cognitive retention.")
+        if previous_score < 55:
+            risk_flags.append("📝 Foundational Deficit: Low previous marks indicate need for fundamental concept remediation.")
+        if hours_studied > 5 and sample_papers < 2:
+            risk_flags.append("📄 Practice Imbalance: High reading hours but low active test practice.")
+
         st.session_state["single_prediction"] = {
             "student_name": student_name_input.strip() or "Student",
             "subject": selected_subject,
@@ -448,6 +516,8 @@ with tab1:
             "extracurricular": extracurricular,
             "delta_study": delta_study,
             "delta_papers": delta_papers,
+            "teacher_notes": teacher_input_notes,
+            "risk_flags": risk_flags,
             "radar_dims": {
                 "Study Time": dim_study,
                 "Exam Foundation": dim_foundation,
@@ -463,11 +533,19 @@ with tab1:
     if "single_prediction" in st.session_state:
         res = st.session_state["single_prediction"]
         
-        # If user changed confidence level or subject, recompute bounds dynamically
+        # Recompute bounds dynamically if confidence slider changed
         res_lower, res_upper, res_margin = get_interval_bounds(res["pred_score"], confidence_level_str, residual_std)
         
-        st.markdown("---")
-        st.markdown(f"### 🎯 Prediction Results for {res.get('student_name', 'Student')} in {res.get('subject', selected_subject)} (via `{res.get('model_used', selected_model_name)}`)")
+        # Teacher Mode Risk Banner
+        if is_teacher and res.get("risk_flags"):
+            st.markdown(f"""
+            <div class="teacher-alert-box">
+                <h4 style="color: #EF4444; margin-top: 0; font-size: 1.1rem;">🚨 Educator Risk & Early Warning Assessment</h4>
+                {'<br>'.join([f"• <b>{flag}</b>" for flag in res['risk_flags']])}
+            </div>
+            """, unsafe_allow_html=True)
+            
+        st.markdown(f"### 🎯 Results for {res.get('student_name', 'Student')} in {res.get('subject', selected_subject)} (via `{res.get('model_used', selected_model_name)}`)")
         
         res_col1, res_col2, res_col3, res_col4 = st.columns([1, 1, 1, 1])
         
@@ -693,9 +771,9 @@ with tab1:
             else:
                 st.success("🌟 All attributes contributed positively above cohort average!")
 
-        # Personalized Recommendations Box
+        # Personalized Recommendations / Teacher Intervention Box
         st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown(f"#### 💡 Personalized Study Plan for {selected_subject}")
+        st.markdown(f"#### {'📋 Educator Intervention Action Plan' if is_teacher else '💡 Personalized Study Plan'}")
 
         recs_list = []
         rec_col1, rec_col2 = st.columns(2)
@@ -752,13 +830,17 @@ with tab1:
             habit_balance_score=res.get("habit_balance_score", 75.0),
             shap_contributions=contribs,
             shap_base_value=base_val,
-            recommendations=recs_list
+            recommendations=recs_list,
+            view_mode=view_mode,
+            teacher_notes=res.get("teacher_notes", ""),
+            risk_flags=res.get("risk_flags", [])
         )
         
         pdf_col1, pdf_col2 = st.columns([1, 2])
         with pdf_col1:
+            report_btn_name = "📥 Download Educator Diagnostic Report (PDF)" if is_teacher else "📥 Download Official Academic Report (PDF)"
             st.download_button(
-                label="📥 Download Official Academic Report (PDF)",
+                label=report_btn_name,
                 data=pdf_bytes,
                 file_name=f"{res.get('student_name', 'student').lower().replace(' ', '_')}_{selected_subject.lower().replace(' ', '_')}_report.pdf",
                 mime="application/pdf",
@@ -766,18 +848,18 @@ with tab1:
                 width="stretch"
             )
         with pdf_col2:
-            st.caption("✅ **Includes:** Executive Prediction Summary, 6-D Habit Diagnostics, Confidence Intervals, SHAP Attribution Matrix, and Personalized Action Plan.")
+            st.caption("✅ **Includes:** Executive Prediction Summary, 6-D Habit Diagnostics, Confidence Intervals, SHAP Attribution Matrix, Educator Remarks, and Action Plan.")
 
     else:
         st.markdown("---")
-        st.info(f"👈 Set the student's study inputs above and click **'🚀 Predict {selected_subject} Score & Generate Insights'** to generate the prediction.")
+        st.info(f"👈 Set the student's study inputs above and click **'🚀 {'Run Diagnostic' if is_teacher else 'Predict Score'}'** to generate the prediction.")
 
 # -------------------------------------------------------------
 # TAB 2: Reverse Goal Simulator ("Target Score Solver")
 # -------------------------------------------------------------
 with tab_goal:
-    st.subheader(f"🎯 Reverse Goal Simulator / Target Score Solver ({selected_subject})")
-    st.write("Specify your **desired target score or letter grade** below. The AI inverse solver will calculate the **optimal combinations of study hours, mock tests, and sleep** required to achieve your goal.")
+    st.subheader(f"🎯 {'Prescribe Study Target & Roadmap' if is_teacher else 'Reverse Goal Simulator / Target Score Solver'} ({selected_subject})")
+    st.write(f"{'Educator goal prescriber: set target benchmarks for the student and generate prescription roadmaps.' if is_teacher else 'Specify your desired target score or letter grade below. The AI inverse solver will calculate the optimal combinations of study hours, mock tests, and sleep required to achieve your goal.'}")
     
     # Pre-fill defaults from Tab 1 if available
     s_prev = 75
@@ -812,18 +894,17 @@ with tab_goal:
             goal_curr_ec = st.radio("⚽ Extracurricular Activities:", options=["Yes", "No"], index=0 if s_ec == "Yes" else 1, horizontal=True)
             
             st.markdown("<br>", unsafe_allow_html=True)
-            # Default target is slightly above current
             default_target = min(100, max(60, int(goal_prev_score * 0.95 + 10)))
             target_goal_input = st.slider(
-                "🎯 Desired Target Score (to achieve):",
+                "🎯 Prescribed Target Score (to achieve):" if is_teacher else "🎯 Desired Target Score (to achieve):",
                 min_value=40,
                 max_value=100,
                 value=default_target,
-                help="The exam score you want to achieve on your upcoming assessment."
+                help="The exam score to achieve on the upcoming assessment."
             )
             
             st.markdown("<br>", unsafe_allow_html=True)
-            solve_goal_btn = st.form_submit_button("🚀 Solve Inverse Target Roadmaps", type="primary", width="stretch")
+            solve_goal_btn = st.form_submit_button("🚀 Generate Target Achievement Roadmaps", type="primary", width="stretch")
             
     if solve_goal_btn:
         goal_result = solve_target_score(
@@ -862,9 +943,8 @@ with tab_goal:
         if not g_res["feasible"]:
             st.warning(f"⚠️ **Target Scope Advisory:** {g_res.get('message')}")
         else:
-            st.success(f"✅ **Target Achievable!** To increase your score from **{curr_p:.1f}** to **{t_score:.1f}** (+{gap:.1f} points), select one of the tailored pathways below:")
+            st.success(f"✅ **Target Achievable!** To increase score from **{curr_p:.1f}** to **{t_score:.1f}** (+{gap:.1f} points), review the 3 tailored pathways below:")
             
-        # Display Pathway Strategy Cards
         p_cols = st.columns(len(g_res["pathways"]))
         for i, p in enumerate(g_res["pathways"]):
             with p_cols[i]:
@@ -893,7 +973,6 @@ with tab_goal:
         with rad_cols1:
             rec_pathway = g_res["pathways"][0]
             
-            # Current values
             cur_in = g_data["inputs"]
             cur_r = [
                 min(100, (cur_in["current_hours"] / 9) * 100),
@@ -904,7 +983,6 @@ with tab_goal:
                 85.0 if cur_in["extracurricular"] == "Yes" else 35.0
             ]
             
-            # Target Pathway values
             target_r = [
                 min(100, (rec_pathway["required_hours"] / 9) * 100),
                 min(100, max(0, ((cur_in["previous_score"] - 40) / 60) * 100)),
@@ -950,7 +1028,7 @@ with tab_goal:
             st.plotly_chart(fig_goal_radar, width="stretch")
             
         with rad_cols2:
-            st.markdown("#### 📅 Weekly Study Commitment Schedule")
+            st.markdown("#### 📅 Target Study Commitment Schedule")
             p0 = g_res["pathways"][0]
             st.markdown(f"""
             - **Target Goal:** `{t_score:.1f} / 100`
@@ -983,10 +1061,10 @@ with tab_goal:
             )
 
 # -------------------------------------------------------------
-# TAB 3: Batch CSV Prediction
+# TAB 3: Batch CSV Prediction / Roster Risk Matrix
 # -------------------------------------------------------------
 with tab2:
-    st.subheader(f"📂 {selected_subject} — Batch Prediction with Confidence Intervals")
+    st.subheader(f"📂 {selected_subject} — {'Classroom Cohort & Risk Matrix' if is_teacher else 'Batch CSV Prediction with Confidence Intervals'}")
     st.write(f"Inference Engine: **`{selected_model_name}`** | Discipline: **`{selected_subject}`** | Confidence Level: **`{confidence_level_str}`** (Margin ±{cur_margin:.2f} pts).")
     
     # Sample download or demo load
@@ -1043,6 +1121,16 @@ with tab2:
             result_df["Grade"] = [compute_grade_and_status(s)[0] for s in result_df["Predicted_Score"]]
             result_df["Status"] = [compute_grade_and_status(s)[2] for s in result_df["Predicted_Score"]]
             
+            # Risk Priority Calculation
+            def assign_risk_tier(row):
+                if row["Predicted_Score"] < 50 or row["Previous_Score"] < 50:
+                    return "🚨 High Risk (Urgent Action)"
+                elif row["Predicted_Score"] < 65 or row["Sleep_Hours"] < 6:
+                    return "⚠️ Moderate Risk (Watchlist)"
+                else:
+                    return "🟢 Low Risk (On Track)"
+            result_df["Intervention_Priority"] = result_df.apply(assign_risk_tier, axis=1)
+            
             # Batch Summary Metrics
             st.markdown(f"#### 📊 {selected_subject} Cohort Summary")
             b_col1, b_col2, b_col3, b_col4 = st.columns(4)
@@ -1050,6 +1138,15 @@ with tab2:
             b_col2.metric("Cohort Average Score", f"{result_df['Predicted_Score'].mean():.1f} / 100")
             b_col3.metric("Margin of Error", f"±{batch_margin:.2f} pts")
             b_col4.metric("Pass Rate (Score ≥ 50)", f"{(result_df['Predicted_Score'] >= 50).mean() * 100:.1f}%")
+            
+            # Teacher Risk Distribution Matrix
+            if is_teacher:
+                st.markdown("#### 🚨 Educator Roster Risk Breakdown")
+                risk_counts = result_df["Intervention_Priority"].value_counts()
+                r_col1, r_col2, r_col3 = st.columns(3)
+                r_col1.metric("🚨 High Risk Students", risk_counts.get("🚨 High Risk (Urgent Action)", 0))
+                r_col2.metric("⚠️ Moderate Risk Students", risk_counts.get("⚠️ Moderate Risk (Watchlist)", 0))
+                r_col3.metric("🟢 Low Risk / On Track", risk_counts.get("🟢 Low Risk (On Track)", 0))
             
             fig_batch = px.histogram(
                 result_df,

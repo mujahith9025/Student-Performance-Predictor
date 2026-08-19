@@ -16,6 +16,10 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 
 ## 📌 Features & Highlights
 
+- **🎭 Teacher vs. Student View Toggle**:
+  - Interactive persona switcher adapting the application layout, clinical diagnostics, and action roadmaps:
+    - 🧑‍🎓 **Student Mode:** Motivational, goal-oriented view with habit scorecard, score booster missions, and self-directed study targets.
+    - 👩‍🏫 **Teacher & Counselor Mode:** Comprehensive educator interface with **Early Warning Risk Flags** (e.g. Failure Risk, Severe Sleep Deficit, Concept Gaps), Educator Action Plans, custom counseling notes, and class risk matrix breakdown.
 - **📚 Multi-Subject Dataset Switcher**:
   - Seamlessly switch between **4 academic disciplines**:
     1. 🌐 **General Academics:** Cross-disciplinary baseline benchmark ($10,000$ students).
