@@ -1,14 +1,16 @@
 # 🎓 Student Academic Performance Predictor
 
+[![CI/CD Testing Pipeline](https://github.com/mujahith9025/student-Performance-Predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/mujahith9025/student-Performance-Predictor/actions/workflows/ci.yml)
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
-[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.9.0-orange.svg)](https://scikit-learn.org/)
+[![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
+[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org/)
+[![Automated Tests](https://img.shields.io/badge/Tests-19%20Passed%20%2F%20100%25-success.svg)](https://github.com/mujahith9025/student-Performance-Predictor)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 > 🌐 **Live Demo:** Try the online web app directly in your browser:  
 > 👉 **[Launch Student Performance Predictor on Streamlit Cloud](https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/)**
 
-An end-to-end beginner-friendly Machine Learning project and interactive **Streamlit web application** that predicts a student's academic performance index based on study habits, previous exam scores, sleep patterns, practice tests, and extracurricular activities.
+An end-to-end Machine Learning project and interactive **Streamlit web application** that predicts a student's academic performance index based on study habits, previous exam scores, sleep patterns, practice tests, and extracurricular activities.
 
 Built using **10,000 real student records from Kaggle** with a modular scikit-learn training pipeline ($R^2 \approx 98.84\%$).
 
@@ -16,6 +18,11 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 
 ## 📌 Features & Highlights
 
+- **🚀 Automated CI/CD Testing Pipeline (GitHub Actions)**:
+  - Multi-OS matrix testing on **Ubuntu** and **Windows**.
+  - Multi-Python compatibility testing across **Python 3.10, 3.11, and 3.12**.
+  - **19 automated unit & integration tests** covering data loaders, feature engineering, model inference, SHAP explainability, reverse goal optimization, PDF generation, and SQLite CRUD.
+  - Automated syntax checking, code linting with `flake8`, and test coverage reporting.
 - **🗄️ SQLite / Supabase Database Persistence Layer**:
   - **Persistent Prediction Audit Trail:** Automatically persists every predicted student record, confidence interval, 6-D habit balance index, teacher counseling remarks, and risk flags to an embedded SQLite database (`data/student_records.db`).
   - **📈 Longitudinal Student Score Growth Timeline:** Interactive time-series progress charts plotting a student's score evolution and habit changes across multiple tests/semesters.
@@ -70,29 +77,13 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 
 ---
 
-## 📊 Dataset Overview (Kaggle)
-
-- **Dataset Source:** [Kaggle - Student Performance (Multiple Linear Regression)](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression)
-- **Observations:** 10,000 real student entries.
-- **Base Input Variables:**
-  1. `Hours_Studied`: Total hours spent studying per day (1 to 9 hours).
-  2. `Previous_Score`: Marks scored in previous examinations (40 to 99).
-  3. `Extracurricular_Activities`: Participation in extracurricular activities (`Yes` / `No`).
-  4. `Sleep_Hours`: Average sleep duration per day (4 to 9 hours).
-  5. `Sample_Question_Papers_Practiced`: Number of practice mock papers solved (0 to 9).
-- **Custom Engineered Variables:**
-  6. `Study_to_Sleep_Ratio`: Ratio of study hours to sleep.
-  7. `Practice_Density`: Mock papers practiced per study hour.
-  8. `Study_Effort_Score`: Combined academic effort index.
-- **Target Output:**
-  - `Performance_Index`: Overall academic performance score (10.0 to 100.0).
-
----
-
 ## 📂 Project Directory Structure
 
 ```
 d:/Project/student_performance_predictor/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                # GitHub Actions Automated CI/CD Testing Pipeline
 ├── data/
 │   ├── download_dataset.py       # Downloads & caches the official Kaggle dataset
 │   ├── Student_Performance.csv   # 10,000 real student records from Kaggle
@@ -112,14 +103,24 @@ d:/Project/student_performance_predictor/
 │   ├── goal_solver.py            # Reverse Goal Simulator (Inverse optimization solver)
 │   ├── pdf_generator.py          # ReportLab vector-rendered Academic PDF Report generator
 │   └── train.py                  # Trains & benchmarks all 9 regression models
+├── tests/
+│   ├── __init__.py
+│   ├── test_data_loader.py       # Unit tests for data loading & feature engineering
+│   ├── test_models.py            # Unit tests for 9 models & inference
+│   ├── test_explainability.py    # Unit tests for SHAP waterfall attributions
+│   ├── test_goal_solver.py       # Unit tests for reverse goal solver
+│   ├── test_pdf_generator.py     # Unit tests for PDF compilation
+│   ├── test_db.py                # Unit tests for SQLite database persistence
+│   └── test_app_integration.py   # Integration tests for Streamlit app helpers
 ├── app.py                        # Interactive Streamlit Web Application (6 Tabs)
+├── pytest.ini                    # Pytest configuration settings
 ├── requirements.txt              # Project dependencies list
 └── README.md                     # Documentation & online deployment guide
 ```
 
 ---
 
-## 🚀 Quickstart: Running Locally
+## 🚀 Quickstart & Testing
 
 ### 1. Navigate to the Project Directory
 ```powershell
@@ -131,9 +132,9 @@ cd d:\Project\student_performance_predictor
 pip install -r requirements.txt
 ```
 
-### 3. (Optional) Re-run Training Pipeline
+### 3. Run Automated Tests
 ```powershell
-python src/train.py
+pytest tests/
 ```
 
 ### 4. Launch the Streamlit Web Application
