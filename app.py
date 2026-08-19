@@ -11,7 +11,7 @@ import streamlit as st
 
 # Setup page config
 st.set_page_config(
-    page_title="Student Performance Predictor | Multi-Subject AI & Teacher-Student Modes",
+    page_title="Student Performance Predictor | Multi-Subject AI & Database Tracker",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -26,7 +26,7 @@ for path_entry in [SRC_DIR, PROJECT_ROOT]:
         sys.path.insert(0, path_entry)
 
 # Force-reload submodules to prevent Streamlit Cloud from using stale cached functions
-for mod_name in ["data_loader", "explainability", "pdf_generator", "goal_solver"]:
+for mod_name in ["data_loader", "explainability", "pdf_generator", "goal_solver", "db"]:
     if mod_name in sys.modules:
         try:
             importlib.reload(sys.modules[mod_name])
@@ -69,6 +69,31 @@ try:
     from goal_solver import solve_target_score
 except ImportError:
     from src.goal_solver import solve_target_score
+
+try:
+    from db import (
+        init_db,
+        save_prediction_record,
+        save_goal_record,
+        fetch_prediction_history,
+        fetch_goal_history,
+        fetch_student_progress_timeline,
+        delete_prediction_record,
+        clear_all_records,
+        get_database_stats
+    )
+except ImportError:
+    from src.db import (
+        init_db,
+        save_prediction_record,
+        save_goal_record,
+        fetch_prediction_history,
+        fetch_goal_history,
+        fetch_student_progress_timeline,
+        delete_prediction_record,
+        clear_all_records,
+        get_database_stats
+    )
 
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pkl")
 ALL_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "all_trained_models.pkl")
@@ -212,11 +237,11 @@ st.markdown("""
     }
 
     .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
+        gap: 8px;
     }
 
     .stTabs [data-baseweb="tab"] {
-        padding: 10px 18px;
+        padding: 10px 16px;
         border-radius: 8px;
         font-weight: 600;
     }
@@ -355,7 +380,7 @@ with st.sidebar:
 # Main Header Banner
 header_class = "main-header-teacher" if is_teacher else "main-header"
 header_title_prefix = "👩‍🏫 Educator Diagnostics & Academic Advisory" if is_teacher else f"{active_subject_meta['icon']} Student Academic Performance Predictor"
-header_subtext = "Conduct classroom risk diagnostics, prescribe target roadmaps, and generate counselor intervention PDF reports." if is_teacher else f"Predict scores, solve target goals, inspect SHAP Explainability & export personalized PDF reports for <b>{selected_subject}</b>."
+header_subtext = "Conduct classroom risk diagnostics, track student progress timelines, and persist database records." if is_teacher else f"Predict scores, solve target goals, track progress timelines & save to <b>Database</b> for <b>{selected_subject}</b>."
 
 st.markdown(f"""
 <div class="{header_class}">
@@ -367,9 +392,10 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # Multi-Tab Layout
-tab1, tab_goal, tab2, tab3, tab4 = st.tabs([
+tab1, tab_goal, tab_db, tab2, tab3, tab4 = st.tabs([
     "🔮 Single Student Predictor" if not is_teacher else "🔮 Individual Student Diagnostic",
     "🎯 Reverse Goal Simulator" if not is_teacher else "🎯 Target Score Prescriptor",
+    "🗄️ Database & Progress Tracker",
     "📂 Batch CSV Prediction" if not is_teacher else "📂 Cohort & Roster Risk Matrix",
     "📊 Benchmarks & Multi-Subject Matrix",
     "📈 Dataset Explorer (EDA & Habit Footprint)"
@@ -388,9 +414,9 @@ with tab1:
         with col_input1:
             st.markdown("#### 📚 Academic & Study Habits")
             student_name_input = st.text_input(
-                "👤 Student Name or Identifier (for PDF Report):",
+                "👤 Student Name or Identifier (for Database & PDF):",
                 value="Alex Johnson",
-                help="Appears on the downloadable academic diagnostic report"
+                help="Appears on the downloadable academic report and stored in database"
             )
             
             hours_studied = st.slider(
@@ -436,7 +462,7 @@ with tab1:
             
             teacher_input_notes = ""
             if is_teacher:
-                st.markdown("#### 📝 Educator Counseling Remarks (Included in PDF)")
+                st.markdown("#### 📝 Educator Counseling Remarks (Included in PDF & Database)")
                 teacher_input_notes = st.text_area(
                     "Teacher / Counselor Advisory Remarks:",
                     value="Student displays solid conceptual potential. Recommend increasing structured mock exam practice under timed conditions.",
@@ -444,10 +470,10 @@ with tab1:
                 )
             
             st.markdown("<br>", unsafe_allow_html=True)
-            submit_label = f"🚀 Run Diagnostic & Generate Intervention Report" if is_teacher else f"🚀 Predict {selected_subject} Score & Generate Insights"
+            submit_label = f"🚀 Run Diagnostic & Save to Database" if is_teacher else f"🚀 Predict {selected_subject} Score & Save"
             predict_btn = st.form_submit_button(submit_label, type="primary", width="stretch")
 
-    # If user clicked calculate, compute and store in session_state
+    # If user clicked calculate, compute, persist to DB, and store in session_state
     if predict_btn:
         raw_input_data = pd.DataFrame([{
             "Hours_Studied": hours_studied,
@@ -505,6 +531,35 @@ with tab1:
         if hours_studied > 5 and sample_papers < 2:
             risk_flags.append("📄 Practice Imbalance: High reading hours but low active test practice.")
 
+        # Persist to SQLite / Supabase Database
+        try:
+            db_record_id = save_prediction_record(
+                student_name=student_name_input,
+                subject=selected_subject,
+                model_used=selected_model_name,
+                hours_studied=hours_studied,
+                previous_score=previous_score,
+                sleep_hours=sleep_hours,
+                sample_papers=sample_papers,
+                extracurricular=extracurricular,
+                predicted_score=pred_score,
+                lower_bound=lower_bound,
+                upper_bound=upper_bound,
+                confidence_level=confidence_level_str,
+                letter_grade=letter_grade,
+                standing_desc=standing_desc,
+                habit_balance_score=habit_balance_score,
+                study_to_sleep_ratio=engineered_input["Study_to_Sleep_Ratio"].iloc[0],
+                practice_density=engineered_input["Practice_Density"].iloc[0],
+                study_effort_score=engineered_input["Study_Effort_Score"].iloc[0],
+                view_mode=view_mode,
+                teacher_notes=teacher_input_notes,
+                risk_flags=risk_flags,
+                shap_summary=shap_res.get("contributions", {})
+            )
+        except Exception as db_err:
+            db_record_id = None
+
         st.session_state["single_prediction"] = {
             "student_name": student_name_input.strip() or "Student",
             "subject": selected_subject,
@@ -531,6 +586,7 @@ with tab1:
             "delta_papers": delta_papers,
             "teacher_notes": teacher_input_notes,
             "risk_flags": risk_flags,
+            "db_record_id": db_record_id,
             "radar_dims": {
                 "Study Time": dim_study,
                 "Exam Foundation": dim_foundation,
@@ -549,6 +605,10 @@ with tab1:
         # Recompute bounds dynamically if confidence slider changed
         res_lower, res_upper, res_margin = get_interval_bounds(res["pred_score"], confidence_level_str, residual_std)
         
+        # Database confirmation badge
+        if res.get("db_record_id"):
+            st.success(f"💾 **Persisted to Database:** Record **#{res['db_record_id']}** successfully logged for **{res['student_name']}** in `{res['subject']}`. View timeline in Tab 3.")
+            
         # Teacher Mode Risk Banner
         if is_teacher and res.get("risk_flags"):
             st.markdown(f"""
@@ -818,7 +878,7 @@ with tab1:
                 recs_list.append(f"Practice Mock Papers: Completing 3 additional mock exams is estimated to raise predicted score by +{res['delta_papers']:.1f} points.")
 
         # ------------------------------------------------------------------
-        # PDF REPORT GENERATOR SECTION (Ultra-Defensive)
+        # PDF REPORT GENERATOR SECTION
         # ------------------------------------------------------------------
         st.markdown("---")
         st.markdown("### 📄 Official Student Academic Diagnostic Report (PDF)")
@@ -852,7 +912,6 @@ with tab1:
             )
         except Exception:
             try:
-                # Positional fallback to support any older cached function signature in memory
                 pdf_bytes = create_student_pdf_report(
                     res.get("student_name", "Student"),
                     selected_subject,
@@ -873,7 +932,6 @@ with tab1:
                 )
             except Exception as final_err:
                 pdf_bytes = None
-                st.warning(f"Note: PDF generation notice: {final_err}")
                 
         if pdf_bytes:
             pdf_col1, pdf_col2 = st.columns([1, 2])
@@ -901,7 +959,6 @@ with tab_goal:
     st.subheader(f"🎯 {'Prescribe Study Target & Roadmap' if is_teacher else 'Reverse Goal Simulator / Target Score Solver'} ({selected_subject})")
     st.write(f"{'Educator goal prescriber: set target benchmarks for the student and generate prescription roadmaps.' if is_teacher else 'Specify your desired target score or letter grade below. The AI inverse solver will calculate the optimal combinations of study hours, mock tests, and sleep required to achieve your goal.'}")
     
-    # Pre-fill defaults from Tab 1 if available
     s_prev = 75
     s_hrs = 4
     s_sleep = 7
@@ -956,6 +1013,26 @@ with tab_goal:
             extracurricular=goal_curr_ec,
             target_score=float(target_goal_input)
         )
+        
+        # Save goal to DB
+        if goal_result.get("pathways"):
+            p0 = goal_result["pathways"][0]
+            try:
+                save_goal_record(
+                    student_name=goal_student_name,
+                    subject=selected_subject,
+                    current_pred=goal_result["current_pred"],
+                    target_score=float(target_goal_input),
+                    score_gap=goal_result["gap"],
+                    recommended_pathway=p0["name"],
+                    required_hours=p0["required_hours"],
+                    required_papers=p0["required_papers"],
+                    required_sleep=p0["required_sleep"],
+                    weekly_hours=p0["weekly_study_hours"]
+                )
+            except Exception:
+                pass
+
         st.session_state["goal_solver_result"] = {
             "student_name": goal_student_name.strip() or "Student",
             "subject": selected_subject,
@@ -983,7 +1060,7 @@ with tab_goal:
         if not g_res["feasible"]:
             st.warning(f"⚠️ **Target Scope Advisory:** {g_res.get('message')}")
         else:
-            st.success(f"✅ **Target Achievable!** To increase score from **{curr_p:.1f}** to **{t_score:.1f}** (+{gap:.1f} points), review the 3 tailored pathways below:")
+            st.success(f"✅ **Target Achievable & Saved to Database!** To increase score from **{curr_p:.1f}** to **{t_score:.1f}** (+{gap:.1f} points), review the 3 tailored pathways below:")
             
         p_cols = st.columns(len(g_res["pathways"]))
         for i, p in enumerate(g_res["pathways"]):
@@ -1115,13 +1192,165 @@ with tab_goal:
                 )
 
 # -------------------------------------------------------------
-# TAB 3: Batch CSV Prediction / Roster Risk Matrix
+# TAB 3: Database Records & Student Progress Tracker
+# -------------------------------------------------------------
+with tab_db:
+    st.subheader(f"🗄️ Student Records Database & Longitudinal Progress Tracker")
+    st.write("Browse persistent prediction audit logs, search historical records, and analyze **longitudinal score growth over time**.")
+    
+    # 1. High Level Database Stats
+    db_stats = get_database_stats()
+    db_s1, db_s2, db_s3, db_s4 = st.columns(4)
+    db_s1.metric("Total Stored Records", f"{db_stats['total_predictions']}")
+    db_s2.metric("Average Stored Score", f"{db_stats['avg_predicted_score']:.1f} / 100")
+    db_s3.metric("Unique Tracked Students", f"{db_stats['unique_students']}")
+    db_s4.metric("Saved Goal Roadmaps", f"{db_stats['total_saved_goals']}")
+    
+    st.markdown("---")
+    
+    # 2. Filter Bar
+    f_col1, f_col2, f_col3 = st.columns([1.5, 1.5, 1])
+    with f_col1:
+        search_student = st.text_input("🔍 Search by Student Name:", value="", placeholder="e.g. Alex Johnson")
+    with f_col2:
+        filter_subject = st.selectbox(
+            "Filter by Academic Subject:",
+            options=["All Subjects"] + list(SUBJECT_METADATA.keys()),
+            index=0
+        )
+    with f_col3:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("🔄 Refresh Database", use_container_width=True):
+            st.rerun()
+
+    # Query Data
+    df_history = fetch_prediction_history(
+        student_name=search_student if search_student.strip() else None,
+        subject=filter_subject if filter_subject != "All Subjects" else None,
+        limit=200
+    )
+    
+    if len(df_history) > 0:
+        # 3. Longitudinal Progress Tracker (Time-Series)
+        st.markdown("#### 📈 Longitudinal Student Score Growth Over Time")
+        
+        # If user searched a student or has multiple entries
+        available_names = df_history["student_name"].unique().tolist()
+        selected_timeline_student = st.selectbox(
+            "Select Student to View Growth Curve Timeline:",
+            options=available_names,
+            index=0
+        )
+        
+        timeline_df = fetch_student_progress_timeline(selected_timeline_student)
+        if len(timeline_df) > 0:
+            fig_timeline = go.Figure()
+            
+            # Confidence band tunnel
+            fig_timeline.add_trace(go.Scatter(
+                x=timeline_df["timestamp"],
+                y=timeline_df["upper_bound"],
+                mode="lines",
+                line=dict(width=0),
+                showlegend=False
+            ))
+            fig_timeline.add_trace(go.Scatter(
+                x=timeline_df["timestamp"],
+                y=timeline_df["lower_bound"],
+                mode="lines",
+                line=dict(width=0),
+                fill='tonexty',
+                fillcolor='rgba(56, 189, 248, 0.15)',
+                name="Confidence Interval Band"
+            ))
+            
+            # Main prediction line
+            fig_timeline.add_trace(go.Scatter(
+                x=timeline_df["timestamp"],
+                y=timeline_df["predicted_score"],
+                mode="lines+markers+text",
+                name="Predicted Score",
+                line=dict(color="#38BDF8", width=3),
+                marker=dict(size=10, color="#0284C7", symbol="circle"),
+                text=[f"Grade {g} ({s:.1f})" for g, s in zip(timeline_df["letter_grade"], timeline_df["predicted_score"])],
+                textposition="top center"
+            ))
+            
+            # Foundation marks
+            fig_timeline.add_trace(go.Scatter(
+                x=timeline_df["timestamp"],
+                y=timeline_df["previous_score"],
+                mode="lines+markers",
+                name="Previous Marks",
+                line=dict(color="#FBBF24", width=2, dash="dash"),
+                marker=dict(size=7, color="#F59E0B")
+            ))
+            
+            fig_timeline.update_layout(
+                title=f"Score Progression Timeline for {selected_timeline_student} ({len(timeline_df)} records)",
+                xaxis_title="Record Timestamp",
+                yaxis_title="Academic Score (0–100)",
+                yaxis=dict(range=[20, 105]),
+                template="plotly_dark",
+                height=380,
+                margin=dict(l=20, r=20, t=50, b=30),
+                legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center")
+            )
+            st.plotly_chart(fig_timeline, use_container_width=True)
+        else:
+            st.info("No progression history for this student yet.")
+            
+        st.markdown("---")
+        
+        # 4. Predictions Table View
+        st.markdown("#### 📋 Stored Academic Diagnostic Records")
+        
+        display_cols = [
+            "id", "timestamp", "student_name", "subject", "model_used",
+            "hours_studied", "previous_score", "sleep_hours", "sample_papers",
+            "predicted_score", "letter_grade", "confidence_level",
+            "habit_balance_score", "view_mode", "teacher_notes"
+        ]
+        valid_cols = [c for c in display_cols if c in df_history.columns]
+        st.dataframe(df_history[valid_cols], use_container_width=True, height=320)
+        
+        # 5. Export Center
+        st.markdown("#### 📥 Database Export Center")
+        exp_col1, exp_col2, exp_col3 = st.columns([1, 1, 2])
+        
+        with exp_col1:
+            csv_bytes = df_history.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Export Records (CSV)",
+                data=csv_bytes,
+                file_name="student_database_records.csv",
+                mime="text/csv",
+                type="primary",
+                use_container_width=True
+            )
+            
+        with exp_col2:
+            json_bytes = df_history.to_json(orient="records", indent=2).encode('utf-8')
+            st.download_button(
+                label="📥 Export Records (JSON)",
+                data=json_bytes,
+                file_name="student_database_records.json",
+                mime="application/json",
+                use_container_width=True
+            )
+            
+        with exp_col3:
+            st.caption(f"💾 **Storage Engine:** SQLite Native (`{db_stats['db_path']}`). Compatible with Supabase cloud replication.")
+    else:
+        st.info("ℹ️ No database records found matching the current filters. Make a prediction in Tab 1 to log your first student record!")
+
+# -------------------------------------------------------------
+# TAB 4: Batch CSV Prediction / Roster Risk Matrix
 # -------------------------------------------------------------
 with tab2:
     st.subheader(f"📂 {selected_subject} — {'Classroom Cohort & Risk Matrix' if is_teacher else 'Batch CSV Prediction with Confidence Intervals'}")
     st.write(f"Inference Engine: **`{selected_model_name}`** | Discipline: **`{selected_subject}`** | Confidence Level: **`{confidence_level_str}`** (Margin ±{cur_margin:.2f} pts).")
     
-    # Sample download or demo load
     demo_col1, demo_col2 = st.columns([1, 2])
     with demo_col1:
         if os.path.exists(SAMPLE_BATCH_PATH):
@@ -1132,7 +1361,7 @@ with tab2:
                 data=csv_sample_bytes,
                 file_name="student_sample_template.csv",
                 mime="text/csv",
-                width="stretch"
+                use_container_width=True
             )
             
     uploaded_file = st.file_uploader(
@@ -1210,10 +1439,10 @@ with tab2:
                 template="plotly_dark"
             )
             fig_batch.update_layout(margin=dict(l=20, r=20, t=40, b=20), height=320)
-            st.plotly_chart(fig_batch, width="stretch")
+            st.plotly_chart(fig_batch, use_container_width=True)
             
             st.markdown("#### 📋 Detailed Predictions Table (with Confidence Bounds)")
-            st.dataframe(result_df, width="stretch", height=320)
+            st.dataframe(result_df, use_container_width=True, height=320)
             
             csv_output = result_df.to_csv(index=False).encode('utf-8')
             st.download_button(
@@ -1225,7 +1454,7 @@ with tab2:
             )
 
 # -------------------------------------------------------------
-# TAB 4: Model Benchmarks & Multi-Subject Comparison Matrix
+# TAB 5: Model Benchmarks & Multi-Subject Comparison Matrix
 # -------------------------------------------------------------
 with tab3:
     st.subheader("📊 Multi-Subject Benchmarks & Cross-Discipline Comparison")
@@ -1246,7 +1475,7 @@ with tab3:
             "RMSE": f"{best_m.get('test_rmse', 2.08):.2f}",
             "Key Focus": meta.get("focus", "")
         })
-    st.dataframe(pd.DataFrame(overview_rows), width="stretch")
+    st.dataframe(pd.DataFrame(overview_rows), use_container_width=True)
     
     # 2. Leaderboard for Current Subject
     st.markdown(f"#### 🏆 Model Leaderboard for `{selected_subject}`")
@@ -1277,7 +1506,7 @@ with tab3:
                           "MAE (Test)": "{:.4f}",
                           "RMSE (Test)": "{:.4f}"
                       }),
-        width="stretch"
+        use_container_width=True
     )
     
     m_col1, m_col2 = st.columns(2)
@@ -1301,7 +1530,7 @@ with tab3:
                 template="plotly_dark"
             )
             fig_shap_global.update_layout(height=380, margin=dict(l=20, r=20, t=40, b=20))
-            st.plotly_chart(fig_shap_global, width="stretch")
+            st.plotly_chart(fig_shap_global, use_container_width=True)
             
     with m_col2:
         st.markdown(f"#### 🎯 Actual vs. Predicted ({selected_subject})")
@@ -1336,10 +1565,10 @@ with tab3:
                 height=380,
                 margin=dict(l=20, r=20, t=40, b=20)
             )
-            st.plotly_chart(fig_scatter, width="stretch")
+            st.plotly_chart(fig_scatter, use_container_width=True)
 
 # -------------------------------------------------------------
-# TAB 5: Dataset Explorer (EDA & Habit Footprint)
+# TAB 6: Dataset Explorer (EDA & Habit Footprint)
 # -------------------------------------------------------------
 with tab4:
     st.subheader(f"📈 {active_subject_meta['icon']} {selected_subject} — Dataset & Habit Footprint Analysis")
@@ -1435,14 +1664,14 @@ with tab4:
             margin=dict(l=40, r=40, t=30, b=30),
             legend=dict(orientation="h", y=-0.15, x=0.5, xanchor="center")
         )
-        st.plotly_chart(fig_grade_radar, width="stretch")
+        st.plotly_chart(fig_grade_radar, use_container_width=True)
         
         st.markdown("---")
         
         eda_col1, eda_col2 = st.columns([1, 1])
         with eda_col1:
             st.markdown(f"#### 📐 Statistical Summary ({selected_subject})")
-            st.dataframe(df_raw.describe().T, width="stretch")
+            st.dataframe(df_raw.describe().T, use_container_width=True)
             
         with eda_col2:
             st.markdown("#### 🔥 Correlation Heatmap")
@@ -1457,7 +1686,7 @@ with tab4:
                 template="plotly_dark"
             )
             fig_corr.update_layout(height=360, margin=dict(l=20, r=20, t=40, b=20))
-            st.plotly_chart(fig_corr, width="stretch")
+            st.plotly_chart(fig_corr, use_container_width=True)
             
         st.markdown("---")
         st.markdown("#### 🔍 Interactive Relationship Inspector")
@@ -1493,6 +1722,6 @@ with tab4:
             color_discrete_sequence=["#38BDF8", "#F472B6"]
         )
         fig_custom.update_layout(height=420, margin=dict(l=20, r=20, t=40, b=20))
-        st.plotly_chart(fig_custom, width="stretch")
+        st.plotly_chart(fig_custom, use_container_width=True)
     else:
         st.warning("Subject dataset file not found.")

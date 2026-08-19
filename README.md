@@ -16,6 +16,12 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 
 ## 📌 Features & Highlights
 
+- **🗄️ SQLite / Supabase Database Persistence Layer**:
+  - **Persistent Prediction Audit Trail:** Automatically persists every predicted student record, confidence interval, 6-D habit balance index, teacher counseling remarks, and risk flags to an embedded SQLite database (`data/student_records.db`).
+  - **📈 Longitudinal Student Score Growth Timeline:** Interactive time-series progress charts plotting a student's score evolution and habit changes across multiple tests/semesters.
+  - **🎯 Target Roadmap Bookmarks:** Preserves Reverse Goal Solver pathways and weekly study commitments.
+  - **📥 Database Export Center:** 1-click export of complete historical audit logs into **CSV** and **JSON** formats.
+  - **Cloud Ready:** Plug-and-play architecture with zero extra configuration on SQLite, supporting Supabase PostgreSQL cloud sync via secrets.
 - **🎭 Teacher vs. Student View Toggle**:
   - Interactive persona switcher adapting the application layout, clinical diagnostics, and action roadmaps:
     - 🧑‍🎓 **Student Mode:** Motivational, goal-oriented view with habit scorecard, score booster missions, and self-directed study targets.
@@ -50,7 +56,6 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 - **🧠 SHAP Explainability (Explainable AI - XAI)**:
   - **Local SHAP Waterfall**: Breaks down each student's predicted score starting from the cohort baseline ($\approx 54.8$ pts) and shows the exact point contributions ($+16.0$ for previous scores, $+3.9$ for study hours, etc.).
   - **Global SHAP Feature Importance**: Game-theoretic Shapley value rankings illustrating which habits influence grades the most across the entire student population.
-  - Transparent, trustworthy, and actionable insights for educators, parents, and students.
 - **🎯 Prediction Confidence Intervals (80%–99%)**:
   - Provides rigorous uncertainty quantification: instead of a single point score, generates calibrated **Prediction Intervals** $[y_{\text{lower}}, y_{\text{upper}}]$.
   - Supports user-selectable confidence levels: **80% (±2.66 pts)**, **90% (±3.41 pts)**, **95% (±4.07 pts)**, and **99% (±5.34 pts)**.
@@ -91,16 +96,23 @@ d:/Project/student_performance_predictor/
 ├── data/
 │   ├── download_dataset.py       # Downloads & caches the official Kaggle dataset
 │   ├── Student_Performance.csv   # 10,000 real student records from Kaggle
-│   └── sample_batch_test.csv     # Sample batch dataset for CSV upload testing
+│   ├── sample_batch_test.csv     # Sample batch dataset for CSV upload testing
+│   └── student_records.db        # SQLite Database for persistent prediction audit logs
 ├── models/
 │   ├── best_model.pkl            # Serialized scikit-learn Pipeline (Champion model)
 │   ├── all_trained_models.pkl    # Bundle of all 9 trained models (XGBoost, LightGBM, etc.)
+│   ├── subject_models.pkl        # Multi-Subject tailored models bundle
+│   ├── subject_metrics.json      # Cross-subject performance metrics & benchmarks
 │   └── metrics.json              # Full benchmark comparison metrics & feature weights
 ├── src/
 │   ├── __init__.py
 │   ├── data_loader.py            # Data loading, custom feature engineering, & train-test split
+│   ├── db.py                     # SQLite / Supabase Database Persistence Engine & CRUD
+│   ├── explainability.py         # SHAP Tree & Linear waterfall explainers
+│   ├── goal_solver.py            # Reverse Goal Simulator (Inverse optimization solver)
+│   ├── pdf_generator.py          # ReportLab vector-rendered Academic PDF Report generator
 │   └── train.py                  # Trains & benchmarks all 9 regression models
-├── app.py                        # Interactive Streamlit Web Application
+├── app.py                        # Interactive Streamlit Web Application (6 Tabs)
 ├── requirements.txt              # Project dependencies list
 └── README.md                     # Documentation & online deployment guide
 ```
@@ -128,33 +140,6 @@ python src/train.py
 ```powershell
 streamlit run app.py
 ```
-
-## 🌐 Deploying Online for FREE (Streamlit Community Cloud)
-
-You can host and share this machine learning project online so anyone can use it on the web:
-
-### Step 1: Push Code to GitHub
-1. Create a free account on [GitHub](https://github.com).
-2. Create a new repository named `student-performance-predictor`.
-3. Push your project files:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit of Student Performance Predictor"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/student-performance-predictor.git
-   git push -u origin main
-   ```
-
-### Step 2: Deploy to Streamlit Cloud
-1. Go to [share.streamlit.io](https://share.streamlit.io/) and log in with your GitHub account.
-2. Click **"New app"**.
-3. Select repository: `mujahith9025/student-Performance-Predictor`.
-4. Set **Main file path** to: `app.py`.
-5. Click **"Deploy!"**.
-
-🔗 **Live Public Application:**  
-[https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/](https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/)
 
 ---
 
@@ -186,14 +171,6 @@ Evaluated on 1,975 held-out test students:
 | **90% Confidence** | **89.92%** | 1.645 | **±3.41 pts** | ✅ Well Calibrated |
 | **95% Confidence** | **94.58%** | 1.960 | **±4.07 pts** | ✅ Well Calibrated |
 | **99% Confidence** | **98.99%** | 2.576 | **±5.34 pts** | ✅ Well Calibrated |
-
----
-
-## 💡 Key Machine Learning Insights
-
-- **Primary Drivers:** Previous exam score ($\text{weight} \approx 17.62$) and hours studied ($\text{weight} \approx 7.37$) are the strongest predictors of student outcomes.
-- **Sleep & Rest:** Consistent sleep (7–8 hours) prevents fatigue and supports high performance.
-- **Practice Tests:** Practicing mock papers consistently yields a predictable score boost.
 
 ---
 
