@@ -10,7 +10,7 @@ import streamlit as st
 
 # Setup page config
 st.set_page_config(
-    page_title="Student Performance Predictor | Multi-Subject AI & PDF Reports",
+    page_title="Student Performance Predictor | Target Score Solver & PDF Reports",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -47,9 +47,14 @@ except ImportError:
     from src.explainability import compute_shap_waterfall
 
 try:
-    from pdf_generator import create_student_pdf_report
+    from pdf_generator import create_student_pdf_report, create_goal_roadmap_pdf_report
 except ImportError:
-    from src.pdf_generator import create_student_pdf_report
+    from src.pdf_generator import create_student_pdf_report, create_goal_roadmap_pdf_report
+
+try:
+    from goal_solver import solve_target_score
+except ImportError:
+    from src.goal_solver import solve_target_score
 
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pkl")
 ALL_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "all_trained_models.pkl")
@@ -149,20 +154,26 @@ st.markdown("""
     .grade-D { background-color: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid #EF4444; }
     .grade-F { background-color: rgba(220, 38, 38, 0.3); color: #FCA5A5; border: 1px solid #DC2626; }
     
-    .eng-badge {
-        background: rgba(14, 165, 233, 0.15);
-        border: 1px solid rgba(14, 165, 233, 0.3);
-        border-radius: 10px;
-        padding: 0.85rem;
-        text-align: center;
+    .pathway-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 1.25rem;
+        height: 100%;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    
+    .pathway-card:hover {
+        transform: translateY(-3px);
+        border-color: #38BDF8;
     }
 
     .stTabs [data-baseweb="tab-list"] {
-        gap: 12px;
+        gap: 10px;
     }
 
     .stTabs [data-baseweb="tab"] {
-        padding: 10px 20px;
+        padding: 10px 18px;
         border-radius: 8px;
         font-weight: 600;
     }
@@ -225,7 +236,7 @@ if not subject_models_bundle:
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/graduation-cap.png", width=110)
     st.title("🎓 Student AI Predictor")
-    st.caption("Multi-Subject ML, SHAP & PDF Reports")
+    st.caption("Target Score Solver, SHAP & PDF Reports")
     
     st.markdown("---")
     
@@ -293,14 +304,15 @@ with st.sidebar:
 st.markdown(f"""
 <div class="main-header">
     <h1>{active_subject_meta['icon']} Student Academic Performance Predictor</h1>
-    <p>Predict outcomes for <b>{selected_subject}</b> using <b>PDF Report Generation</b>, Habit Radar Charts, SHAP Explainability, and Confidence Intervals (80%–99%).</p>
+    <p>Predict scores, run the <b>Reverse Goal Simulator ("Target Score Solver")</b>, inspect SHAP Explainability & export <b>PDF Reports</b> for <b>{selected_subject}</b>.</p>
     <div class="subject-pill">{active_subject_meta['icon']} Active Subject: {selected_subject} ({active_subject_meta['badge']})</div>
 </div>
 """, unsafe_allow_html=True)
 
 # Multi-Tab Layout
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab_goal, tab2, tab3, tab4 = st.tabs([
     "🔮 Single Student Predictor",
+    "🎯 Reverse Goal Simulator",
     "📂 Batch CSV Prediction",
     "📊 Benchmarks & Multi-Subject Matrix",
     "📈 Dataset Explorer (EDA & Habit Footprint)"
@@ -431,7 +443,9 @@ with tab1:
             "shap_res": shap_res,
             "hours_studied": hours_studied,
             "sleep_hours": sleep_hours,
+            "previous_score": previous_score,
             "sample_papers": sample_papers,
+            "extracurricular": extracurricular,
             "delta_study": delta_study,
             "delta_papers": delta_papers,
             "radar_dims": {
@@ -759,7 +773,217 @@ with tab1:
         st.info(f"👈 Set the student's study inputs above and click **'🚀 Predict {selected_subject} Score & Generate Insights'** to generate the prediction.")
 
 # -------------------------------------------------------------
-# TAB 2: Batch CSV Prediction
+# TAB 2: Reverse Goal Simulator ("Target Score Solver")
+# -------------------------------------------------------------
+with tab_goal:
+    st.subheader(f"🎯 Reverse Goal Simulator / Target Score Solver ({selected_subject})")
+    st.write("Specify your **desired target score or letter grade** below. The AI inverse solver will calculate the **optimal combinations of study hours, mock tests, and sleep** required to achieve your goal.")
+    
+    # Pre-fill defaults from Tab 1 if available
+    s_prev = 75
+    s_hrs = 4
+    s_sleep = 7
+    s_pap = 2
+    s_ec = "Yes"
+    s_name = "Student"
+    
+    if "single_prediction" in st.session_state:
+        sp = st.session_state["single_prediction"]
+        s_prev = int(sp.get("previous_score", 75))
+        s_hrs = int(sp.get("hours_studied", 4))
+        s_sleep = int(sp.get("sleep_hours", 7))
+        s_pap = int(sp.get("sample_papers", 2))
+        s_ec = sp.get("extracurricular", "Yes")
+        s_name = sp.get("student_name", "Student")
+        
+    with st.form(key=f"goal_solver_form_{selected_subject}"):
+        g_col1, g_col2 = st.columns([1, 1], gap="large")
+        
+        with g_col1:
+            st.markdown("#### 1️⃣ Current Baseline Foundation")
+            goal_student_name = st.text_input("👤 Student Name / Identifier:", value=s_name)
+            goal_prev_score = st.slider("📝 Previous Exam Score (Fixed Foundation):", min_value=40, max_value=100, value=s_prev, help="Past exam marks cannot be changed retroactively")
+            goal_curr_hours = st.slider("⏱️ Current Daily Study Hours:", min_value=1, max_value=9, value=s_hrs)
+            goal_curr_papers = st.slider("📄 Current Practice Papers:", min_value=0, max_value=10, value=s_pap)
+            
+        with g_col2:
+            st.markdown("#### 2️⃣ Current Health & Target Goal")
+            goal_curr_sleep = st.slider("😴 Current Daily Sleep Hours:", min_value=4, max_value=10, value=s_sleep)
+            goal_curr_ec = st.radio("⚽ Extracurricular Activities:", options=["Yes", "No"], index=0 if s_ec == "Yes" else 1, horizontal=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            # Default target is slightly above current
+            default_target = min(100, max(60, int(goal_prev_score * 0.95 + 10)))
+            target_goal_input = st.slider(
+                "🎯 Desired Target Score (to achieve):",
+                min_value=40,
+                max_value=100,
+                value=default_target,
+                help="The exam score you want to achieve on your upcoming assessment."
+            )
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            solve_goal_btn = st.form_submit_button("🚀 Solve Inverse Target Roadmaps", type="primary", width="stretch")
+            
+    if solve_goal_btn:
+        goal_result = solve_target_score(
+            pipeline=active_model,
+            previous_score=goal_prev_score,
+            current_hours=goal_curr_hours,
+            current_sleep=goal_curr_sleep,
+            current_papers=goal_curr_papers,
+            extracurricular=goal_curr_ec,
+            target_score=float(target_goal_input)
+        )
+        st.session_state["goal_solver_result"] = {
+            "student_name": goal_student_name.strip() or "Student",
+            "subject": selected_subject,
+            "target_score": float(target_goal_input),
+            "inputs": {
+                "previous_score": goal_prev_score,
+                "current_hours": goal_curr_hours,
+                "current_sleep": goal_curr_sleep,
+                "current_papers": goal_curr_papers,
+                "extracurricular": goal_curr_ec
+            },
+            "result": goal_result
+        }
+        
+    if "goal_solver_result" in st.session_state:
+        g_data = st.session_state["goal_solver_result"]
+        g_res = g_data["result"]
+        t_score = g_data["target_score"]
+        curr_p = g_res["current_pred"]
+        gap = g_res["gap"]
+        
+        st.markdown("---")
+        st.markdown(f"### 🏁 Optimization Results: Target {t_score:.1f} vs. Current Baseline {curr_p:.1f}")
+        
+        if not g_res["feasible"]:
+            st.warning(f"⚠️ **Target Scope Advisory:** {g_res.get('message')}")
+        else:
+            st.success(f"✅ **Target Achievable!** To increase your score from **{curr_p:.1f}** to **{t_score:.1f}** (+{gap:.1f} points), select one of the tailored pathways below:")
+            
+        # Display Pathway Strategy Cards
+        p_cols = st.columns(len(g_res["pathways"]))
+        for i, p in enumerate(g_res["pathways"]):
+            with p_cols[i]:
+                st.markdown(f"""
+                <div class="pathway-card">
+                    <span style="font-size: 0.8rem; background: rgba(56, 189, 248, 0.2); color: #38BDF8; padding: 2px 8px; border-radius: 4px; font-weight: 700;">{p['tag'].upper()}</span>
+                    <h3 style="margin-top: 0.5rem; font-size: 1.15rem; color: #FFFFFF;">{p['name']}</h3>
+                    <p style="font-size: 0.85rem; color: #94A3B8; min-height: 48px;">{p['description']}</p>
+                    <hr style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 0.5rem 0;">
+                    <div style="font-size: 0.95rem; margin-bottom: 0.3rem;">⏱️ <b>Daily Study:</b> <span style="color: #38BDF8; font-weight: 700;">{p['required_hours']:.1f} hrs</span> ({p['delta_hours']:+0.1f} hrs)</div>
+                    <div style="font-size: 0.95rem; margin-bottom: 0.3rem;">📄 <b>Mock Papers:</b> <span style="color: #FBBF24; font-weight: 700;">{p['required_papers']} papers</span> ({p['delta_papers']:+d})</div>
+                    <div style="font-size: 0.95rem; margin-bottom: 0.3rem;">😴 <b>Daily Sleep:</b> <span style="color: #34D399; font-weight: 700;">{p['required_sleep']:.1f} hrs</span></div>
+                    <div style="font-size: 0.95rem; margin-bottom: 0.5rem;">📅 <b>Weekly Load:</b> {p['weekly_study_hours']:.1f} hrs/week</div>
+                    <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; border-radius: 8px; padding: 6px; text-align: center; font-weight: 700; color: #34D399;">
+                        Projected Score: {p['predicted_score']:.1f} / 100
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Before vs. After Habit Radar Comparison
+        st.markdown("#### 🕸️ Before vs. After Habit Radar Transformation")
+        rad_cols1, rad_cols2 = st.columns([1.3, 1])
+        
+        with rad_cols1:
+            rec_pathway = g_res["pathways"][0]
+            
+            # Current values
+            cur_in = g_data["inputs"]
+            cur_r = [
+                min(100, (cur_in["current_hours"] / 9) * 100),
+                min(100, max(0, ((cur_in["previous_score"] - 40) / 60) * 100)),
+                min(100, (cur_in["current_papers"] / 10) * 100),
+                min(100, max(0, 100 - abs(cur_in["current_sleep"] - 7.5) * 20)),
+                min(100, ((0.6 * cur_in["current_hours"] + 0.4 * cur_in["current_papers"]) / 9.4) * 100),
+                85.0 if cur_in["extracurricular"] == "Yes" else 35.0
+            ]
+            
+            # Target Pathway values
+            target_r = [
+                min(100, (rec_pathway["required_hours"] / 9) * 100),
+                min(100, max(0, ((cur_in["previous_score"] - 40) / 60) * 100)),
+                min(100, (rec_pathway["required_papers"] / 10) * 100),
+                min(100, max(0, 100 - abs(rec_pathway["required_sleep"] - 7.5) * 20)),
+                min(100, ((0.6 * rec_pathway["required_hours"] + 0.4 * rec_pathway["required_papers"]) / 9.4) * 100),
+                85.0 if cur_in["extracurricular"] == "Yes" else 35.0
+            ]
+            
+            r_cats = ["Daily Study Time", "Exam Foundation", "Mock Practice", "Sleep Health", "Study Effort", "Extracurriculars"]
+            r_cats_closed = r_cats + [r_cats[0]]
+            cur_r_closed = cur_r + [cur_r[0]]
+            target_r_closed = target_r + [target_r[0]]
+            
+            fig_goal_radar = go.Figure()
+            fig_goal_radar.add_trace(go.Scatterpolar(
+                r=cur_r_closed,
+                theta=r_cats_closed,
+                fill='toself',
+                fillcolor='rgba(148, 163, 184, 0.15)',
+                line=dict(color='#94A3B8', width=2, dash='dash'),
+                name=f"Current Baseline ({curr_p:.1f} pts)"
+            ))
+            fig_goal_radar.add_trace(go.Scatterpolar(
+                r=target_r_closed,
+                theta=r_cats_closed,
+                fill='toself',
+                fillcolor='rgba(16, 185, 129, 0.25)',
+                line=dict(color='#10B981', width=3),
+                name=f"Optimized Target Plan ({rec_pathway['predicted_score']:.1f} pts)"
+            ))
+            
+            fig_goal_radar.update_layout(
+                polar=dict(
+                    radialaxis=dict(visible=True, range=[0, 100], gridcolor="rgba(255, 255, 255, 0.15)"),
+                    angularaxis=dict(gridcolor="rgba(255, 255, 255, 0.15)")
+                ),
+                template="plotly_dark",
+                height=380,
+                margin=dict(l=40, r=40, t=30, b=30),
+                legend=dict(orientation="h", y=-0.15, x=0.5, xanchor="center")
+            )
+            st.plotly_chart(fig_goal_radar, width="stretch")
+            
+        with rad_cols2:
+            st.markdown("#### 📅 Weekly Study Commitment Schedule")
+            p0 = g_res["pathways"][0]
+            st.markdown(f"""
+            - **Target Goal:** `{t_score:.1f} / 100`
+            - **Current Projected:** `{curr_p:.1f} / 100`
+            - **Required Net Gain:** `+{gap:.1f} points`
+            - **Daily Study Time:** `{p0['required_hours']:.1f} hours/day`
+            - **Weekly Dedicated Hours:** `{p0['weekly_study_hours']:.1f} hours/week`
+            - **Mock Tests Needed:** `{p0['required_papers']} practice exams`
+            - **Target Sleep Schedule:** `{p0['required_sleep']:.1f} hours/night`
+            """)
+            
+            # Download Goal Roadmap PDF
+            goal_pdf_bytes = create_goal_roadmap_pdf_report(
+                student_name=g_data.get("student_name", "Student"),
+                subject=selected_subject,
+                target_score=t_score,
+                current_pred=curr_p,
+                gap=gap,
+                pathways=g_res["pathways"]
+            )
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.download_button(
+                label="📥 Download Target Action Plan (PDF)",
+                data=goal_pdf_bytes,
+                file_name=f"{g_data.get('student_name', 'student').lower().replace(' ', '_')}_{selected_subject.lower().replace(' ', '_')}_target_roadmap.pdf",
+                mime="application/pdf",
+                type="primary",
+                width="stretch"
+            )
+
+# -------------------------------------------------------------
+# TAB 3: Batch CSV Prediction
 # -------------------------------------------------------------
 with tab2:
     st.subheader(f"📂 {selected_subject} — Batch Prediction with Confidence Intervals")
@@ -852,7 +1076,7 @@ with tab2:
             )
 
 # -------------------------------------------------------------
-# TAB 3: Model Benchmarks & Multi-Subject Comparison Matrix
+# TAB 4: Model Benchmarks & Multi-Subject Comparison Matrix
 # -------------------------------------------------------------
 with tab3:
     st.subheader("📊 Multi-Subject Benchmarks & Cross-Discipline Comparison")
@@ -966,7 +1190,7 @@ with tab3:
             st.plotly_chart(fig_scatter, width="stretch")
 
 # -------------------------------------------------------------
-# TAB 4: Dataset Explorer (EDA & Habit Footprint)
+# TAB 5: Dataset Explorer (EDA & Habit Footprint)
 # -------------------------------------------------------------
 with tab4:
     st.subheader(f"📈 {active_subject_meta['icon']} {selected_subject} — Dataset & Habit Footprint Analysis")

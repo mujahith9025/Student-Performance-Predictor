@@ -24,6 +24,13 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
     4. 📖 **Humanities & Literature:** Arts, language, and extracurricular communication focus.
   - Dynamically loads discipline-specific models, tailored SHAP waterfalls, and custom subject recommendations.
 - **🔮 Single Student Predictor**: Interactive sliders and dropdowns with real-time score prediction, letter grades (A+, A, B, C, D, F), academic standing indicators, and personalized study boost recommendations.
+- **🎯 Reverse Goal Simulator ("Target Score Solver")**:
+  - Solves the **inverse academic optimization problem**: input a desired target score (e.g., `85` or `95`), and the system calculates the exact study habits required to achieve it.
+  - Automatically generates **3 tailored pathways**:
+    1. ⚖️ **Balanced Mastery Pathway** (Optimal 7.5 hrs sleep with sustainable study habits)
+    2. 📄 **Mock-Test Sprint Pathway** (High mock paper volume with active practice density)
+    3. ⚡ **Express Efficiency Pathway** (Minimal daily study hours needed)
+  - Features **Before vs. After Habit Radar Transformation** overlays, weekly study schedules, and 1-click **Target Roadmap PDF** exports.
 - **📄 Official Academic Diagnostic PDF Report Generator**:
   - Automatically compiles and exports a clean vector-rendered **PDF Academic Diagnostic Report** in 1 click.
   - Formatted for student advising, parent-teacher reviews, or personal study planning.

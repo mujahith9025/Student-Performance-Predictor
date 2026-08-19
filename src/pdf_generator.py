@@ -50,7 +50,6 @@ def create_student_pdf_report(
     
     styles = getSampleStyleSheet()
     
-    # Custom styles
     primary_color = colors.HexColor("#1E3A8A")
     secondary_color = colors.HexColor("#0284C7")
     dark_text = colors.HexColor("#0F172A")
@@ -62,8 +61,8 @@ def create_student_pdf_report(
         "DocTitle",
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=20,
-        leading=24,
+        fontSize=18,
+        leading=22,
         textColor=primary_color,
         alignment=TA_LEFT
     )
@@ -72,8 +71,8 @@ def create_student_pdf_report(
         "DocSubtitle",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=10,
-        leading=13,
+        fontSize=9,
+        leading=12,
         textColor=muted_text,
         alignment=TA_LEFT
     )
@@ -82,19 +81,19 @@ def create_student_pdf_report(
         "SectionHeading",
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=12,
-        leading=15,
+        fontSize=11,
+        leading=14,
         textColor=primary_color,
-        spaceBefore=8,
-        spaceAfter=4
+        spaceBefore=7,
+        spaceAfter=3
     )
     
     body_style = ParagraphStyle(
         "BodyDark",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=9,
-        leading=12,
+        fontSize=8.5,
+        leading=11.5,
         textColor=dark_text
     )
     
@@ -102,8 +101,8 @@ def create_student_pdf_report(
         "BodyBold",
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=9,
-        leading=12,
+        fontSize=8.5,
+        leading=11.5,
         textColor=dark_text
     )
 
@@ -111,8 +110,8 @@ def create_student_pdf_report(
         "MetricTitle",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=8,
-        leading=10,
+        fontSize=7.5,
+        leading=9,
         textColor=muted_text,
         alignment=TA_CENTER
     )
@@ -121,8 +120,8 @@ def create_student_pdf_report(
         "MetricValue",
         parent=styles["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=16,
-        leading=18,
+        fontSize=15,
+        leading=17,
         textColor=primary_color,
         alignment=TA_CENTER
     )
@@ -143,8 +142,8 @@ def create_student_pdf_report(
         ('ALIGN', (1,0), (1,0), 'RIGHT'),
     ]))
     story.append(header_table)
-    story.append(Spacer(1, 8))
-    story.append(HRFlowable(width="100%", thickness=1.5, color=secondary_color, spaceBefore=2, spaceAfter=8))
+    story.append(Spacer(1, 6))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=secondary_color, spaceBefore=2, spaceAfter=6))
     
     # 2. Executive Summary Metrics Cards
     story.append(Paragraph("<b>1. Predicted Academic Outcome & Confidence Bounds</b>", section_heading))
@@ -157,10 +156,10 @@ def create_student_pdf_report(
             Paragraph("HABIT BALANCE INDEX", metric_title_style),
         ],
         [
-            Paragraph(f"<b>{pred_score:.1f}</b> <font size=9 color='#64748B'>/100</font>", metric_val_style),
-            Paragraph(f"<b>[{lower_bound:.1f} — {upper_bound:.1f}]</b><br/><font size=7 color='#64748B'>Margin ±{margin:.1f} pts</font>", metric_val_style),
+            Paragraph(f"<b>{pred_score:.1f}</b> <font size=8 color='#64748B'>/100</font>", metric_val_style),
+            Paragraph(f"<b>[{lower_bound:.1f} — {upper_bound:.1f}]</b><br/><font size=6.5 color='#64748B'>Margin ±{margin:.1f} pts</font>", metric_val_style),
             Paragraph(f"<b>Grade {letter_grade}</b>", metric_val_style),
-            Paragraph(f"<b>{habit_balance_score:.1f}</b> <font size=9 color='#64748B'>/100</font>", metric_val_style),
+            Paragraph(f"<b>{habit_balance_score:.1f}</b> <font size=8 color='#64748B'>/100</font>", metric_val_style),
         ]
     ]
     metrics_table = Table(metrics_data, colWidths=[135, 135, 135, 135])
@@ -168,18 +167,18 @@ def create_student_pdf_report(
         ('BACKGROUND', (0,0), (-1,-1), card_bg),
         ('BOX', (0,0), (-1,-1), 1, border_color),
         ('INNERGRID', (0,0), (-1,-1), 0.5, border_color),
-        ('TOPPADDING', (0,0), (-1,-1), 6),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
         ('ALIGN', (0,0), (-1,-1), 'CENTER'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
     ]))
     story.append(metrics_table)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     
     # Standing Description
     standing_p = Paragraph(f"<b>Academic Standing:</b> {standing_desc} &nbsp;|&nbsp; <b>Model Engine:</b> {model_name}", body_style)
     story.append(standing_p)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     
     # 3. Student Study Habits & Engineered Features Table
     story.append(Paragraph("<b>2. Student Study Profile & Engineered Metrics</b>", section_heading))
@@ -220,12 +219,12 @@ def create_student_pdf_report(
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#F1F5F9")),
         ('BOX', (0,0), (-1,-1), 1, border_color),
         ('INNERGRID', (0,0), (-1,-1), 0.5, border_color),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
     ]))
     story.append(profile_table)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     
     # 4. SHAP Explainability Breakdown
     story.append(Paragraph("<b>3. SHAP Explainability & Factor Attribution Breakdown</b>", section_heading))
@@ -235,7 +234,7 @@ def create_student_pdf_report(
         body_style
     )
     story.append(shap_intro)
-    story.append(Spacer(1, 6))
+    story.append(Spacer(1, 4))
     
     sorted_shap = sorted(shap_contributions.items(), key=lambda x: abs(x[1]), reverse=True)
     shap_table_data = [
@@ -259,30 +258,156 @@ def create_student_pdf_report(
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#F1F5F9")),
         ('BOX', (0,0), (-1,-1), 1, border_color),
         ('INNERGRID', (0,0), (-1,-1), 0.5, border_color),
-        ('TOPPADDING', (0,0), (-1,-1), 4),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ('TOPPADDING', (0,0), (-1,-1), 3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
     ]))
     story.append(shap_table)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     
     # 5. Personalized Recommendations & Action Plan
     story.append(Paragraph("<b>4. Personalized Study Action Plan & Improvement Recommendations</b>", section_heading))
     for rec in recommendations:
         rec_p = Paragraph(f"• {rec}", body_style)
         story.append(rec_p)
-        story.append(Spacer(1, 3))
+        story.append(Spacer(1, 2.5))
         
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     
     # 6. Footer Disclaimer
-    story.append(HRFlowable(width="100%", thickness=0.8, color=border_color, spaceBefore=4, spaceAfter=6))
+    story.append(HRFlowable(width="100%", thickness=0.8, color=border_color, spaceBefore=3, spaceAfter=4))
     footer_text = Paragraph(
-        "<font size=7 color='#64748B'><b>Diagnostic Notice:</b> This report is generated by the Student Academic Performance Predictor ML system. "
+        "<font size=6.5 color='#64748B'><b>Diagnostic Notice:</b> This report is generated by the Student Academic Performance Predictor ML system. "
         "Predictions and confidence intervals are statistical estimates based on 10,000 empirical student records and should be used as advisory academic guidance.</font>",
         body_style
     )
     story.append(footer_text)
+    
+    doc.build(story)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes
+
+def create_goal_roadmap_pdf_report(
+    student_name: str,
+    subject: str,
+    target_score: float,
+    current_pred: float,
+    gap: float,
+    pathways: list
+) -> bytes:
+    """
+    Generates an official Reverse Goal Solver & Target Achievement Roadmap PDF.
+    """
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=36,
+        bottomMargin=36
+    )
+    
+    styles = getSampleStyleSheet()
+    primary_color = colors.HexColor("#1E3A8A")
+    secondary_color = colors.HexColor("#0284C7")
+    dark_text = colors.HexColor("#0F172A")
+    muted_text = colors.HexColor("#64748B")
+    card_bg = colors.HexColor("#F8FAFC")
+    border_color = colors.HexColor("#CBD5E1")
+    
+    title_style = ParagraphStyle("GoalTitle", fontName="Helvetica-Bold", fontSize=18, leading=22, textColor=primary_color)
+    subtitle_style = ParagraphStyle("GoalSubtitle", fontName="Helvetica", fontSize=9, leading=12, textColor=muted_text)
+    section_heading = ParagraphStyle("GoalHeading", fontName="Helvetica-Bold", fontSize=11, leading=14, textColor=primary_color, spaceBefore=8, spaceAfter=4)
+    body_style = ParagraphStyle("GoalBody", fontName="Helvetica", fontSize=8.5, leading=11.5, textColor=dark_text)
+    body_bold = ParagraphStyle("GoalBold", fontName="Helvetica-Bold", fontSize=8.5, leading=11.5, textColor=dark_text)
+    
+    story = []
+    
+    date_str = datetime.now().strftime("%B %d, %Y")
+    header_data = [
+        [
+            Paragraph("<b>🎯 Target Score Solver — Action Roadmap</b><br/><font color='#64748B' size=8>Inverse Goal Optimization & Habit Strategy Plan</font>", title_style),
+            Paragraph(f"<b>Report Date:</b> {date_str}<br/><b>Discipline:</b> {subject}<br/><b>Student:</b> {student_name}", subtitle_style)
+        ]
+    ]
+    header_table = Table(header_data, colWidths=[340, 200])
+    header_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'MIDDLE'), ('ALIGN', (1,0), (1,0), 'RIGHT')]))
+    story.append(header_table)
+    story.append(Spacer(1, 6))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=secondary_color, spaceBefore=2, spaceAfter=6))
+    
+    # Target vs Current Summary
+    story.append(Paragraph("<b>1. Goal Target vs Current Baseline Summary</b>", section_heading))
+    summary_data = [
+        [
+            Paragraph("CURRENT PROJECTED SCORE", ParagraphStyle("C1", fontName="Helvetica", fontSize=8, alignment=TA_CENTER, textColor=muted_text)),
+            Paragraph("DESIRED TARGET SCORE", ParagraphStyle("C2", fontName="Helvetica", fontSize=8, alignment=TA_CENTER, textColor=muted_text)),
+            Paragraph("REQUIRED SCORE GAIN", ParagraphStyle("C3", fontName="Helvetica", fontSize=8, alignment=TA_CENTER, textColor=muted_text)),
+        ],
+        [
+            Paragraph(f"<b>{current_pred:.1f}</b> <font size=8 color='#64748B'>/100</font>", ParagraphStyle("V1", fontName="Helvetica-Bold", fontSize=16, alignment=TA_CENTER, textColor=primary_color)),
+            Paragraph(f"<b>{target_score:.1f}</b> <font size=8 color='#64748B'>/100</font>", ParagraphStyle("V2", fontName="Helvetica-Bold", fontSize=16, alignment=TA_CENTER, textColor=colors.HexColor("#16A34A"))),
+            Paragraph(f"<b>+{gap:.1f} pts</b>", ParagraphStyle("V3", fontName="Helvetica-Bold", fontSize=16, alignment=TA_CENTER, textColor=colors.HexColor("#0284C7"))),
+        ]
+    ]
+    summary_table = Table(summary_data, colWidths=[180, 180, 180])
+    summary_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), card_bg),
+        ('BOX', (0,0), (-1,-1), 1, border_color),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, border_color),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+    ]))
+    story.append(summary_table)
+    story.append(Spacer(1, 10))
+    
+    # Recommended Pathways
+    story.append(Paragraph("<b>2. Optimized Action Pathways to Reach Target Score</b>", section_heading))
+    
+    pathway_table_data = [
+        [
+            Paragraph("<b>Pathway Strategy</b>", body_bold),
+            Paragraph("<b>Daily Study</b>", body_bold),
+            Paragraph("<b>Mock Papers</b>", body_bold),
+            Paragraph("<b>Daily Sleep</b>", body_bold),
+            Paragraph("<b>Weekly Hours</b>", body_bold),
+            Paragraph("<b>Predicted Score</b>", body_bold)
+        ]
+    ]
+    for p in pathways:
+        pathway_table_data.append([
+            Paragraph(f"<b>{p['name']}</b><br/><font size=7 color='#64748B'>{p['tag']}</font>", body_style),
+            Paragraph(f"<b>{p['required_hours']:.1f} hrs</b> ({p['delta_hours']:+0.1f})", body_style),
+            Paragraph(f"<b>{p['required_papers']} papers</b> ({p['delta_papers']:+d})", body_style),
+            Paragraph(f"{p['required_sleep']:.1f} hrs", body_style),
+            Paragraph(f"{p['weekly_study_hours']:.1f} hrs/wk", body_style),
+            Paragraph(f"<b>{p['predicted_score']:.1f} / 100</b>", body_bold)
+        ])
+        
+    pathway_table = Table(pathway_table_data, colWidths=[150, 75, 75, 70, 80, 90])
+    pathway_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#F1F5F9")),
+        ('BOX', (0,0), (-1,-1), 1, border_color),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, border_color),
+        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ]))
+    story.append(pathway_table)
+    story.append(Spacer(1, 10))
+    
+    # Detailed Strategy Notes
+    story.append(Paragraph("<b>3. Strategic Recommendations for Execution</b>", section_heading))
+    for p in pathways:
+        story.append(Paragraph(f"• <b>{p['name']}:</b> {p['description']} Commitment: {p['weekly_study_hours']} hours per week with {p['required_papers']} practice exams.", body_style))
+        story.append(Spacer(1, 3))
+        
+    story.append(Spacer(1, 8))
+    story.append(HRFlowable(width="100%", thickness=0.8, color=border_color, spaceBefore=4, spaceAfter=4))
+    story.append(Paragraph("<font size=6.5 color='#64748B'><b>Diagnostic Notice:</b> This target roadmap was computed using the inverse regression solver over 10,000 real student records. Individual student learning speeds may vary.</font>", body_style))
     
     doc.build(story)
     pdf_bytes = buffer.getvalue()
