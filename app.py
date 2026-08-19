@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import importlib
 import joblib
 import pandas as pd
 import numpy as np
@@ -23,6 +24,19 @@ SRC_DIR = os.path.join(PROJECT_ROOT, "src")
 for path_entry in [SRC_DIR, PROJECT_ROOT]:
     if path_entry not in sys.path:
         sys.path.insert(0, path_entry)
+
+# Force-reload submodules to prevent Streamlit Cloud from using stale cached functions
+for mod_name in ["data_loader", "explainability", "pdf_generator", "goal_solver"]:
+    if mod_name in sys.modules:
+        try:
+            importlib.reload(sys.modules[mod_name])
+        except Exception:
+            pass
+    if f"src.{mod_name}" in sys.modules:
+        try:
+            importlib.reload(sys.modules[f"src.{mod_name}"])
+        except Exception:
+            pass
 
 try:
     from data_loader import (
@@ -338,7 +352,7 @@ with st.sidebar:
         with col2:
             st.metric("MAE", f"±{model_bench.get('test_mae', 1.65):.2f}")
 
-# Main Header Banner (Changes dynamically based on Student vs Teacher perspective)
+# Main Header Banner
 header_class = "main-header-teacher" if is_teacher else "main-header"
 header_title_prefix = "👩‍🏫 Educator Diagnostics & Academic Advisory" if is_teacher else f"{active_subject_meta['icon']} Student Academic Performance Predictor"
 header_subtext = "Conduct classroom risk diagnostics, prescribe target roadmaps, and generate counselor intervention PDF reports." if is_teacher else f"Predict scores, solve target goals, inspect SHAP Explainability & export personalized PDF reports for <b>{selected_subject}</b>."
@@ -420,7 +434,6 @@ with tab1:
                 help="Sports, clubs, arts, volunteering, etc."
             )
             
-            # Teacher-specific Custom Notes Input
             teacher_input_notes = ""
             if is_teacher:
                 st.markdown("#### 📝 Educator Counseling Remarks (Included in PDF)")
@@ -805,7 +818,7 @@ with tab1:
                 recs_list.append(f"Practice Mock Papers: Completing 3 additional mock exams is estimated to raise predicted score by +{res['delta_papers']:.1f} points.")
 
         # ------------------------------------------------------------------
-        # PDF REPORT GENERATOR SECTION
+        # PDF REPORT GENERATOR SECTION (Ultra-Defensive)
         # ------------------------------------------------------------------
         st.markdown("---")
         st.markdown("### 📄 Official Student Academic Diagnostic Report (PDF)")
@@ -814,6 +827,7 @@ with tab1:
         raw_dict = res["raw_input"].iloc[0].to_dict()
         eng_dict = res["engineered_input"].iloc[0].to_dict()
         
+        pdf_bytes = None
         try:
             pdf_bytes = create_student_pdf_report(
                 student_name=res.get("student_name", "Student"),
@@ -836,7 +850,32 @@ with tab1:
                 teacher_notes=res.get("teacher_notes", ""),
                 risk_flags=res.get("risk_flags", [])
             )
-            
+        except Exception:
+            try:
+                # Positional fallback to support any older cached function signature in memory
+                pdf_bytes = create_student_pdf_report(
+                    res.get("student_name", "Student"),
+                    selected_subject,
+                    res.get("model_used", selected_model_name),
+                    confidence_level_str,
+                    res["pred_score"],
+                    res_lower,
+                    res_upper,
+                    res_margin,
+                    res["letter_grade"],
+                    res["standing_desc"],
+                    raw_dict,
+                    eng_dict,
+                    res.get("habit_balance_score", 75.0),
+                    contribs,
+                    base_val,
+                    recs_list
+                )
+            except Exception as final_err:
+                pdf_bytes = None
+                st.warning(f"Note: PDF generation notice: {final_err}")
+                
+        if pdf_bytes:
             pdf_col1, pdf_col2 = st.columns([1, 2])
             with pdf_col1:
                 report_btn_name = "📥 Download Educator Diagnostic Report (PDF)" if is_teacher else "📥 Download Official Academic Report (PDF)"
@@ -850,8 +889,6 @@ with tab1:
                 )
             with pdf_col2:
                 st.caption("✅ **Includes:** Executive Prediction Summary, 6-D Habit Diagnostics, Confidence Intervals, SHAP Attribution Matrix, Educator Remarks, and Action Plan.")
-        except Exception as pdf_err:
-            st.info(f"ℹ️ PDF preview ready. Click generate to download. ({pdf_err})")
 
     else:
         st.markdown("---")
@@ -1053,7 +1090,20 @@ with tab_goal:
                     gap=gap,
                     pathways=g_res["pathways"]
                 )
-                
+            except Exception:
+                try:
+                    goal_pdf_bytes = create_goal_roadmap_pdf_report(
+                        g_data.get("student_name", "Student"),
+                        selected_subject,
+                        t_score,
+                        curr_p,
+                        gap,
+                        g_res["pathways"]
+                    )
+                except Exception:
+                    goal_pdf_bytes = None
+            
+            if goal_pdf_bytes:
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.download_button(
                     label="📥 Download Target Action Plan (PDF)",
@@ -1063,8 +1113,6 @@ with tab_goal:
                     type="primary",
                     width="stretch"
                 )
-            except Exception as goal_pdf_err:
-                st.info(f"ℹ️ Target plan ready. ({goal_pdf_err})")
 
 # -------------------------------------------------------------
 # TAB 3: Batch CSV Prediction / Roster Risk Matrix
@@ -1127,7 +1175,6 @@ with tab2:
             result_df["Grade"] = [compute_grade_and_status(s)[0] for s in result_df["Predicted_Score"]]
             result_df["Status"] = [compute_grade_and_status(s)[2] for s in result_df["Predicted_Score"]]
             
-            # Risk Priority Calculation
             def assign_risk_tier(row):
                 if row["Predicted_Score"] < 50 or row["Previous_Score"] < 50:
                     return "🚨 High Risk (Urgent Action)"
@@ -1145,7 +1192,6 @@ with tab2:
             b_col3.metric("Margin of Error", f"±{batch_margin:.2f} pts")
             b_col4.metric("Pass Rate (Score ≥ 50)", f"{(result_df['Predicted_Score'] >= 50).mean() * 100:.1f}%")
             
-            # Teacher Risk Distribution Matrix
             if is_teacher:
                 st.markdown("#### 🚨 Educator Roster Risk Breakdown")
                 risk_counts = result_df["Intervention_Priority"].value_counts()
