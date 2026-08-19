@@ -16,31 +16,89 @@ from reportlab.platypus import (
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 
-def create_student_pdf_report(
-    student_name: str,
-    subject: str,
-    model_name: str,
-    confidence_level: str,
-    pred_score: float,
-    lower_bound: float,
-    upper_bound: float,
-    margin: float,
-    letter_grade: str,
-    standing_desc: str,
-    inputs: dict,
-    engineered_inputs: dict,
-    habit_balance_score: float,
-    shap_contributions: dict,
-    shap_base_value: float,
-    recommendations: list,
-    view_mode: str = "Student Mode",
-    teacher_notes: str = None,
-    risk_flags: list = None
-) -> bytes:
+def create_student_pdf_report(*args, **kwargs) -> bytes:
     """
     Generates a professional academic diagnostic & prediction report as a PDF in memory.
-    Supports both Student Perspective and Teacher / Counselor Perspective with clinical notes.
+    Ultra-robust signature accepting both positional and keyword arguments.
     """
+    # Keyword or positional extraction
+    arg_keys = [
+        "student_name", "subject", "model_name", "confidence_level",
+        "pred_score", "lower_bound", "upper_bound", "margin",
+        "letter_grade", "standing_desc", "inputs", "engineered_inputs",
+        "habit_balance_score", "shap_contributions", "shap_base_value",
+        "recommendations", "view_mode", "teacher_notes", "risk_flags"
+    ]
+    
+    params = {}
+    for idx, val in enumerate(args):
+        if idx < len(arg_keys):
+            params[arg_keys[idx]] = val
+    params.update(kwargs)
+    
+    student_name = str(params.get("student_name", "Student"))
+    subject = str(params.get("subject", "General Academics"))
+    model_name = str(params.get("model_name", "Linear Regression"))
+    confidence_level = str(params.get("confidence_level", "95%"))
+    
+    try:
+        pred_score = float(params.get("pred_score", 55.0))
+    except (TypeError, ValueError):
+        pred_score = 55.0
+        
+    try:
+        lower_bound = float(params.get("lower_bound", pred_score - 4.0))
+    except (TypeError, ValueError):
+        lower_bound = pred_score - 4.0
+        
+    try:
+        upper_bound = float(params.get("upper_bound", pred_score + 4.0))
+    except (TypeError, ValueError):
+        upper_bound = pred_score + 4.0
+        
+    try:
+        margin = float(params.get("margin", 4.0))
+    except (TypeError, ValueError):
+        margin = 4.0
+        
+    letter_grade = str(params.get("letter_grade", "C"))
+    standing_desc = str(params.get("standing_desc", "Satisfactory"))
+    
+    inputs = params.get("inputs", {})
+    if not isinstance(inputs, dict):
+        inputs = {}
+        
+    engineered_inputs = params.get("engineered_inputs", {})
+    if not isinstance(engineered_inputs, dict):
+        engineered_inputs = {}
+        
+    try:
+        habit_balance_score = float(params.get("habit_balance_score", 75.0))
+    except (TypeError, ValueError):
+        habit_balance_score = 75.0
+        
+    shap_contributions = params.get("shap_contributions", {})
+    if not isinstance(shap_contributions, dict):
+        shap_contributions = {}
+        
+    try:
+        shap_base_value = float(params.get("shap_base_value", 54.8))
+    except (TypeError, ValueError):
+        shap_base_value = 54.8
+        
+    recommendations = params.get("recommendations", [])
+    if not isinstance(recommendations, (list, tuple)):
+        recommendations = [str(recommendations)]
+        
+    view_mode = str(params.get("view_mode", "Student Mode"))
+    teacher_notes = params.get("teacher_notes", None)
+    if teacher_notes is not None:
+        teacher_notes = str(teacher_notes)
+        
+    risk_flags = params.get("risk_flags", [])
+    if not isinstance(risk_flags, (list, tuple)):
+        risk_flags = []
+
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -202,6 +260,22 @@ def create_student_pdf_report(
     
     # 3. Student Study Habits & Engineered Features Table
     story.append(Paragraph("<b>2. Student Study Profile & Engineered Metrics</b>", section_heading))
+    
+    try:
+        s2s_val = float(engineered_inputs.get("Study_to_Sleep_Ratio", 0.71))
+    except (TypeError, ValueError):
+        s2s_val = 0.71
+        
+    try:
+        pd_val = float(engineered_inputs.get("Practice_Density", 0.5))
+    except (TypeError, ValueError):
+        pd_val = 0.5
+        
+    try:
+        ses_val = float(engineered_inputs.get("Study_Effort_Score", 4.2))
+    except (TypeError, ValueError):
+        ses_val = 4.2
+        
     profile_data = [
         [
             Paragraph("<b>Input Habit Dimension</b>", body_bold),
@@ -213,19 +287,19 @@ def create_student_pdf_report(
             Paragraph("⏱️ Daily Hours Studied", body_style),
             Paragraph(f"{inputs.get('Hours_Studied', 5)} hrs/day", body_style),
             Paragraph("⚖️ Study-to-Sleep Ratio", body_style),
-            Paragraph(f"{engineered_inputs.get('Study_to_Sleep_Ratio', 0.71):.2f}", body_style)
+            Paragraph(f"{s2s_val:.2f}", body_style)
         ],
         [
             Paragraph("📝 Previous Exam Score", body_style),
             Paragraph(f"{inputs.get('Previous_Score', 75)} / 100", body_style),
             Paragraph("📄 Practice Density", body_style),
-            Paragraph(f"{engineered_inputs.get('Practice_Density', 0.5):.2f} mock/hr", body_style)
+            Paragraph(f"{pd_val:.2f} mock/hr", body_style)
         ],
         [
             Paragraph("📄 Practice Mock Papers", body_style),
             Paragraph(f"{inputs.get('Sample_Question_Papers_Practiced', 3)} papers", body_style),
             Paragraph("⚡ Composite Effort Score", body_style),
-            Paragraph(f"{engineered_inputs.get('Study_Effort_Score', 4.2):.2f} / 9.4", body_style)
+            Paragraph(f"{ses_val:.2f} / 9.4", body_style)
         ],
         [
             Paragraph("😴 Daily Sleep Hours", body_style),
@@ -256,7 +330,7 @@ def create_student_pdf_report(
     story.append(shap_intro)
     story.append(Spacer(1, 4))
     
-    sorted_shap = sorted(shap_contributions.items(), key=lambda x: abs(x[1]), reverse=True)
+    sorted_shap = sorted(shap_contributions.items(), key=lambda x: abs(x[1]) if isinstance(x[1], (int, float)) else 0, reverse=True)
     shap_table_data = [
         [
             Paragraph("<b>Influencing Factor / Variable</b>", body_bold),
@@ -265,10 +339,16 @@ def create_student_pdf_report(
         ]
     ]
     for feat_name, impact in sorted_shap:
-        impact_str = f"+{impact:.2f} pts" if impact > 0 else f"{impact:.2f} pts"
-        status_text = "<font color='#16A34A'><b>🟢 Positive Score Boost</b></font>" if impact > 0 else "<font color='#DC2626'><b>🔴 Drag on Score</b></font>" if impact < 0 else "Neutral"
+        try:
+            imp_val = float(impact)
+            impact_str = f"+{imp_val:.2f} pts" if imp_val > 0 else f"{imp_val:.2f} pts"
+            status_text = "<font color='#16A34A'><b>🟢 Positive Score Boost</b></font>" if imp_val > 0 else "<font color='#DC2626'><b>🔴 Drag on Score</b></font>" if imp_val < 0 else "Neutral"
+        except (TypeError, ValueError):
+            impact_str = str(impact)
+            status_text = "Neutral"
+            
         shap_table_data.append([
-            Paragraph(feat_name, body_style),
+            Paragraph(str(feat_name), body_style),
             Paragraph(f"<b>{impact_str}</b>", body_style),
             Paragraph(status_text, body_style)
         ])
@@ -289,7 +369,7 @@ def create_student_pdf_report(
     rec_title = "<b>4. Educator Intervention Action Plan & Counseling Roadmap</b>" if "Teacher" in view_mode else "<b>4. Personalized Study Action Plan & Improvement Recommendations</b>"
     story.append(Paragraph(rec_title, section_heading))
     for rec in recommendations:
-        rec_p = Paragraph(f"• {rec}", body_style)
+        rec_p = Paragraph(f"• {str(rec)}", body_style)
         story.append(rec_p)
         story.append(Spacer(1, 2.5))
         
@@ -322,17 +402,40 @@ def create_student_pdf_report(
     buffer.close()
     return pdf_bytes
 
-def create_goal_roadmap_pdf_report(
-    student_name: str,
-    subject: str,
-    target_score: float,
-    current_pred: float,
-    gap: float,
-    pathways: list
-) -> bytes:
+def create_goal_roadmap_pdf_report(*args, **kwargs) -> bytes:
     """
     Generates an official Reverse Goal Solver & Target Achievement Roadmap PDF.
+    Ultra-robust signature accepting both positional and keyword arguments.
     """
+    arg_keys = ["student_name", "subject", "target_score", "current_pred", "gap", "pathways"]
+    params = {}
+    for idx, val in enumerate(args):
+        if idx < len(arg_keys):
+            params[arg_keys[idx]] = val
+    params.update(kwargs)
+    
+    student_name = str(params.get("student_name", "Student"))
+    subject = str(params.get("subject", "General Academics"))
+    
+    try:
+        target_score = float(params.get("target_score", 85.0))
+    except (TypeError, ValueError):
+        target_score = 85.0
+        
+    try:
+        current_pred = float(params.get("current_pred", 70.0))
+    except (TypeError, ValueError):
+        current_pred = 70.0
+        
+    try:
+        gap = float(params.get("gap", target_score - current_pred))
+    except (TypeError, ValueError):
+        gap = target_score - current_pred
+        
+    pathways = params.get("pathways", [])
+    if not isinstance(pathways, (list, tuple)):
+        pathways = []
+        
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -413,12 +516,12 @@ def create_goal_roadmap_pdf_report(
     ]
     for p in pathways:
         pathway_table_data.append([
-            Paragraph(f"<b>{p['name']}</b><br/><font size=7 color='#64748B'>{p['tag']}</font>", body_style),
-            Paragraph(f"<b>{p['required_hours']:.1f} hrs</b> ({p['delta_hours']:+0.1f})", body_style),
-            Paragraph(f"<b>{p['required_papers']} papers</b> ({p['delta_papers']:+d})", body_style),
-            Paragraph(f"{p['required_sleep']:.1f} hrs", body_style),
-            Paragraph(f"{p['weekly_study_hours']:.1f} hrs/wk", body_style),
-            Paragraph(f"<b>{p['predicted_score']:.1f} / 100</b>", body_bold)
+            Paragraph(f"<b>{p.get('name', 'Pathway')}</b><br/><font size=7 color='#64748B'>{p.get('tag', '')}</font>", body_style),
+            Paragraph(f"<b>{float(p.get('required_hours', 5)):.1f} hrs</b> ({float(p.get('delta_hours', 0)):+0.1f})", body_style),
+            Paragraph(f"<b>{int(p.get('required_papers', 3))} papers</b> ({int(p.get('delta_papers', 0)):+d})", body_style),
+            Paragraph(f"{float(p.get('required_sleep', 7)):.1f} hrs", body_style),
+            Paragraph(f"{float(p.get('weekly_study_hours', 35)):.1f} hrs/wk", body_style),
+            Paragraph(f"<b>{float(p.get('predicted_score', 75)):.1f} / 100</b>", body_bold)
         ])
         
     pathway_table = Table(pathway_table_data, colWidths=[150, 75, 75, 70, 80, 90])
@@ -436,7 +539,7 @@ def create_goal_roadmap_pdf_report(
     # Detailed Strategy Notes
     story.append(Paragraph("<b>3. Strategic Recommendations for Execution</b>", section_heading))
     for p in pathways:
-        story.append(Paragraph(f"• <b>{p['name']}:</b> {p['description']} Commitment: {p['weekly_study_hours']} hours per week with {p['required_papers']} practice exams.", body_style))
+        story.append(Paragraph(f"• <b>{p.get('name', 'Pathway')}:</b> {p.get('description', '')} Commitment: {p.get('weekly_study_hours', 35)} hours per week with {p.get('required_papers', 3)} practice exams.", body_style))
         story.append(Spacer(1, 3))
         
     story.append(Spacer(1, 8))

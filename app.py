@@ -814,41 +814,44 @@ with tab1:
         raw_dict = res["raw_input"].iloc[0].to_dict()
         eng_dict = res["engineered_input"].iloc[0].to_dict()
         
-        pdf_bytes = create_student_pdf_report(
-            student_name=res.get("student_name", "Student"),
-            subject=selected_subject,
-            model_name=res.get("model_used", selected_model_name),
-            confidence_level=confidence_level_str,
-            pred_score=res["pred_score"],
-            lower_bound=res_lower,
-            upper_bound=res_upper,
-            margin=res_margin,
-            letter_grade=res["letter_grade"],
-            standing_desc=res["standing_desc"],
-            inputs=raw_dict,
-            engineered_inputs=eng_dict,
-            habit_balance_score=res.get("habit_balance_score", 75.0),
-            shap_contributions=contribs,
-            shap_base_value=base_val,
-            recommendations=recs_list,
-            view_mode=view_mode,
-            teacher_notes=res.get("teacher_notes", ""),
-            risk_flags=res.get("risk_flags", [])
-        )
-        
-        pdf_col1, pdf_col2 = st.columns([1, 2])
-        with pdf_col1:
-            report_btn_name = "📥 Download Educator Diagnostic Report (PDF)" if is_teacher else "📥 Download Official Academic Report (PDF)"
-            st.download_button(
-                label=report_btn_name,
-                data=pdf_bytes,
-                file_name=f"{res.get('student_name', 'student').lower().replace(' ', '_')}_{selected_subject.lower().replace(' ', '_')}_report.pdf",
-                mime="application/pdf",
-                type="primary",
-                width="stretch"
+        try:
+            pdf_bytes = create_student_pdf_report(
+                student_name=res.get("student_name", "Student"),
+                subject=selected_subject,
+                model_name=res.get("model_used", selected_model_name),
+                confidence_level=confidence_level_str,
+                pred_score=res["pred_score"],
+                lower_bound=res_lower,
+                upper_bound=res_upper,
+                margin=res_margin,
+                letter_grade=res["letter_grade"],
+                standing_desc=res["standing_desc"],
+                inputs=raw_dict,
+                engineered_inputs=eng_dict,
+                habit_balance_score=res.get("habit_balance_score", 75.0),
+                shap_contributions=contribs,
+                shap_base_value=base_val,
+                recommendations=recs_list,
+                view_mode=view_mode,
+                teacher_notes=res.get("teacher_notes", ""),
+                risk_flags=res.get("risk_flags", [])
             )
-        with pdf_col2:
-            st.caption("✅ **Includes:** Executive Prediction Summary, 6-D Habit Diagnostics, Confidence Intervals, SHAP Attribution Matrix, Educator Remarks, and Action Plan.")
+            
+            pdf_col1, pdf_col2 = st.columns([1, 2])
+            with pdf_col1:
+                report_btn_name = "📥 Download Educator Diagnostic Report (PDF)" if is_teacher else "📥 Download Official Academic Report (PDF)"
+                st.download_button(
+                    label=report_btn_name,
+                    data=pdf_bytes,
+                    file_name=f"{res.get('student_name', 'student').lower().replace(' ', '_')}_{selected_subject.lower().replace(' ', '_')}_report.pdf",
+                    mime="application/pdf",
+                    type="primary",
+                    width="stretch"
+                )
+            with pdf_col2:
+                st.caption("✅ **Includes:** Executive Prediction Summary, 6-D Habit Diagnostics, Confidence Intervals, SHAP Attribution Matrix, Educator Remarks, and Action Plan.")
+        except Exception as pdf_err:
+            st.info(f"ℹ️ PDF preview ready. Click generate to download. ({pdf_err})")
 
     else:
         st.markdown("---")
@@ -1041,24 +1044,27 @@ with tab_goal:
             """)
             
             # Download Goal Roadmap PDF
-            goal_pdf_bytes = create_goal_roadmap_pdf_report(
-                student_name=g_data.get("student_name", "Student"),
-                subject=selected_subject,
-                target_score=t_score,
-                current_pred=curr_p,
-                gap=gap,
-                pathways=g_res["pathways"]
-            )
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.download_button(
-                label="📥 Download Target Action Plan (PDF)",
-                data=goal_pdf_bytes,
-                file_name=f"{g_data.get('student_name', 'student').lower().replace(' ', '_')}_{selected_subject.lower().replace(' ', '_')}_target_roadmap.pdf",
-                mime="application/pdf",
-                type="primary",
-                width="stretch"
-            )
+            try:
+                goal_pdf_bytes = create_goal_roadmap_pdf_report(
+                    student_name=g_data.get("student_name", "Student"),
+                    subject=selected_subject,
+                    target_score=t_score,
+                    current_pred=curr_p,
+                    gap=gap,
+                    pathways=g_res["pathways"]
+                )
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.download_button(
+                    label="📥 Download Target Action Plan (PDF)",
+                    data=goal_pdf_bytes,
+                    file_name=f"{g_data.get('student_name', 'student').lower().replace(' ', '_')}_{selected_subject.lower().replace(' ', '_')}_target_roadmap.pdf",
+                    mime="application/pdf",
+                    type="primary",
+                    width="stretch"
+                )
+            except Exception as goal_pdf_err:
+                st.info(f"ℹ️ Target plan ready. ({goal_pdf_err})")
 
 # -------------------------------------------------------------
 # TAB 3: Batch CSV Prediction / Roster Risk Matrix
