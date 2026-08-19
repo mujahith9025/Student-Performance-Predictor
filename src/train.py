@@ -37,16 +37,21 @@ except ImportError:
 
 from src.data_loader import (
     load_student_data,
+    load_subject_data,
+    create_subject_datasets_if_needed,
     get_feature_target_split,
     split_train_test,
     NUMERICAL_FEATURES,
-    CATEGORICAL_FEATURES
+    CATEGORICAL_FEATURES,
+    SUBJECT_METADATA
 )
 
 MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
 MODEL_SAVE_PATH = os.path.join(MODELS_DIR, "best_model.pkl")
 ALL_MODELS_SAVE_PATH = os.path.join(MODELS_DIR, "all_trained_models.pkl")
 QUANTILE_MODELS_SAVE_PATH = os.path.join(MODELS_DIR, "quantile_models.pkl")
+SUBJECT_MODELS_SAVE_PATH = os.path.join(MODELS_DIR, "subject_models.pkl")
+SUBJECT_METRICS_SAVE_PATH = os.path.join(MODELS_DIR, "subject_metrics.json")
 METRICS_SAVE_PATH = os.path.join(MODELS_DIR, "metrics.json")
 
 # Standard Z-multipliers for confidence levels
@@ -120,7 +125,6 @@ def train_quantile_regressors(X_train, y_train):
     quantiles = [0.025, 0.05, 0.50, 0.95, 0.975]
     quantile_models = {}
     
-    print("[*] Training Quantile Gradient Boosters for Prediction Intervals...")
     for q in quantiles:
         q_pipe = Pipeline(steps=[
             ("preprocessor", build_preprocessor()),
@@ -135,39 +139,17 @@ def train_quantile_regressors(X_train, y_train):
         ])
         q_pipe.fit(X_train, y_train)
         quantile_models[str(q)] = q_pipe
-        print(f"      Fitted Quantile alpha={q:.3f}")
         
     return quantile_models
 
-def compute_confidence_intervals(y_pred, residual_std, confidence_level=0.95):
+def train_subject_pipeline(subject_name: str, df: pd.DataFrame):
     """
-    Computes parametric Prediction Confidence Intervals with margin of error and clipping.
+    Trains and benchmarks models specifically for one academic subject.
     """
-    z = Z_SCORES.get(confidence_level, 1.960)
-    margin = z * residual_std
-    lower = np.clip(y_pred - margin, 10.0, 100.0)
-    upper = np.clip(y_pred + margin, 10.0, 100.0)
-    return lower, upper, margin
-
-def train_and_evaluate():
-    """
-    End-to-end training, benchmarking, quantile modeling, and serialization pipeline.
-    """
-    print("==========================================================")
-    print(" STUDENT PERFORMANCE PREDICTOR - CONFIDENCE INTERVALS & ML")
-    print("==========================================================")
-    
-    os.makedirs(MODELS_DIR, exist_ok=True)
-    
-    # 1. Load Data
-    print("[1/5] Loading real Kaggle Student Performance dataset with Feature Engineering...")
-    df = load_student_data()
+    print(f"\n---> Training Subject Pipeline: '{subject_name}' ({len(df)} records)...")
     X, y = get_feature_target_split(df)
     X_train, X_test, y_train, y_test = split_train_test(X, y, test_size=0.2, random_state=42)
-    print(f"      Training set: {X_train.shape[0]} rows | Test set: {X_test.shape[0]} rows")
     
-    # 2. Train & Evaluate Candidates
-    print("\n[2/5] Benchmarking baseline models & Advanced Gradient Boosters...")
     candidate_models = get_candidate_models()
     results = {}
     fitted_pipelines = {}
@@ -177,7 +159,6 @@ def train_and_evaluate():
             ("preprocessor", build_preprocessor()),
             ("regressor", model)
         ])
-        
         pipeline.fit(X_train, y_train)
         fitted_pipelines[name] = pipeline
         
@@ -198,26 +179,16 @@ def train_and_evaluate():
             "test_mse": round(test_mse, 4)
         }
         
-        print(f"  --> {name:<28}: R² = {test_r2:.4f} | MAE = {test_mae:.4f} | RMSE = {test_rmse:.4f}")
+    best_name = max(results, key=lambda k: results[k]["test_r2"])
+    best_pipe = fitted_pipelines[best_name]
     
-    # 3. Select Best Model
-    best_model_name = max(results, key=lambda k: results[k]["test_r2"])
-    best_pipeline = fitted_pipelines[best_model_name]
-    best_metrics = results[best_model_name]
-    
-    print(f"\n[3/5] Champion Model Selected: '{best_model_name}' (Test R² = {best_metrics['test_r2']})")
-    
-    # 4. Train Quantile Regressors & Residual Diagnostics for Confidence Intervals
-    print("\n[4/5] Training Quantile Regressors & Computing Confidence Interval Metrics...")
-    quantile_models = train_quantile_regressors(X_train, y_train)
-    
-    # Residual analysis on test set
-    y_test_pred = best_pipeline.predict(X_test)
+    # Residual analysis
+    y_test_pred = best_pipe.predict(X_test)
     residuals = y_test.values - y_test_pred
     residual_std = float(np.std(residuals))
     residual_mean = float(np.mean(residuals))
     
-    # Empirical Coverage Diagnostic
+    # Coverage Diagnostics
     coverage_diagnostics = {}
     for conf, z_val in Z_SCORES.items():
         margin = z_val * residual_std
@@ -228,48 +199,42 @@ def train_and_evaluate():
             "z_multiplier": z_val,
             "margin_of_error": round(float(margin), 2)
         }
-        print(f"      Coverage at {int(conf*100)}% Nominal: {covered*100:.2f}% empirical (Margin ±{margin:.2f} pts)")
 
-    # Extract Feature Importances / Coefficients
+    # Feature weights
     feature_names = NUMERICAL_FEATURES + [f"{CATEGORICAL_FEATURES[0]}_Yes"]
     feature_importance_dict = {}
-    
-    regressor = best_pipeline.named_steps["regressor"]
-    if hasattr(regressor, "coef_"):
-        coefficients = regressor.coef_
-        for feat, coef in zip(feature_names, coefficients):
+    reg = best_pipe.named_steps["regressor"]
+    if hasattr(reg, "coef_"):
+        for feat, coef in zip(feature_names, reg.coef_):
             feature_importance_dict[feat] = round(float(coef), 4)
-    elif hasattr(regressor, "feature_importances_"):
-        importances = regressor.feature_importances_
-        for feat, imp in zip(feature_names, importances):
+    elif hasattr(reg, "feature_importances_"):
+        for feat, imp in zip(feature_names, reg.feature_importances_):
             feature_importance_dict[feat] = round(float(imp), 4)
             
-    # Sample Test Predictions with Intervals for Visual Plots (100 points)
-    sample_test_indices = X_test.index[:100]
-    sample_actual = y_test.loc[sample_test_indices].tolist()
-    sample_preds_raw = best_pipeline.predict(X_test.loc[sample_test_indices])
+    # Sample Test predictions (100 rows)
+    sample_idx = X_test.index[:100]
+    sample_actual = y_test.loc[sample_idx].tolist()
+    sample_preds_raw = best_pipe.predict(X_test.loc[sample_idx])
     sample_predicted = [round(float(p), 2) for p in sample_preds_raw]
-    
-    # 95% Confidence Interval for sample
     sample_lower_95 = [round(float(p - 1.960 * residual_std), 2) for p in sample_preds_raw]
     sample_upper_95 = [round(float(p + 1.960 * residual_std), 2) for p in sample_preds_raw]
     
-    # Save Metadata
-    payload = {
-        "best_model_name": best_model_name,
-        "available_models": list(results.keys()),
+    meta = SUBJECT_METADATA.get(subject_name, {})
+    
+    subject_summary = {
+        "subject_name": subject_name,
+        "icon": meta.get("icon", "📚"),
+        "badge": meta.get("badge", "Academic"),
+        "description": meta.get("description", ""),
+        "focus": meta.get("focus", ""),
+        "best_model_name": best_name,
+        "best_model_metrics": results[best_name],
         "all_model_benchmarks": results,
-        "best_model_metrics": best_metrics,
         "feature_importances": feature_importance_dict,
         "confidence_intervals": {
             "residual_std": round(residual_std, 4),
             "residual_mean": round(residual_mean, 4),
-            "coverage_diagnostics": coverage_diagnostics,
-            "z_scores": Z_SCORES
-        },
-        "feature_names": {
-            "numerical": NUMERICAL_FEATURES,
-            "categorical": CATEGORICAL_FEATURES
+            "coverage_diagnostics": coverage_diagnostics
         },
         "sample_test_plot_data": {
             "actual": sample_actual,
@@ -284,22 +249,54 @@ def train_and_evaluate():
         }
     }
     
-    with open(METRICS_SAVE_PATH, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=4)
+    return fitted_pipelines, best_pipe, subject_summary
+
+def train_and_evaluate_all():
+    """
+    Trains models for all academic subjects and saves global & subject artifacts.
+    """
+    print("==========================================================")
+    print(" STUDENT PERFORMANCE PREDICTOR - MULTI-SUBJECT AI PIPELINE")
+    print("==========================================================")
+    
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    create_subject_datasets_if_needed()
+    
+    all_subject_models = {}
+    all_subject_metrics = {}
+    
+    for subject_name in SUBJECT_METADATA.keys():
+        df_sub = load_subject_data(subject_name)
+        fitted_pipelines, best_pipe, sub_summary = train_subject_pipeline(subject_name, df_sub)
+        all_subject_models[subject_name] = fitted_pipelines
+        all_subject_metrics[subject_name] = sub_summary
         
-    print(f"\n[5/5] Saving champion pipeline to: {MODEL_SAVE_PATH}")
-    joblib.dump(best_pipeline, MODEL_SAVE_PATH)
+    # Save Multi-Subject Artifacts
+    print(f"\n[*] Saving multi-subject models bundle to: {SUBJECT_MODELS_SAVE_PATH}")
+    joblib.dump(all_subject_models, SUBJECT_MODELS_SAVE_PATH)
     
-    print(f"      Saving all trained models bundle to: {ALL_MODELS_SAVE_PATH}")
-    joblib.dump(fitted_pipelines, ALL_MODELS_SAVE_PATH)
+    print(f"[*] Saving multi-subject metrics to: {SUBJECT_METRICS_SAVE_PATH}")
+    with open(SUBJECT_METRICS_SAVE_PATH, "w", encoding="utf-8") as f:
+        json.dump(all_subject_metrics, f, indent=4)
+        
+    # Also save the default / General Academics artifacts for backward compatibility
+    gen_summary = all_subject_metrics["General Academics"]
+    gen_models = all_subject_models["General Academics"]
+    best_gen_pipe = gen_models[gen_summary["best_model_name"]]
     
-    print(f"      Saving Quantile Regressors to: {QUANTILE_MODELS_SAVE_PATH}")
+    joblib.dump(best_gen_pipe, MODEL_SAVE_PATH)
+    joblib.dump(gen_models, ALL_MODELS_SAVE_PATH)
+    with open(METRICS_SAVE_PATH, "w", encoding="utf-8") as f:
+        json.dump(gen_summary, f, indent=4)
+        
+    # Quantile models for General Academics
+    df_gen = load_subject_data("General Academics")
+    X_gen, y_gen = get_feature_target_split(df_gen)
+    X_tr, _, y_tr, _ = split_train_test(X_gen, y_gen, test_size=0.2, random_state=42)
+    quantile_models = train_quantile_regressors(X_tr, y_tr)
     joblib.dump(quantile_models, QUANTILE_MODELS_SAVE_PATH)
     
-    print(f"      Saved benchmark & confidence interval metrics to: {METRICS_SAVE_PATH}")
-    
-    print("\n[OK] Model training & Prediction Confidence Interval calibration completed successfully!")
-    return best_pipeline, payload
+    print("\n[OK] All Multi-Subject ML pipelines & artifacts trained and saved successfully!")
 
 if __name__ == "__main__":
-    train_and_evaluate()
+    train_and_evaluate_all()

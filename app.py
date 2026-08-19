@@ -10,7 +10,7 @@ import streamlit as st
 
 # Setup page config
 st.set_page_config(
-    page_title="Student Performance Predictor | ML & SHAP Explainability",
+    page_title="Student Performance Predictor | Multi-Subject AI",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -20,14 +20,21 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from src.data_loader import engineer_features, NUMERICAL_FEATURES, CATEGORICAL_FEATURES
+from src.data_loader import (
+    load_subject_data,
+    engineer_features,
+    NUMERICAL_FEATURES,
+    CATEGORICAL_FEATURES,
+    SUBJECT_METADATA
+)
 from src.explainability import compute_shap_waterfall
 
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pkl")
 ALL_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "all_trained_models.pkl")
 QUANTILE_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "quantile_models.pkl")
+SUBJECT_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "subject_models.pkl")
+SUBJECT_METRICS_PATH = os.path.join(PROJECT_ROOT, "models", "subject_metrics.json")
 METRICS_PATH = os.path.join(PROJECT_ROOT, "models", "metrics.json")
-DATASET_PATH = os.path.join(PROJECT_ROOT, "data", "Student_Performance.csv")
 SAMPLE_BATCH_PATH = os.path.join(PROJECT_ROOT, "data", "sample_batch_test.csv")
 
 # Standard Z-scores for Confidence Intervals
@@ -49,24 +56,35 @@ st.markdown("""
     
     .main-header {
         background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 50%, #06B6D4 100%);
-        padding: 2rem;
+        padding: 1.8rem 2rem;
         border-radius: 16px;
         color: white;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
     }
     
     .main-header h1 {
-        font-size: 2.2rem;
+        font-size: 2.1rem;
         font-weight: 800;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
         color: #ffffff;
     }
     
     .main-header p {
-        font-size: 1.05rem;
+        font-size: 1.02rem;
         opacity: 0.92;
         margin-bottom: 0;
+    }
+    
+    .subject-pill {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        padding: 0.3rem 0.85rem;
+        border-radius: 9999px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
     }
     
     .metric-card {
@@ -130,43 +148,26 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 @st.cache_resource
-def load_model_artifacts():
-    """Load cached models bundle, quantile models, and evaluation metrics."""
-    if not os.path.exists(MODEL_PATH) or not os.path.exists(METRICS_PATH):
-        return None, {}, {}, None
-        
-    best_model = joblib.load(MODEL_PATH)
-    
-    all_models = {}
-    if os.path.exists(ALL_MODELS_PATH):
-        try:
-            all_models = joblib.load(ALL_MODELS_PATH)
-        except Exception:
-            all_models = {"Default Model": best_model}
-    else:
-        all_models = {"Default Model": best_model}
-        
-    quantile_models = {}
-    if os.path.exists(QUANTILE_MODELS_PATH):
-        try:
-            quantile_models = joblib.load(QUANTILE_MODELS_PATH)
-        except Exception:
-            quantile_models = {}
-            
-    with open(METRICS_PATH, "r", encoding="utf-8") as f:
-        metrics = json.load(f)
-        
-    return best_model, all_models, quantile_models, metrics
+def load_all_subject_artifacts():
+    """Load cached multi-subject models bundle, quantile models, and evaluation metrics."""
+    if os.path.exists(SUBJECT_MODELS_PATH) and os.path.exists(SUBJECT_METRICS_PATH):
+        subject_models = joblib.load(SUBJECT_MODELS_PATH)
+        with open(SUBJECT_METRICS_PATH, "r", encoding="utf-8") as f:
+            subject_metrics = json.load(f)
+        return subject_models, subject_metrics
+    elif os.path.exists(MODEL_PATH) and os.path.exists(METRICS_PATH):
+        best_model = joblib.load(MODEL_PATH)
+        with open(METRICS_PATH, "r", encoding="utf-8") as f:
+            metrics = json.load(f)
+        subject_models = {"General Academics": {"Linear Regression": best_model}}
+        subject_metrics = {"General Academics": metrics}
+        return subject_models, subject_metrics
+    return {}, {}
 
 @st.cache_data
-def load_dataset():
-    """Load cached dataset and apply feature engineering for EDA."""
-    if os.path.exists(DATASET_PATH):
-        df = pd.read_csv(DATASET_PATH)
-        df.columns = [c.strip().replace(" ", "_") for c in df.columns]
-        df = engineer_features(df)
-        return df
-    return None
+def get_cached_subject_data(subject_name: str):
+    """Load cached dataset for a specific academic subject."""
+    return load_subject_data(subject_name)
 
 def compute_grade_and_status(score: float):
     """Computes letter grade and qualitative standing."""
@@ -191,38 +192,58 @@ def get_interval_bounds(pred_score, conf_str, residual_std=2.075):
     upper = min(100.0, float(pred_score + margin))
     return lower, upper, margin
 
-# Load trained artifacts
-best_model, all_models, quantile_models, metrics = load_model_artifacts()
+# Load trained multi-subject artifacts
+subject_models_bundle, all_subject_metrics = load_all_subject_artifacts()
 
-if best_model is None:
-    st.error("⚠️ Trained model not found! Please run `python src/train.py` first to train and serialize the models.")
+if not subject_models_bundle:
+    st.error("⚠️ Trained models not found! Please run `python src/train.py` first to train and serialize the multi-subject models.")
     st.stop()
-
-# Extract residual std from metrics
-residual_std = metrics.get("confidence_intervals", {}).get("residual_std", 2.075)
 
 # Sidebar
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/graduation-cap.png", width=110)
     st.title("🎓 Student AI Predictor")
-    st.caption("Powered by Machine Learning, SHAP & Confidence Intervals")
+    st.caption("Multi-Subject ML, SHAP & Confidence Intervals")
     
     st.markdown("---")
     
-    available_model_names = list(all_models.keys()) if all_models else [metrics.get("best_model_name", "Linear Regression")]
-    default_idx = available_model_names.index(metrics["best_model_name"]) if metrics and metrics.get("best_model_name") in available_model_names else 0
+    # 1. Multi-Subject Switcher
+    st.markdown("### 📚 Academic Subject Switcher")
+    subject_options = list(SUBJECT_METADATA.keys())
+    selected_subject = st.selectbox(
+        "Choose Academic Subject Discipline:",
+        options=subject_options,
+        index=0,
+        help="Switch between General Academics, Mathematics, Science, and Humanities to load tailored models and datasets."
+    )
     
-    st.markdown("### 🤖 Select Inference Model")
+    active_subject_meta = SUBJECT_METADATA.get(selected_subject, SUBJECT_METADATA["General Academics"])
+    active_subject_metrics = all_subject_metrics.get(selected_subject, all_subject_metrics.get("General Academics", {}))
+    active_subject_models = subject_models_bundle.get(selected_subject, subject_models_bundle.get("General Academics", {}))
+    
+    st.caption(f"🏷️ **Discipline:** {active_subject_meta['badge']}")
+    st.caption(f"💡 **Key Focus:** {active_subject_meta['focus']}")
+    
+    st.markdown("---")
+    
+    # 2. Model Selector
+    available_model_names = list(active_subject_models.keys())
+    default_best = active_subject_metrics.get("best_model_name", "Linear Regression")
+    default_idx = available_model_names.index(default_best) if default_best in available_model_names else 0
+    
+    st.markdown("### 🤖 Select ML Algorithm")
     selected_model_name = st.selectbox(
-        "Choose Algorithm for Prediction:",
+        "Choose Model for Inference:",
         options=available_model_names,
         index=default_idx,
         help="Select between classic linear models, random forests, or Advanced Gradient Boosters (XGBoost, LightGBM, GBDT, Stacking)"
     )
     
-    active_model = all_models.get(selected_model_name, best_model)
+    active_model = active_subject_models.get(selected_model_name)
     
     st.markdown("---")
+    
+    # 3. Confidence Level Slider
     st.markdown("### 🎯 Prediction Confidence Level")
     confidence_level_str = st.select_slider(
         "Select Confidence Interval Band:",
@@ -231,34 +252,27 @@ with st.sidebar:
         help="95% is the statistical gold standard, meaning 95 out of 100 students with these habits will fall within the estimated range."
     )
     
+    residual_std = active_subject_metrics.get("confidence_intervals", {}).get("residual_std", 2.075)
     cur_z = Z_SCORES[confidence_level_str]
     cur_margin = cur_z * residual_std
     st.caption(f"📌 Margin of Error: **±{cur_margin:.2f} points** ($Z={cur_z}$)")
     
-    if metrics:
-        st.markdown("---")
-        st.markdown("### 🏆 Model Stats")
-        model_bench = metrics.get("all_model_benchmarks", {}).get(selected_model_name, metrics.get("best_model_metrics", {}))
-        if model_bench:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("Test R²", f"{model_bench.get('test_r2', 0.988) * 100:.1f}%")
-            with col2:
-                st.metric("MAE", f"±{model_bench.get('test_mae', 1.65):.2f}")
-            
     st.markdown("---")
-    st.markdown("### 🧠 Explainable AI (SHAP)")
-    st.markdown("""
-    - **Local Attribution:** Why *this* student scored higher/lower
-    - **Base Value:** Baseline average student score
-    - **Feature Push:** Individual +/- point impact
-    """)
+    st.markdown(f"### 🏆 {selected_subject} Stats")
+    model_bench = active_subject_metrics.get("all_model_benchmarks", {}).get(selected_model_name, active_subject_metrics.get("best_model_metrics", {}))
+    if model_bench:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Test R²", f"{model_bench.get('test_r2', 0.988) * 100:.1f}%")
+        with col2:
+            st.metric("MAE", f"±{model_bench.get('test_mae', 1.65):.2f}")
 
 # Main Header Banner
-st.markdown("""
+st.markdown(f"""
 <div class="main-header">
-    <h1>🎓 Student Academic Performance Predictor</h1>
-    <p>Predict exam outcomes with <b>SHAP Explainability (XAI)</b>, Prediction Confidence Intervals (80%–99%), and Advanced Gradient Boosters.</p>
+    <h1>{active_subject_meta['icon']} Student Academic Performance Predictor</h1>
+    <p>Predict outcomes for <b>{selected_subject}</b> using <b>SHAP Explainability (XAI)</b>, Prediction Confidence Intervals (80%–99%), and Advanced Gradient Boosters.</p>
+    <div class="subject-pill">{active_subject_meta['icon']} Active Subject: {selected_subject} ({active_subject_meta['badge']})</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -266,7 +280,7 @@ st.markdown("""
 tab1, tab2, tab3, tab4 = st.tabs([
     "🔮 Single Student Predictor",
     "📂 Batch CSV Prediction",
-    "📊 Benchmarks & SHAP Explainability",
+    "📊 Benchmarks & Multi-Subject Matrix",
     "📈 Dataset Explorer (EDA)"
 ])
 
@@ -274,10 +288,10 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # TAB 1: Single Student Predictor
 # -------------------------------------------------------------
 with tab1:
-    st.subheader("Interactive Student Outcome Prediction with SHAP & Confidence Bounds")
+    st.subheader(f"{active_subject_meta['icon']} {selected_subject} — Student Outcome Prediction")
     st.write(f"Inference Model: **`{selected_model_name}`** | Confidence Level: **`{confidence_level_str}`** (Margin ±{cur_margin:.2f} pts).")
     
-    with st.form(key="student_prediction_form"):
+    with st.form(key=f"student_prediction_form_{selected_subject}"):
         col_input1, col_input2 = st.columns([1, 1], gap="large")
         
         with col_input1:
@@ -324,7 +338,7 @@ with tab1:
             )
             
             st.markdown("<br>", unsafe_allow_html=True)
-            predict_btn = st.form_submit_button("🚀 Calculate Predicted Score & SHAP Breakdown", type="primary", width="stretch")
+            predict_btn = st.form_submit_button(f"🚀 Predict {selected_subject} Score & SHAP Breakdown", type="primary", width="stretch")
 
     # If user clicked calculate, compute and store in session_state
     if predict_btn:
@@ -361,6 +375,7 @@ with tab1:
         delta_papers = max(0.0, boost_score_papers - pred_score)
 
         st.session_state["single_prediction"] = {
+            "subject": selected_subject,
             "model_used": selected_model_name,
             "conf_level": confidence_level_str,
             "raw_input": raw_input_data,
@@ -386,11 +401,11 @@ with tab1:
     if "single_prediction" in st.session_state:
         res = st.session_state["single_prediction"]
         
-        # If user changed confidence level in sidebar, recompute bounds dynamically
+        # If user changed confidence level or subject, recompute bounds dynamically
         res_lower, res_upper, res_margin = get_interval_bounds(res["pred_score"], confidence_level_str, residual_std)
         
         st.markdown("---")
-        st.markdown(f"### 🎯 Prediction Results (via `{res.get('model_used', selected_model_name)}`)")
+        st.markdown(f"### 🎯 Prediction Results for {res.get('subject', selected_subject)} (via `{res.get('model_used', selected_model_name)}`)")
         
         res_col1, res_col2, res_col3, res_col4 = st.columns([1, 1, 1, 1])
         
@@ -460,7 +475,7 @@ with tab1:
         ))
         
         fig_gauge.update_layout(
-            title=f"🎯 Prediction Range: [{res_lower:.1f} to {res_upper:.1f}] with {confidence_level_str} Confidence",
+            title=f"🎯 {selected_subject} Prediction Range: [{res_lower:.1f} to {res_upper:.1f}] with {confidence_level_str} Confidence",
             xaxis=dict(title="Score Scale (10 to 100)", range=[10, 100], dtick=10),
             yaxis=dict(showticklabels=False, range=[0.5, 1.5]),
             template="plotly_dark",
@@ -474,7 +489,7 @@ with tab1:
         # SHAP EXPLAINABILITY WATERFALL SECTION
         # ------------------------------------------------------------------
         st.markdown("---")
-        st.markdown("### 🧠 SHAP Explainability: Why did the student get this score?")
+        st.markdown(f"### 🧠 {selected_subject} — SHAP Explainability Breakdown")
         st.write("SHAP (SHapley Additive exPlanations) breaks down the exact positive and negative contribution of each habit relative to the average student baseline.")
         
         shap_data = res.get("shap_res")
@@ -483,8 +498,6 @@ with tab1:
             
         base_val = shap_data["base_value"]
         contribs = shap_data["contributions"]
-        
-        # Sort contributions by absolute impact
         sorted_contribs = sorted(contribs.items(), key=lambda item: abs(item[1]), reverse=True)
         
         waterfall_x = ["Baseline (Average Student)"] + [k for k, v in sorted_contribs] + ["Final Predicted Score"]
@@ -506,7 +519,7 @@ with tab1:
         ))
         
         fig_waterfall.update_layout(
-            title=f"SHAP Decision Waterfall: Base Score ({base_val:.1f}) ➔ Predicted Score ({res['pred_score']:.1f})",
+            title=f"SHAP Decision Waterfall ({selected_subject}): Base Score ({base_val:.1f}) ➔ Predicted Score ({res['pred_score']:.1f})",
             xaxis_title="Input Variables & Habit Adjustments",
             yaxis_title="Score Impact (Points)",
             template="plotly_dark",
@@ -522,7 +535,7 @@ with tab1:
         exp_col1, exp_col2 = st.columns(2)
         with exp_col1:
             if top_pos:
-                st.success(f"🟢 **Top Score Drivers:** {', '.join(top_pos)} provided the largest positive lift above average.")
+                st.success(f"🟢 **Top Score Drivers for {selected_subject}:** {', '.join(top_pos)} provided the largest positive lift.")
             else:
                 st.info("ℹ️ Habits are close to the average cohort baseline.")
         with exp_col2:
@@ -531,66 +544,37 @@ with tab1:
             else:
                 st.success("🌟 All attributes contributed positively above cohort average!")
 
-        # Live Engineered Features Card
-        st.markdown("#### 🔬 Custom Engineered Metrics")
-        eng_col1, eng_col2, eng_col3 = st.columns(3)
-        
-        with eng_col1:
-            ratio_val = res["engineered_input"]["Study_to_Sleep_Ratio"].iloc[0]
-            st.markdown(f"""
-            <div class="eng-badge">
-                <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">⚖️ STUDY-TO-SLEEP RATIO</span>
-                <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{ratio_val:.2f}</div>
-                <span style="font-size: 0.8rem; color: #CBD5E1;">{'Balanced ratio' if 0.5 <= ratio_val <= 1.0 else 'High intensity / low sleep' if ratio_val > 1.0 else 'Light study load'}</span>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with eng_col2:
-            dens_val = res["engineered_input"]["Practice_Density"].iloc[0]
-            st.markdown(f"""
-            <div class="eng-badge">
-                <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">📄 PRACTICE DENSITY</span>
-                <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{dens_val:.2f}</div>
-                <span style="font-size: 0.8rem; color: #CBD5E1;">Mock tests / study hour ratio</span>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with eng_col3:
-            eff_val = res["engineered_input"]["Study_Effort_Score"].iloc[0]
-            st.markdown(f"""
-            <div class="eng-badge">
-                <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">⚡ COMPOSITE EFFORT SCORE</span>
-                <div style="font-size: 1.4rem; font-weight: 800; color: #38BDF8;">{eff_val:.2f} <span style="font-size: 0.9rem; color: #94A3B8;">/ 9.4</span></div>
-                <span style="font-size: 0.8rem; color: #CBD5E1;">Combined study + testing intensity</span>
-            </div>
-            """, unsafe_allow_html=True)
-
         # Personalized Recommendations Box
         st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("#### 💡 Personalized Study Plan & Score Boost Insights")
+        st.markdown(f"#### 💡 Personalized Study Plan for {selected_subject}")
 
         rec_col1, rec_col2 = st.columns(2)
         with rec_col1:
-            if res["hours_studied"] < 7:
-                st.info(f"📈 **Study Habit Boost:** Increasing daily study time by **2 hours** (to {res['hours_studied'] + 2} hrs) is predicted to increase performance by **+{res['delta_study']:.1f} points**.")
+            if "Math" in selected_subject:
+                st.info(f"📐 **Math Practice Boost:** Solving **3 more question papers** is estimated to raise predicted math score by **+{res['delta_papers']:.1f} points**.")
             else:
-                st.success("🌟 **Study Discipline:** Current study hours are already strong! Maintain consistency without burnout.")
+                if res["hours_studied"] < 7:
+                    st.info(f"📈 **Study Habit Boost:** Increasing daily study time by **2 hours** (to {res['hours_studied'] + 2} hrs) is predicted to increase score by **+{res['delta_study']:.1f} points**.")
+                else:
+                    st.success("🌟 **Study Discipline:** Current study hours are already strong! Maintain consistency.")
                 
         with rec_col2:
-            if res["sleep_hours"] < 7:
-                st.warning(f"😴 **Sleep Hygiene:** The student is sleeping {res['sleep_hours']} hrs. Prioritizing **7-8 hours** of sleep enhances memory consolidation and prevents exam fatigue.")
+            if "Science" in selected_subject and res["sleep_hours"] < 7:
+                st.warning(f"😴 **STEM Sleep Hygiene:** Sleeping only {res['sleep_hours']} hrs. In science/physics, **7-8 hours** of sleep is critical for memory consolidation.")
+            elif "Humanities" in selected_subject:
+                st.success("📖 **Humanities Focus:** Active reading and extracurricular debates strongly support language performance!")
             else:
                 st.info(f"📄 **Mock Practice Boost:** Practicing **3 more question papers** is estimated to raise predicted score by **+{res['delta_papers']:.1f} points**.")
     else:
         st.markdown("---")
-        st.info("👈 Set the student's study inputs above and click **'🚀 Calculate Predicted Score & SHAP Breakdown'** to generate the prediction.")
+        st.info(f"👈 Set the student's study inputs above and click **'🚀 Predict {selected_subject} Score & SHAP Breakdown'** to generate the prediction.")
 
 # -------------------------------------------------------------
 # TAB 2: Batch CSV Prediction
 # -------------------------------------------------------------
 with tab2:
-    st.subheader("📂 Batch Prediction with Confidence Intervals")
-    st.write(f"Inference Engine: **`{selected_model_name}`** | Confidence Level: **`{confidence_level_str}`** (Margin ±{cur_margin:.2f} pts).")
+    st.subheader(f"📂 {selected_subject} — Batch Prediction with Confidence Intervals")
+    st.write(f"Inference Engine: **`{selected_model_name}`** | Discipline: **`{selected_subject}`** | Confidence Level: **`{confidence_level_str}`** (Margin ±{cur_margin:.2f} pts).")
     
     # Sample download or demo load
     demo_col1, demo_col2 = st.columns([1, 2])
@@ -624,26 +608,21 @@ with tab2:
                 df_to_predict = pd.read_csv(SAMPLE_BATCH_PATH)
             
     if df_to_predict is not None:
-        # Standardize columns
         df_to_predict.columns = [c.strip().replace(" ", "_") for c in df_to_predict.columns]
-        
         required_cols = ["Hours_Studied", "Previous_Score", "Sleep_Hours", "Sample_Question_Papers_Practiced", "Extracurricular_Activities"]
         missing_cols = [c for c in required_cols if c not in df_to_predict.columns]
         
         if missing_cols:
             st.error(f"Missing required columns in CSV: {missing_cols}")
         else:
-            # Apply feature engineering automatically
             df_engineered = engineer_features(df_to_predict)
-            
-            # Predict with selected model
             preds = active_model.predict(df_engineered)
             preds = np.clip(preds, 10.0, 100.0)
             
             result_df = df_engineered.copy()
+            result_df["Subject"] = selected_subject
             result_df["Predicted_Score"] = np.round(preds, 1)
             
-            # Add Confidence Interval Bounds
             z = Z_SCORES.get(confidence_level_str, 1.960)
             batch_margin = z * residual_std
             result_df[f"Lower_Bound_{confidence_level_str}"] = np.round(np.clip(result_df["Predicted_Score"] - batch_margin, 10.0, 100.0), 1)
@@ -652,202 +631,164 @@ with tab2:
             result_df["Status"] = [compute_grade_and_status(s)[2] for s in result_df["Predicted_Score"]]
             
             # Batch Summary Metrics
-            st.markdown("#### 📊 Cohort Summary")
+            st.markdown(f"#### 📊 {selected_subject} Cohort Summary")
             b_col1, b_col2, b_col3, b_col4 = st.columns(4)
             b_col1.metric("Total Students", len(result_df))
             b_col2.metric("Cohort Average Score", f"{result_df['Predicted_Score'].mean():.1f} / 100")
             b_col3.metric("Margin of Error", f"±{batch_margin:.2f} pts")
             b_col4.metric("Pass Rate (Score ≥ 50)", f"{(result_df['Predicted_Score'] >= 50).mean() * 100:.1f}%")
             
-            # Distribution plot of batch
             fig_batch = px.histogram(
                 result_df,
                 x="Predicted_Score",
                 color="Grade",
                 nbins=15,
-                title="Predicted Score Distribution of Cohort",
+                title=f"Predicted {selected_subject} Score Distribution",
                 color_discrete_map={"A+": "#10B981", "A": "#34D399", "B": "#3B82F6", "C": "#F59E0B", "D": "#EF4444", "F": "#DC2626"},
                 template="plotly_dark"
             )
             fig_batch.update_layout(margin=dict(l=20, r=20, t=40, b=20), height=320)
             st.plotly_chart(fig_batch, width="stretch")
             
-            # Data table
             st.markdown("#### 📋 Detailed Predictions Table (with Confidence Bounds)")
             st.dataframe(result_df, width="stretch", height=320)
             
-            # Download predicted CSV
             csv_output = result_df.to_csv(index=False).encode('utf-8')
             st.download_button(
-                label=f"📥 Download Complete Predictions CSV (with {confidence_level_str} Intervals)",
+                label=f"📥 Download {selected_subject} Predictions CSV",
                 data=csv_output,
-                file_name="student_predictions_with_intervals.csv",
+                file_name=f"{selected_subject.lower().replace(' ', '_')}_predictions.csv",
                 mime="text/csv",
                 type="primary"
             )
 
 # -------------------------------------------------------------
-# TAB 3: Model Benchmarks & SHAP Explainability
+# TAB 3: Model Benchmarks & Multi-Subject Comparison Matrix
 # -------------------------------------------------------------
 with tab3:
-    st.subheader("📊 Model Benchmarks & SHAP Global Explainability")
-    st.write("Examine algorithm leaderboards, global SHAP feature attributions, and empirical coverage calibration on 1,975 real test students.")
+    st.subheader("📊 Multi-Subject Benchmarks & Cross-Discipline Comparison")
+    st.write(f"Compare performance benchmarks and feature sensitivities across all **4 academic disciplines** and **9 ML algorithms**.")
     
-    if metrics:
-        # Comparison Table
-        st.markdown("#### 🏆 Comprehensive Multi-Model Leaderboard")
-        benchmarks = metrics.get("all_model_benchmarks", {})
-        bench_df = pd.DataFrame(benchmarks).T.reset_index()
-        bench_df.columns = ["Model", "Train R²", "Test R²", "MAE (Test)", "RMSE (Test)", "MSE (Test)"]
-        
-        def get_category(name):
-            if "XGBoost" in name or "LightGBM" in name or "Gradient" in name or "Hist" in name:
-                return "⚡ Advanced Gradient Booster"
-            elif "Stacking" in name or "Forest" in name:
-                return "🌲 Ensemble Method"
-            elif "Tree" in name:
-                return "🌿 Decision Tree"
-            else:
-                return "📐 Linear Model"
-                
-        bench_df["Category"] = bench_df["Model"].apply(get_category)
-        bench_df = bench_df[["Model", "Category", "Test R²", "MAE (Test)", "RMSE (Test)", "Train R²"]]
-        bench_df = bench_df.sort_values(by="Test R²", ascending=False).reset_index(drop=True)
-        
-        st.dataframe(
-            bench_df.style.highlight_max(subset=["Test R²"], color="#1E3A8A")
-                          .highlight_min(subset=["MAE (Test)", "RMSE (Test)"], color="#065F46")
-                          .format({
-                              "Train R²": "{:.4f}",
-                              "Test R²": "{:.4f}",
-                              "MAE (Test)": "{:.4f}",
-                              "RMSE (Test)": "{:.4f}"
-                          }),
-            width="stretch"
-        )
-        
-        m_col1, m_col2 = st.columns(2)
-        
-        with m_col1:
-            st.markdown("#### 🧠 Global SHAP Feature Importance Ranking")
-            feat_dict = metrics.get("feature_importances", {})
-            if feat_dict:
-                feat_df = pd.DataFrame({
-                    "Feature": [f.replace("_", " ") for f in feat_dict.keys()],
-                    "Mean |SHAP Value| (Impact)": [abs(v) for v in feat_dict.values()]
-                }).sort_values(by="Mean |SHAP Value| (Impact)", ascending=True)
-                
-                fig_shap_global = px.bar(
-                    feat_df,
-                    x="Mean |SHAP Value| (Impact)",
-                    y="Feature",
-                    orientation="h",
-                    title="Global Feature Importance (Game-Theoretic SHAP)",
-                    color="Mean |SHAP Value| (Impact)",
-                    color_continuous_scale="Viridis",
-                    template="plotly_dark"
-                )
-                fig_shap_global.update_layout(height=380, margin=dict(l=20, r=20, t=40, b=20))
-                st.plotly_chart(fig_shap_global, width="stretch")
-                st.caption("📌 **SHAP Interpretation:** Previous Exam Score and Study Hours dominate overall model variance, followed by Composite Study Effort.")
-                
-        with m_col2:
-            st.markdown("#### 🎯 Actual vs. Predicted with 95% Confidence Band")
-            plot_data = metrics.get("sample_test_plot_data", {})
-            if plot_data:
-                actual = plot_data.get("actual", [])
-                predicted = plot_data.get("predicted", [])
-                lower_95 = plot_data.get("lower_95", [])
-                upper_95 = plot_data.get("upper_95", [])
-                
-                scatter_df = pd.DataFrame({
-                    "Actual Score": actual,
-                    "Predicted Score": predicted,
-                    "Lower 95%": lower_95,
-                    "Upper 95%": upper_95
-                }).sort_values(by="Actual Score").reset_index(drop=True)
-                
-                fig_scatter = go.Figure()
-                
-                # Confidence band shaded region
-                fig_scatter.add_trace(go.Scatter(
-                    x=scatter_df["Actual Score"],
-                    y=scatter_df["Upper 95%"],
-                    mode="lines",
-                    line=dict(width=0),
-                    showlegend=False
-                ))
-                fig_scatter.add_trace(go.Scatter(
-                    x=scatter_df["Actual Score"],
-                    y=scatter_df["Lower 95%"],
-                    mode="lines",
-                    line=dict(width=0),
-                    fill='tonexty',
-                    fillcolor='rgba(56, 189, 248, 0.15)',
-                    name="95% Confidence Band"
-                ))
-                
-                # Predictions
-                fig_scatter.add_trace(go.Scatter(
-                    x=scatter_df["Actual Score"],
-                    y=scatter_df["Predicted Score"],
-                    mode="markers",
-                    name="Student Predictions",
-                    marker=dict(color="#38BDF8", size=7, opacity=0.85)
-                ))
-                
-                # Ideal reference line y = x
-                min_val = min(min(actual), min(predicted))
-                max_val = max(max(actual), max(predicted))
-                fig_scatter.add_trace(go.Scatter(
-                    x=[min_val, max_val],
-                    y=[min_val, max_val],
-                    mode="lines",
-                    name="Ideal (Perfect Prediction)",
-                    line=dict(color="#10B981", dash="dash", width=2)
-                ))
-                
-                fig_scatter.update_layout(
-                    title=f"Actual vs. Predicted with 95% Prediction Tunnel (R² = {metrics['best_model_metrics']['test_r2']:.4f})",
-                    xaxis_title="Actual Score",
-                    yaxis_title="Predicted Score",
-                    template="plotly_dark",
-                    height=380,
-                    margin=dict(l=20, r=20, t=40, b=20)
-                )
-                st.plotly_chart(fig_scatter, width="stretch")
-
-        # Confidence Diagnostics Section
-        st.markdown("---")
-        st.markdown("#### 🎯 Prediction Confidence Interval Calibration (Test Set Diagnostics)")
-        cov_data = metrics.get("confidence_intervals", {}).get("coverage_diagnostics", {})
-        if cov_data:
-            cov_rows = []
-            for conf_key, diag in cov_data.items():
-                cov_rows.append({
-                    "Confidence Level (Nominal)": conf_key,
-                    "Target Coverage": f"{float(diag['target_coverage'])*100:.0f}%",
-                    "Empirical Coverage (Actual)": f"{float(diag['empirical_coverage'])*100:.2f}%",
-                    "Z-Multiplier": f"{diag['z_multiplier']:.3f}",
-                    "Margin of Error": f"±{diag['margin_of_error']:.2f} pts",
-                    "Calibration Status": "✅ Well Calibrated" if abs(diag['empirical_coverage'] - diag['target_coverage']) <= 0.02 else "⚠️ Slight Bias"
-                })
-            cov_df = pd.DataFrame(cov_rows)
-            st.dataframe(cov_df, width="stretch")
+    # 1. Multi-Subject Comparison Summary Card
+    st.markdown("#### 🌐 Cross-Subject Performance Overview")
+    overview_rows = []
+    for sub_name, sub_data in all_subject_metrics.items():
+        best_m = sub_data.get("best_model_metrics", {})
+        meta = SUBJECT_METADATA.get(sub_name, {})
+        overview_rows.append({
+            "Subject": f"{meta.get('icon', '📚')} {sub_name}",
+            "Discipline": meta.get("badge", ""),
+            "Champion Model": sub_data.get("best_model_name", "Linear Regression"),
+            "Test R² Score": f"{best_m.get('test_r2', 0.988)*100:.2f}%",
+            "MAE (Avg Error)": f"±{best_m.get('test_mae', 1.65):.2f} pts",
+            "RMSE": f"{best_m.get('test_rmse', 2.08):.2f}",
+            "Key Focus": meta.get("focus", "")
+        })
+    st.dataframe(pd.DataFrame(overview_rows), width="stretch")
+    
+    # 2. Leaderboard for Current Subject
+    st.markdown(f"#### 🏆 Model Leaderboard for `{selected_subject}`")
+    benchmarks = active_subject_metrics.get("all_model_benchmarks", {})
+    bench_df = pd.DataFrame(benchmarks).T.reset_index()
+    bench_df.columns = ["Model", "Train R²", "Test R²", "MAE (Test)", "RMSE (Test)", "MSE (Test)"]
+    
+    def get_category(name):
+        if "XGBoost" in name or "LightGBM" in name or "Gradient" in name or "Hist" in name:
+            return "⚡ Advanced Gradient Booster"
+        elif "Stacking" in name or "Forest" in name:
+            return "🌲 Ensemble Method"
+        elif "Tree" in name:
+            return "🌿 Decision Tree"
+        else:
+            return "📐 Linear Model"
+            
+    bench_df["Category"] = bench_df["Model"].apply(get_category)
+    bench_df = bench_df[["Model", "Category", "Test R²", "MAE (Test)", "RMSE (Test)", "Train R²"]]
+    bench_df = bench_df.sort_values(by="Test R²", ascending=False).reset_index(drop=True)
+    
+    st.dataframe(
+        bench_df.style.highlight_max(subset=["Test R²"], color="#1E3A8A")
+                      .highlight_min(subset=["MAE (Test)", "RMSE (Test)"], color="#065F46")
+                      .format({
+                          "Train R²": "{:.4f}",
+                          "Test R²": "{:.4f}",
+                          "MAE (Test)": "{:.4f}",
+                          "RMSE (Test)": "{:.4f}"
+                      }),
+        width="stretch"
+    )
+    
+    m_col1, m_col2 = st.columns(2)
+    with m_col1:
+        st.markdown(f"#### 🧠 Global SHAP Feature Importance ({selected_subject})")
+        feat_dict = active_subject_metrics.get("feature_importances", {})
+        if feat_dict:
+            feat_df = pd.DataFrame({
+                "Feature": [f.replace("_", " ") for f in feat_dict.keys()],
+                "Mean |SHAP Value| (Impact)": [abs(v) for v in feat_dict.values()]
+            }).sort_values(by="Mean |SHAP Value| (Impact)", ascending=True)
+            
+            fig_shap_global = px.bar(
+                feat_df,
+                x="Mean |SHAP Value| (Impact)",
+                y="Feature",
+                orientation="h",
+                title=f"Feature Sensitivity: {selected_subject}",
+                color="Mean |SHAP Value| (Impact)",
+                color_continuous_scale="Viridis",
+                template="plotly_dark"
+            )
+            fig_shap_global.update_layout(height=380, margin=dict(l=20, r=20, t=40, b=20))
+            st.plotly_chart(fig_shap_global, width="stretch")
+            
+    with m_col2:
+        st.markdown(f"#### 🎯 Actual vs. Predicted ({selected_subject})")
+        plot_data = active_subject_metrics.get("sample_test_plot_data", {})
+        if plot_data:
+            actual = plot_data.get("actual", [])
+            predicted = plot_data.get("predicted", [])
+            lower_95 = plot_data.get("lower_95", [])
+            upper_95 = plot_data.get("upper_95", [])
+            
+            scatter_df = pd.DataFrame({
+                "Actual Score": actual,
+                "Predicted Score": predicted,
+                "Lower 95%": lower_95,
+                "Upper 95%": upper_95
+            }).sort_values(by="Actual Score").reset_index(drop=True)
+            
+            fig_scatter = go.Figure()
+            fig_scatter.add_trace(go.Scatter(x=scatter_df["Actual Score"], y=scatter_df["Upper 95%"], mode="lines", line=dict(width=0), showlegend=False))
+            fig_scatter.add_trace(go.Scatter(x=scatter_df["Actual Score"], y=scatter_df["Lower 95%"], mode="lines", line=dict(width=0), fill='tonexty', fillcolor='rgba(56, 189, 248, 0.15)', name="95% Confidence Band"))
+            fig_scatter.add_trace(go.Scatter(x=scatter_df["Actual Score"], y=scatter_df["Predicted Score"], mode="markers", name="Student Predictions", marker=dict(color="#38BDF8", size=7, opacity=0.85)))
+            
+            min_val = min(min(actual), min(predicted))
+            max_val = max(max(actual), max(predicted))
+            fig_scatter.add_trace(go.Scatter(x=[min_val, max_val], y=[min_val, max_val], mode="lines", name="Ideal (Perfect)", line=dict(color="#10B981", dash="dash", width=2)))
+            
+            fig_scatter.update_layout(
+                title=f"Test Scatter Tunnel: {selected_subject}",
+                xaxis_title="Actual Score",
+                yaxis_title="Predicted Score",
+                template="plotly_dark",
+                height=380,
+                margin=dict(l=20, r=20, t=40, b=20)
+            )
+            st.plotly_chart(fig_scatter, width="stretch")
 
 # -------------------------------------------------------------
 # TAB 4: Dataset Explorer (EDA)
 # -------------------------------------------------------------
 with tab4:
-    st.subheader("📈 Kaggle Dataset Exploration & Visual Analytics")
-    st.write("Explore patterns, correlations, and distributions across the **10,000 real student records** from Kaggle, including all newly engineered features.")
+    st.subheader(f"📈 {active_subject_meta['icon']} {selected_subject} — Dataset Explorer")
+    st.write(f"Explore patterns, correlations, and distributions across the **10,000 records** for **{selected_subject}** ({active_subject_meta['badge']}).")
     
-    df_raw = load_dataset()
+    df_raw = get_cached_subject_data(selected_subject)
     if df_raw is not None:
         eda_col1, eda_col2 = st.columns([1, 1])
         
         with eda_col1:
-            st.markdown("#### 📐 Statistical Summary (with Engineered Features)")
+            st.markdown(f"#### 📐 Statistical Summary ({selected_subject})")
             st.dataframe(df_raw.describe().T, width="stretch")
             
         with eda_col2:
@@ -859,7 +800,7 @@ with tab4:
                 corr,
                 text_auto=".2f",
                 color_continuous_scale="Viridis",
-                title="Full Feature Correlation Matrix",
+                title=f"{selected_subject} Correlation Matrix",
                 template="plotly_dark"
             )
             fig_corr.update_layout(height=360, margin=dict(l=20, r=20, t=40, b=20))
@@ -894,11 +835,11 @@ with tab4:
             y="Performance_Index",
             color=color_var,
             trendline="ols",
-            title=f"{x_axis.replace('_', ' ')} vs. Performance Index",
+            title=f"{x_axis.replace('_', ' ')} vs. {selected_subject} Performance",
             template="plotly_dark",
             color_discrete_sequence=["#38BDF8", "#F472B6"]
         )
         fig_custom.update_layout(height=420, margin=dict(l=20, r=20, t=40, b=20))
         st.plotly_chart(fig_custom, width="stretch")
     else:
-        st.warning("Dataset file not found at `data/Student_Performance.csv`.")
+        st.warning("Subject dataset file not found.")

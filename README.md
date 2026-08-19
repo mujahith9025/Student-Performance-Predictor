@@ -16,6 +16,13 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 
 ## 📌 Features & Highlights
 
+- **📚 Multi-Subject Dataset Switcher**:
+  - Seamlessly switch between **4 academic disciplines**:
+    1. 🌐 **General Academics:** Cross-disciplinary baseline benchmark ($10,000$ students).
+    2. 📐 **Mathematics & Statistics:** Quantitative logic emphasizing practice density and problem solving.
+    3. 🔬 **Science & Physics:** Laboratory & STEM focus with cognitive rest & foundational scoring.
+    4. 📖 **Humanities & Literature:** Arts, language, and extracurricular communication focus.
+  - Dynamically loads discipline-specific models, tailored SHAP waterfalls, and custom subject recommendations.
 - **🔮 Single Student Predictor**: Interactive sliders and dropdowns with real-time score prediction, letter grades (A+, A, B, C, D, F), academic standing indicators, and personalized study boost recommendations.
 - **🔬 Custom Feature Engineering**:
   - ⚖️ **Study-to-Sleep Ratio**: $\frac{\text{Hours Studied}}{\text{Sleep Hours}}$ (Work-rest balance metric).
