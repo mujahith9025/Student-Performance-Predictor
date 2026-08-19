@@ -24,6 +24,10 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
     4. 📖 **Humanities & Literature:** Arts, language, and extracurricular communication focus.
   - Dynamically loads discipline-specific models, tailored SHAP waterfalls, and custom subject recommendations.
 - **🔮 Single Student Predictor**: Interactive sliders and dropdowns with real-time score prediction, letter grades (A+, A, B, C, D, F), academic standing indicators, and personalized study boost recommendations.
+- **🕸️ Student Habit Radar Chart**:
+  - Multi-dimensional polar/spider chart comparing the student's **6 key study & health dimensions** (Study Time, Exam Foundation, Mock Practice, Sleep Quality, Study Effort, and Extracurriculars) against **🌟 A+ Top Performers** and **👥 Cohort Averages**.
+  - Calculates a holistic **Habit Balance Index (0–100%)** with personalized qualitative assessment.
+  - Grade-tier radar footprint analysis comparing habit footprints across A+, B, and F students.
 - **🔬 Custom Feature Engineering**:
   - ⚖️ **Study-to-Sleep Ratio**: $\frac{\text{Hours Studied}}{\text{Sleep Hours}}$ (Work-rest balance metric).
   - 📄 **Practice Density**: $\frac{\text{Mock Papers Practiced}}{\text{Hours Studied} + 1}$ (Active practice intensity).

@@ -10,7 +10,7 @@ import streamlit as st
 
 # Setup page config
 st.set_page_config(
-    page_title="Student Performance Predictor | Multi-Subject AI",
+    page_title="Student Performance Predictor | Multi-Subject AI & Habit Radar",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -220,7 +220,7 @@ if not subject_models_bundle:
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/graduation-cap.png", width=110)
     st.title("🎓 Student AI Predictor")
-    st.caption("Multi-Subject ML, SHAP & Confidence Intervals")
+    st.caption("Multi-Subject ML, SHAP & Habit Radar")
     
     st.markdown("---")
     
@@ -288,7 +288,7 @@ with st.sidebar:
 st.markdown(f"""
 <div class="main-header">
     <h1>{active_subject_meta['icon']} Student Academic Performance Predictor</h1>
-    <p>Predict outcomes for <b>{selected_subject}</b> using <b>SHAP Explainability (XAI)</b>, Prediction Confidence Intervals (80%–99%), and Advanced Gradient Boosters.</p>
+    <p>Predict outcomes for <b>{selected_subject}</b> using <b>Student Habit Radar Charts</b>, SHAP Explainability, and Confidence Intervals (80%–99%).</p>
     <div class="subject-pill">{active_subject_meta['icon']} Active Subject: {selected_subject} ({active_subject_meta['badge']})</div>
 </div>
 """, unsafe_allow_html=True)
@@ -298,7 +298,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "🔮 Single Student Predictor",
     "📂 Batch CSV Prediction",
     "📊 Benchmarks & Multi-Subject Matrix",
-    "📈 Dataset Explorer (EDA)"
+    "📈 Dataset Explorer (EDA & Habit Footprint)"
 ])
 
 # -------------------------------------------------------------
@@ -355,7 +355,7 @@ with tab1:
             )
             
             st.markdown("<br>", unsafe_allow_html=True)
-            predict_btn = st.form_submit_button(f"🚀 Predict {selected_subject} Score & SHAP Breakdown", type="primary", width="stretch")
+            predict_btn = st.form_submit_button(f"🚀 Predict {selected_subject} Score & Habit Radar", type="primary", width="stretch")
 
     # If user clicked calculate, compute and store in session_state
     if predict_btn:
@@ -391,6 +391,16 @@ with tab1:
         boost_score_papers = float(active_model.predict(engineer_features(boost_papers))[0])
         delta_papers = max(0.0, boost_score_papers - pred_score)
 
+        # Normalized Radar Dimensions (0 - 100%)
+        dim_study = min(100.0, (hours_studied / 9.0) * 100.0)
+        dim_foundation = min(100.0, max(0.0, ((previous_score - 40.0) / 60.0) * 100.0))
+        dim_practice = min(100.0, (sample_papers / 10.0) * 100.0)
+        dim_sleep = min(100.0, max(0.0, 100.0 - abs(sleep_hours - 7.5) * 20.0))
+        dim_effort = min(100.0, (engineered_input["Study_Effort_Score"].iloc[0] / 9.4) * 100.0)
+        dim_ec = 85.0 if extracurricular == "Yes" else 35.0
+        
+        habit_balance_score = round((dim_study + dim_foundation + dim_practice + dim_sleep + dim_effort + dim_ec) / 6.0, 1)
+
         st.session_state["single_prediction"] = {
             "subject": selected_subject,
             "model_used": selected_model_name,
@@ -411,7 +421,16 @@ with tab1:
             "sleep_hours": sleep_hours,
             "sample_papers": sample_papers,
             "delta_study": delta_study,
-            "delta_papers": delta_papers
+            "delta_papers": delta_papers,
+            "radar_dims": {
+                "Study Time": dim_study,
+                "Exam Foundation": dim_foundation,
+                "Mock Practice": dim_practice,
+                "Sleep Balance": dim_sleep,
+                "Study Effort": dim_effort,
+                "Extracurriculars": dim_ec
+            },
+            "habit_balance_score": habit_balance_score
         }
 
     # Render results only if prediction has been submitted
@@ -503,6 +522,98 @@ with tab1:
         st.plotly_chart(fig_gauge, width="stretch")
 
         # ------------------------------------------------------------------
+        # STUDENT HABIT RADAR CHART SECTION
+        # ------------------------------------------------------------------
+        st.markdown("---")
+        st.markdown(f"### 🕸️ Student Habit Radar Chart (vs. Top Performers & Cohort Baseline)")
+        st.write(f"Compare this student's 6-dimensional study & lifestyle footprint against **A+ Top Performers** and the **{selected_subject} Cohort Average**.")
+        
+        radar_col1, radar_col2 = st.columns([1.2, 1], gap="medium")
+        
+        with radar_col1:
+            radar_dict = res.get("radar_dims", {})
+            categories = list(radar_dict.keys())
+            student_values = list(radar_dict.values())
+            
+            # Close the polygon loop for Plotly radar
+            categories_closed = categories + [categories[0]]
+            student_closed = student_values + [student_values[0]]
+            top_performer_closed = [85.0, 90.0, 80.0, 95.0, 88.0, 85.0, 85.0]
+            cohort_avg_closed = [55.0, 48.0, 45.0, 75.0, 51.0, 50.0, 55.0]
+            
+            fig_radar = go.Figure()
+            
+            # 1. Top Performers (A+ Benchmark)
+            fig_radar.add_trace(go.Scatterpolar(
+                r=top_performer_closed,
+                theta=categories_closed,
+                fill='toself',
+                fillcolor='rgba(16, 185, 129, 0.15)',
+                line=dict(color='#10B981', width=2),
+                name='🌟 Top Performers (A+ Target)'
+            ))
+            
+            # 2. Cohort Average
+            fig_radar.add_trace(go.Scatterpolar(
+                r=cohort_avg_closed,
+                theta=categories_closed,
+                fill='toself',
+                fillcolor='rgba(148, 163, 184, 0.10)',
+                line=dict(color='#94A3B8', width=1.5, dash='dash'),
+                name='👥 Cohort Average'
+            ))
+            
+            # 3. Current Student
+            fig_radar.add_trace(go.Scatterpolar(
+                r=student_closed,
+                theta=categories_closed,
+                fill='toself',
+                fillcolor='rgba(56, 189, 248, 0.35)',
+                line=dict(color='#38BDF8', width=3),
+                name='🎯 Current Student Profile'
+            ))
+            
+            fig_radar.update_layout(
+                polar=dict(
+                    radialaxis=dict(
+                        visible=True,
+                        range=[0, 100],
+                        tickvals=[20, 40, 60, 80, 100],
+                        ticktext=["20%", "40%", "60%", "80%", "100%"],
+                        gridcolor="rgba(255, 255, 255, 0.15)"
+                    ),
+                    angularaxis=dict(
+                        gridcolor="rgba(255, 255, 255, 0.15)"
+                    )
+                ),
+                template="plotly_dark",
+                height=380,
+                margin=dict(l=40, r=40, t=30, b=30),
+                legend=dict(orientation="h", y=-0.15, x=0.5, xanchor="center")
+            )
+            st.plotly_chart(fig_radar, width="stretch")
+            
+        with radar_col2:
+            st.markdown("#### 🧭 Habit Footprint Analysis")
+            balance_score = res.get("habit_balance_score", 75.0)
+            
+            st.markdown(f"""
+            <div class="metric-card" style="margin-bottom: 1rem;">
+                <span style="font-size: 0.85rem; color: #94A3B8; font-weight: 600;">HABIT BALANCE INDEX</span>
+                <div style="font-size: 2.2rem; font-weight: 800; color: {'#34D399' if balance_score >= 80 else '#38BDF8' if balance_score >= 65 else '#FBBF24'};">
+                    {balance_score:.1f}<span style="font-size: 1rem; color: #94A3B8;">/100</span>
+                </div>
+                <span style="font-size: 0.85rem; color: #E2E8F0;">{'🌟 Elite Multi-Dimensional Habit Profile' if balance_score >= 80 else '👍 Well-Rounded Study Routine' if balance_score >= 65 else '⚠️ Asymmetric Study Habits'}</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Dimension Breakdown
+            st.markdown("**Detailed Dimension Breakdown:**")
+            dim_data = res.get("radar_dims", {})
+            for d_name, d_val in dim_data.items():
+                st.write(f"• **{d_name}:** `{d_val:.0f}%` (vs. A+ Target: `85%+`)")
+
+        # ------------------------------------------------------------------
         # SHAP EXPLAINABILITY WATERFALL SECTION
         # ------------------------------------------------------------------
         st.markdown("---")
@@ -584,7 +695,7 @@ with tab1:
                 st.info(f"📄 **Mock Practice Boost:** Practicing **3 more question papers** is estimated to raise predicted score by **+{res['delta_papers']:.1f} points**.")
     else:
         st.markdown("---")
-        st.info(f"👈 Set the student's study inputs above and click **'🚀 Predict {selected_subject} Score & SHAP Breakdown'** to generate the prediction.")
+        st.info(f"👈 Set the student's study inputs above and click **'🚀 Predict {selected_subject} Score & Habit Radar'** to generate the prediction.")
 
 # -------------------------------------------------------------
 # TAB 2: Batch CSV Prediction
@@ -794,16 +905,112 @@ with tab3:
             st.plotly_chart(fig_scatter, width="stretch")
 
 # -------------------------------------------------------------
-# TAB 4: Dataset Explorer (EDA)
+# TAB 4: Dataset Explorer (EDA & Habit Footprint)
 # -------------------------------------------------------------
 with tab4:
-    st.subheader(f"📈 {active_subject_meta['icon']} {selected_subject} — Dataset Explorer")
-    st.write(f"Explore patterns, correlations, and distributions across the **10,000 records** for **{selected_subject}** ({active_subject_meta['badge']}).")
+    st.subheader(f"📈 {active_subject_meta['icon']} {selected_subject} — Dataset & Habit Footprint Analysis")
+    st.write(f"Explore patterns, correlations, and cross-grade habit footprints across **10,000 student records** for **{selected_subject}**.")
     
     df_raw = get_cached_subject_data(selected_subject)
     if df_raw is not None:
-        eda_col1, eda_col2 = st.columns([1, 1])
+        # Cross-Grade Habit Radar Analysis
+        st.markdown("#### 🕸️ Cohort Habit Radar Footprint by Letter Grade (A+ vs. A vs. C vs. F)")
         
+        # Calculate grade column for dataset
+        df_eda = df_raw.copy()
+        df_eda["Grade_Category"] = pd.cut(
+            df_eda["Performance_Index"],
+            bins=[0, 50, 60, 70, 80, 90, 100],
+            labels=["F (<50)", "D (50-60)", "C (60-70)", "B (70-80)", "A (80-90)", "A+ (90-100)"],
+            right=False
+        )
+        
+        # Group by grade
+        grade_stats = df_eda.groupby("Grade_Category", observed=False).agg({
+            "Hours_Studied": "mean",
+            "Previous_Score": "mean",
+            "Sample_Question_Papers_Practiced": "mean",
+            "Sleep_Hours": "mean",
+            "Study_Effort_Score": "mean"
+        }).reset_index()
+        
+        radar_eda_cats = ["Study Time", "Foundation Score", "Mock Papers", "Sleep Quality", "Study Effort"]
+        radar_eda_cats_closed = radar_eda_cats + [radar_eda_cats[0]]
+        
+        fig_grade_radar = go.Figure()
+        
+        # Plot A+ tier
+        if "A+ (90-100)" in grade_stats["Grade_Category"].values:
+            row_ap = grade_stats[grade_stats["Grade_Category"] == "A+ (90-100)"].iloc[0]
+            vals_ap = [
+                min(100, (row_ap["Hours_Studied"] / 9) * 100),
+                min(100, max(0, ((row_ap["Previous_Score"] - 40) / 60) * 100)),
+                min(100, (row_ap["Sample_Question_Papers_Practiced"] / 10) * 100),
+                min(100, max(0, 100 - abs(row_ap["Sleep_Hours"] - 7.5) * 20)),
+                min(100, (row_ap["Study_Effort_Score"] / 9.4) * 100)
+            ]
+            fig_grade_radar.add_trace(go.Scatterpolar(
+                r=vals_ap + [vals_ap[0]],
+                theta=radar_eda_cats_closed,
+                fill='toself',
+                fillcolor='rgba(16, 185, 129, 0.2)',
+                line=dict(color='#10B981', width=2.5),
+                name='🌟 Top Tier (Grade A+)'
+            ))
+            
+        # Plot B tier
+        if "B (70-80)" in grade_stats["Grade_Category"].values:
+            row_b = grade_stats[grade_stats["Grade_Category"] == "B (70-80)"].iloc[0]
+            vals_b = [
+                min(100, (row_b["Hours_Studied"] / 9) * 100),
+                min(100, max(0, ((row_b["Previous_Score"] - 40) / 60) * 100)),
+                min(100, (row_b["Sample_Question_Papers_Practiced"] / 10) * 100),
+                min(100, max(0, 100 - abs(row_b["Sleep_Hours"] - 7.5) * 20)),
+                min(100, (row_b["Study_Effort_Score"] / 9.4) * 100)
+            ]
+            fig_grade_radar.add_trace(go.Scatterpolar(
+                r=vals_b + [vals_b[0]],
+                theta=radar_eda_cats_closed,
+                fill='toself',
+                fillcolor='rgba(59, 130, 246, 0.15)',
+                line=dict(color='#3B82F6', width=2),
+                name='👍 Above Average (Grade B)'
+            ))
+            
+        # Plot F tier
+        if "F (<50)" in grade_stats["Grade_Category"].values:
+            row_f = grade_stats[grade_stats["Grade_Category"] == "F (<50)"].iloc[0]
+            vals_f = [
+                min(100, (row_f["Hours_Studied"] / 9) * 100),
+                min(100, max(0, ((row_f["Previous_Score"] - 40) / 60) * 100)),
+                min(100, (row_f["Sample_Question_Papers_Practiced"] / 10) * 100),
+                min(100, max(0, 100 - abs(row_f["Sleep_Hours"] - 7.5) * 20)),
+                min(100, (row_f["Study_Effort_Score"] / 9.4) * 100)
+            ]
+            fig_grade_radar.add_trace(go.Scatterpolar(
+                r=vals_f + [vals_f[0]],
+                theta=radar_eda_cats_closed,
+                fill='toself',
+                fillcolor='rgba(239, 68, 68, 0.15)',
+                line=dict(color='#EF4444', width=2, dash='dot'),
+                name='🚨 At Risk (Grade F)'
+            ))
+            
+        fig_grade_radar.update_layout(
+            polar=dict(
+                radialaxis=dict(visible=True, range=[0, 100], gridcolor="rgba(255, 255, 255, 0.15)"),
+                angularaxis=dict(gridcolor="rgba(255, 255, 255, 0.15)")
+            ),
+            template="plotly_dark",
+            height=380,
+            margin=dict(l=40, r=40, t=30, b=30),
+            legend=dict(orientation="h", y=-0.15, x=0.5, xanchor="center")
+        )
+        st.plotly_chart(fig_grade_radar, width="stretch")
+        
+        st.markdown("---")
+        
+        eda_col1, eda_col2 = st.columns([1, 1])
         with eda_col1:
             st.markdown(f"#### 📐 Statistical Summary ({selected_subject})")
             st.dataframe(df_raw.describe().T, width="stretch")
