@@ -21,12 +21,16 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
   - ⚖️ **Study-to-Sleep Ratio**: $\frac{\text{Hours Studied}}{\text{Sleep Hours}}$ (Work-rest balance metric).
   - 📄 **Practice Density**: $\frac{\text{Mock Papers Practiced}}{\text{Hours Studied} + 1}$ (Active practice intensity).
   - ⚡ **Study Effort Score**: $(0.6 \times \text{Hours}) + (0.4 \times \text{Mock Papers})$ (Composite academic effort index).
+- **🎯 Prediction Confidence Intervals (80%–99%)**:
+  - Provides rigorous uncertainty quantification: instead of a single point score, generates calibrated **Prediction Intervals** $[y_{\text{lower}}, y_{\text{upper}}]$.
+  - Supports user-selectable confidence levels: **80% (±2.66 pts)**, **90% (±3.41 pts)**, **95% (±4.07 pts)**, and **99% (±5.34 pts)**.
+  - Features visual **Confidence Band Gauges** and empirical coverage calibration on 1,975 real test students.
 - **⚡ Advanced Gradient Boosters & Ensembles**:
   - **XGBoost Regressor**: Extreme Gradient Boosting with tree regularization.
   - **LightGBM Regressor**: Fast, leaf-wise gradient boosting.
   - **HistGradientBoosting**: Binned gradient boosting for rapid convergence.
   - **Stacking Ensemble Regressor**: Meta-learner combining Linear, Random Forest, and GBDT predictions.
-- **📂 Batch Prediction (CSV Upload)**: Upload class rosters or cohort CSVs to generate predictions, automatically engineer features, and export results in one click.
+- **📂 Batch Prediction (CSV Upload)**: Upload class rosters or cohort CSVs to generate predictions, automatically engineer features, and export results with confidence intervals in one click.
 - **📊 Multi-Model Comparison Dashboard**: Interactive comparison across 9 regression models with evaluation metrics ($R^2$, MAE, RMSE).
 
 ---
@@ -139,6 +143,19 @@ On the test set (1,975 real student records):
 | **HistGradientBoosting** | Advanced Gradient Booster | **98.76%** | **1.71** | **2.15** |
 | **Random Forest** | Ensemble Bagging | **98.61%** | **1.81** | **2.28** |
 | **Decision Tree** | Tree Model | **97.29%** | **2.55** | **3.17** |
+
+---
+
+### 🎯 Prediction Confidence Interval Calibration
+
+Evaluated on 1,975 held-out test students:
+
+| Confidence Level (Nominal) | Empirical Coverage (Actual) | Z-Multiplier | Margin of Error | Calibration Status |
+| :--- | :---: | :---: | :---: | :---: |
+| **80% Confidence** | **80.25%** | 1.282 | **±2.66 pts** | ✅ Well Calibrated |
+| **90% Confidence** | **89.92%** | 1.645 | **±3.41 pts** | ✅ Well Calibrated |
+| **95% Confidence** | **94.58%** | 1.960 | **±4.07 pts** | ✅ Well Calibrated |
+| **99% Confidence** | **98.99%** | 2.576 | **±5.34 pts** | ✅ Well Calibrated |
 
 ---
 

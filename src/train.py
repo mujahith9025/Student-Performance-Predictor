@@ -46,7 +46,16 @@ from src.data_loader import (
 MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
 MODEL_SAVE_PATH = os.path.join(MODELS_DIR, "best_model.pkl")
 ALL_MODELS_SAVE_PATH = os.path.join(MODELS_DIR, "all_trained_models.pkl")
+QUANTILE_MODELS_SAVE_PATH = os.path.join(MODELS_DIR, "quantile_models.pkl")
 METRICS_SAVE_PATH = os.path.join(MODELS_DIR, "metrics.json")
+
+# Standard Z-multipliers for confidence levels
+Z_SCORES = {
+    0.80: 1.282,
+    0.90: 1.645,
+    0.95: 1.960,
+    0.99: 2.576
+}
 
 def build_preprocessor():
     """
@@ -104,25 +113,61 @@ def get_candidate_models():
 
     return models
 
+def train_quantile_regressors(X_train, y_train):
+    """
+    Trains non-parametric Quantile Gradient Boosters for uncertainty & interval bounds.
+    """
+    quantiles = [0.025, 0.05, 0.50, 0.95, 0.975]
+    quantile_models = {}
+    
+    print("[*] Training Quantile Gradient Boosters for Prediction Intervals...")
+    for q in quantiles:
+        q_pipe = Pipeline(steps=[
+            ("preprocessor", build_preprocessor()),
+            ("regressor", GradientBoostingRegressor(
+                loss="quantile",
+                alpha=q,
+                n_estimators=100,
+                max_depth=4,
+                learning_rate=0.08,
+                random_state=42
+            ))
+        ])
+        q_pipe.fit(X_train, y_train)
+        quantile_models[str(q)] = q_pipe
+        print(f"      Fitted Quantile alpha={q:.3f}")
+        
+    return quantile_models
+
+def compute_confidence_intervals(y_pred, residual_std, confidence_level=0.95):
+    """
+    Computes parametric Prediction Confidence Intervals with margin of error and clipping.
+    """
+    z = Z_SCORES.get(confidence_level, 1.960)
+    margin = z * residual_std
+    lower = np.clip(y_pred - margin, 10.0, 100.0)
+    upper = np.clip(y_pred + margin, 10.0, 100.0)
+    return lower, upper, margin
+
 def train_and_evaluate():
     """
-    End-to-end training, benchmarking, and serialization pipeline with Advanced Gradient Boosters.
+    End-to-end training, benchmarking, quantile modeling, and serialization pipeline.
     """
     print("==========================================================")
-    print(" STUDENT PERFORMANCE PREDICTOR - ADVANCED GRADIENT BOOSTING")
+    print(" STUDENT PERFORMANCE PREDICTOR - CONFIDENCE INTERVALS & ML")
     print("==========================================================")
     
     os.makedirs(MODELS_DIR, exist_ok=True)
     
     # 1. Load Data
-    print("[1/4] Loading real Kaggle Student Performance dataset with Feature Engineering...")
+    print("[1/5] Loading real Kaggle Student Performance dataset with Feature Engineering...")
     df = load_student_data()
     X, y = get_feature_target_split(df)
     X_train, X_test, y_train, y_test = split_train_test(X, y, test_size=0.2, random_state=42)
     print(f"      Training set: {X_train.shape[0]} rows | Test set: {X_test.shape[0]} rows")
     
     # 2. Train & Evaluate Candidates
-    print("\n[2/4] Benchmarking baseline models & Advanced Gradient Boosters...")
+    print("\n[2/5] Benchmarking baseline models & Advanced Gradient Boosters...")
     candidate_models = get_candidate_models()
     results = {}
     fitted_pipelines = {}
@@ -160,8 +205,31 @@ def train_and_evaluate():
     best_pipeline = fitted_pipelines[best_model_name]
     best_metrics = results[best_model_name]
     
-    print(f"\n[3/4] Best Performing Champion Model: '{best_model_name}' (Test R² = {best_metrics['test_r2']})")
+    print(f"\n[3/5] Champion Model Selected: '{best_model_name}' (Test R² = {best_metrics['test_r2']})")
     
+    # 4. Train Quantile Regressors & Residual Diagnostics for Confidence Intervals
+    print("\n[4/5] Training Quantile Regressors & Computing Confidence Interval Metrics...")
+    quantile_models = train_quantile_regressors(X_train, y_train)
+    
+    # Residual analysis on test set
+    y_test_pred = best_pipeline.predict(X_test)
+    residuals = y_test.values - y_test_pred
+    residual_std = float(np.std(residuals))
+    residual_mean = float(np.mean(residuals))
+    
+    # Empirical Coverage Diagnostic
+    coverage_diagnostics = {}
+    for conf, z_val in Z_SCORES.items():
+        margin = z_val * residual_std
+        covered = np.mean((y_test.values >= (y_test_pred - margin)) & (y_test.values <= (y_test_pred + margin)))
+        coverage_diagnostics[f"{int(conf*100)}%"] = {
+            "target_coverage": conf,
+            "empirical_coverage": round(float(covered), 4),
+            "z_multiplier": z_val,
+            "margin_of_error": round(float(margin), 2)
+        }
+        print(f"      Coverage at {int(conf*100)}% Nominal: {covered*100:.2f}% empirical (Margin ±{margin:.2f} pts)")
+
     # Extract Feature Importances / Coefficients
     feature_names = NUMERICAL_FEATURES + [f"{CATEGORICAL_FEATURES[0]}_Yes"]
     feature_importance_dict = {}
@@ -176,10 +244,15 @@ def train_and_evaluate():
         for feat, imp in zip(feature_names, importances):
             feature_importance_dict[feat] = round(float(imp), 4)
             
-    # Sample Test Predictions for UI Plots (100 points)
+    # Sample Test Predictions with Intervals for Visual Plots (100 points)
     sample_test_indices = X_test.index[:100]
     sample_actual = y_test.loc[sample_test_indices].tolist()
-    sample_predicted = [round(float(p), 2) for p in best_pipeline.predict(X_test.loc[sample_test_indices])]
+    sample_preds_raw = best_pipeline.predict(X_test.loc[sample_test_indices])
+    sample_predicted = [round(float(p), 2) for p in sample_preds_raw]
+    
+    # 95% Confidence Interval for sample
+    sample_lower_95 = [round(float(p - 1.960 * residual_std), 2) for p in sample_preds_raw]
+    sample_upper_95 = [round(float(p + 1.960 * residual_std), 2) for p in sample_preds_raw]
     
     # Save Metadata
     payload = {
@@ -188,13 +261,21 @@ def train_and_evaluate():
         "all_model_benchmarks": results,
         "best_model_metrics": best_metrics,
         "feature_importances": feature_importance_dict,
+        "confidence_intervals": {
+            "residual_std": round(residual_std, 4),
+            "residual_mean": round(residual_mean, 4),
+            "coverage_diagnostics": coverage_diagnostics,
+            "z_scores": Z_SCORES
+        },
         "feature_names": {
             "numerical": NUMERICAL_FEATURES,
             "categorical": CATEGORICAL_FEATURES
         },
         "sample_test_plot_data": {
             "actual": sample_actual,
-            "predicted": sample_predicted
+            "predicted": sample_predicted,
+            "lower_95": sample_lower_95,
+            "upper_95": sample_upper_95
         },
         "dataset_info": {
             "total_records": len(df),
@@ -206,15 +287,18 @@ def train_and_evaluate():
     with open(METRICS_SAVE_PATH, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=4)
         
-    print(f"[4/4] Saving best pipeline to: {MODEL_SAVE_PATH}")
+    print(f"\n[5/5] Saving champion pipeline to: {MODEL_SAVE_PATH}")
     joblib.dump(best_pipeline, MODEL_SAVE_PATH)
     
     print(f"      Saving all trained models bundle to: {ALL_MODELS_SAVE_PATH}")
     joblib.dump(fitted_pipelines, ALL_MODELS_SAVE_PATH)
     
-    print(f"      Saved benchmark metrics summary to: {METRICS_SAVE_PATH}")
+    print(f"      Saving Quantile Regressors to: {QUANTILE_MODELS_SAVE_PATH}")
+    joblib.dump(quantile_models, QUANTILE_MODELS_SAVE_PATH)
     
-    print("\n[OK] Advanced Gradient Boosting training completed successfully!")
+    print(f"      Saved benchmark & confidence interval metrics to: {METRICS_SAVE_PATH}")
+    
+    print("\n[OK] Model training & Prediction Confidence Interval calibration completed successfully!")
     return best_pipeline, payload
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ import streamlit as st
 
 # Setup page config
 st.set_page_config(
-    page_title="Student Performance Predictor | ML & Streamlit",
+    page_title="Student Performance Predictor | ML & Confidence Intervals",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -24,9 +24,18 @@ from src.data_loader import engineer_features, NUMERICAL_FEATURES, CATEGORICAL_F
 
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pkl")
 ALL_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "all_trained_models.pkl")
+QUANTILE_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "quantile_models.pkl")
 METRICS_PATH = os.path.join(PROJECT_ROOT, "models", "metrics.json")
 DATASET_PATH = os.path.join(PROJECT_ROOT, "data", "Student_Performance.csv")
 SAMPLE_BATCH_PATH = os.path.join(PROJECT_ROOT, "data", "sample_batch_test.csv")
+
+# Standard Z-scores for Confidence Intervals
+Z_SCORES = {
+    "80%": 1.282,
+    "90%": 1.645,
+    "95%": 1.960,
+    "99%": 2.576
+}
 
 # Custom CSS for rich, modern aesthetics
 st.markdown("""
@@ -79,6 +88,12 @@ st.markdown("""
         color: #38BDF8;
     }
     
+    .interval-badge {
+        font-size: 1.65rem;
+        font-weight: 800;
+        color: #FBBF24;
+    }
+    
     .grade-pill {
         display: inline-block;
         padding: 0.35rem 1rem;
@@ -115,9 +130,9 @@ st.markdown("""
 
 @st.cache_resource
 def load_model_artifacts():
-    """Load cached models bundle and evaluation metrics."""
+    """Load cached models bundle, quantile models, and evaluation metrics."""
     if not os.path.exists(MODEL_PATH) or not os.path.exists(METRICS_PATH):
-        return None, {}, None
+        return None, {}, {}, None
         
     best_model = joblib.load(MODEL_PATH)
     
@@ -130,10 +145,17 @@ def load_model_artifacts():
     else:
         all_models = {"Default Model": best_model}
         
+    quantile_models = {}
+    if os.path.exists(QUANTILE_MODELS_PATH):
+        try:
+            quantile_models = joblib.load(QUANTILE_MODELS_PATH)
+        except Exception:
+            quantile_models = {}
+            
     with open(METRICS_PATH, "r", encoding="utf-8") as f:
         metrics = json.load(f)
         
-    return best_model, all_models, metrics
+    return best_model, all_models, quantile_models, metrics
 
 @st.cache_data
 def load_dataset():
@@ -160,18 +182,29 @@ def compute_grade_and_status(score: float):
     else:
         return "F", "grade-F", "🚨 At Risk (Action Required)"
 
+def get_interval_bounds(pred_score, conf_str, residual_std=2.075):
+    """Calculates lower and upper prediction bounds with margin of error."""
+    z = Z_SCORES.get(conf_str, 1.960)
+    margin = z * residual_std
+    lower = max(10.0, float(pred_score - margin))
+    upper = min(100.0, float(pred_score + margin))
+    return lower, upper, margin
+
 # Load trained artifacts
-best_model, all_models, metrics = load_model_artifacts()
+best_model, all_models, quantile_models, metrics = load_model_artifacts()
 
 if best_model is None:
     st.error("⚠️ Trained model not found! Please run `python src/train.py` first to train and serialize the models.")
     st.stop()
 
+# Extract residual std from metrics
+residual_std = metrics.get("confidence_intervals", {}).get("residual_std", 2.075)
+
 # Sidebar
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/graduation-cap.png", width=110)
     st.title("🎓 Student AI Predictor")
-    st.caption("Powered by Machine Learning & Advanced Gradient Boosters")
+    st.caption("Powered by Machine Learning & Prediction Intervals")
     
     st.markdown("---")
     
@@ -186,10 +219,24 @@ with st.sidebar:
         help="Select between classic linear models, random forests, or Advanced Gradient Boosters (XGBoost, LightGBM, GBDT, Stacking)"
     )
     
-    # Active model for inference
     active_model = all_models.get(selected_model_name, best_model)
     
+    st.markdown("---")
+    st.markdown("### 🎯 Prediction Confidence Level")
+    confidence_level_str = st.select_slider(
+        "Select Confidence Interval Band:",
+        options=["80%", "90%", "95%", "99%"],
+        value="95%",
+        help="95% is the statistical gold standard, meaning 95 out of 100 students with these habits will fall within the estimated range."
+    )
+    
+    cur_z = Z_SCORES[confidence_level_str]
+    cur_margin = cur_z * residual_std
+    st.caption(f"📌 Margin of Error: **±{cur_margin:.2f} points** ($Z={cur_z}$)")
+    
     if metrics:
+        st.markdown("---")
+        st.markdown("### 🏆 Model Stats")
         model_bench = metrics.get("all_model_benchmarks", {}).get(selected_model_name, metrics.get("best_model_metrics", {}))
         if model_bench:
             col1, col2 = st.columns(2)
@@ -206,20 +253,12 @@ with st.sidebar:
     - **GBDT / HistGBDT:** Scikit-Learn gradient boosting
     - **Stacking Ensemble:** Meta-learner combiner
     """)
-    
-    st.markdown("---")
-    st.markdown("### 🔬 Custom Feature Engineering")
-    st.markdown("""
-    - **Study-to-Sleep Ratio:** `Hours_Studied / Sleep_Hours`
-    - **Practice Density:** `Papers / (Hours + 1)`
-    - **Effort Score:** `(0.6 × Hours) + (0.4 × Papers)`
-    """)
 
 # Main Header Banner
 st.markdown("""
 <div class="main-header">
     <h1>🎓 Student Academic Performance Predictor</h1>
-    <p>Predict student exam outcomes using <b>Advanced Gradient Boosters (XGBoost, LightGBM, GBDT)</b> and Custom Feature Engineering.</p>
+    <p>Predict exam outcomes with <b>Prediction Confidence Intervals (80%–99%)</b>, Advanced Gradient Boosters (XGBoost/LightGBM), and Custom Feature Engineering.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -227,7 +266,7 @@ st.markdown("""
 tab1, tab2, tab3, tab4 = st.tabs([
     "🔮 Single Student Predictor",
     "📂 Batch CSV Prediction",
-    "📊 Model Benchmarks & Boosters",
+    "📊 Benchmarks & Confidence Calibration",
     "📈 Dataset Explorer (EDA)"
 ])
 
@@ -235,8 +274,8 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # TAB 1: Single Student Predictor
 # -------------------------------------------------------------
 with tab1:
-    st.subheader("Interactive Student Outcome Prediction")
-    st.write(f"Currently predicting with: **`{selected_model_name}`**. Configure the student's study routines below and click **'Calculate Predicted Score'**.")
+    st.subheader("Interactive Student Outcome Prediction with Confidence Bounds")
+    st.write(f"Inference Model: **`{selected_model_name}`** | Confidence Level: **`{confidence_level_str}`** (Margin ±{cur_margin:.2f} pts).")
     
     with st.form(key="student_prediction_form"):
         col_input1, col_input2 = st.columns([1, 1], gap="large")
@@ -285,7 +324,7 @@ with tab1:
             )
             
             st.markdown("<br>", unsafe_allow_html=True)
-            predict_btn = st.form_submit_button("🚀 Calculate Predicted Score", type="primary", width="stretch")
+            predict_btn = st.form_submit_button("🚀 Calculate Predicted Score & Confidence Interval", type="primary", width="stretch")
 
     # If user clicked calculate, compute and store in session_state
     if predict_btn:
@@ -302,6 +341,11 @@ with tab1:
         pred_score = max(10.0, min(100.0, pred_score))
         letter_grade, grade_css, standing_desc = compute_grade_and_status(pred_score)
 
+        # Confidence bounds
+        lower_bound, upper_bound, margin = get_interval_bounds(pred_score, confidence_level_str, residual_std)
+        lower_grade, _, _ = compute_grade_and_status(lower_bound)
+        upper_grade, _, _ = compute_grade_and_status(upper_bound)
+
         # What-if scenario boost calculations
         boost_study = raw_input_data.copy()
         boost_study["Hours_Studied"] = min(9, hours_studied + 2)
@@ -315,10 +359,16 @@ with tab1:
 
         st.session_state["single_prediction"] = {
             "model_used": selected_model_name,
+            "conf_level": confidence_level_str,
             "raw_input": raw_input_data,
             "engineered_input": engineered_input,
             "pred_score": pred_score,
+            "lower_bound": lower_bound,
+            "upper_bound": upper_bound,
+            "margin": margin,
             "letter_grade": letter_grade,
+            "lower_grade": lower_grade,
+            "upper_grade": upper_grade,
             "grade_css": grade_css,
             "standing_desc": standing_desc,
             "hours_studied": hours_studied,
@@ -332,40 +382,95 @@ with tab1:
     if "single_prediction" in st.session_state:
         res = st.session_state["single_prediction"]
         
+        # If user changed confidence level in sidebar, recompute bounds dynamically
+        res_lower, res_upper, res_margin = get_interval_bounds(res["pred_score"], confidence_level_str, residual_std)
+        
         st.markdown("---")
         st.markdown(f"### 🎯 Prediction Results (via `{res.get('model_used', selected_model_name)}`)")
         
-        res_col1, res_col2, res_col3 = st.columns([1, 1, 1])
+        res_col1, res_col2, res_col3, res_col4 = st.columns([1, 1, 1, 1])
         
         with res_col1:
             st.markdown(f"""
             <div class="metric-card">
-                <span style="font-size: 0.95rem; color: #94A3B8; font-weight: 600;">PREDICTED PERFORMANCE INDEX</span>
-                <div class="score-badge">{res['pred_score']:.1f}<span style="font-size: 1.2rem; color: #94A3B8;">/100</span></div>
+                <span style="font-size: 0.9rem; color: #94A3B8; font-weight: 600;">POINT ESTIMATE</span>
+                <div class="score-badge">{res['pred_score']:.1f}<span style="font-size: 1.1rem; color: #94A3B8;">/100</span></div>
             </div>
             """, unsafe_allow_html=True)
             
         with res_col2:
             st.markdown(f"""
             <div class="metric-card">
-                <span style="font-size: 0.95rem; color: #94A3B8; font-weight: 600;">ESTIMATED LETTER GRADE</span><br><br>
-                <span class="grade-pill {res['grade_css']}">{res['letter_grade']}</span>
+                <span style="font-size: 0.9rem; color: #94A3B8; font-weight: 600;">{confidence_level_str} CONFIDENCE RANGE</span>
+                <div class="interval-badge">[{res_lower:.1f} — {res_upper:.1f}]</div>
+                <span style="font-size: 0.8rem; color: #94A3B8;">Margin: ±{res_margin:.1f} pts</span>
             </div>
             """, unsafe_allow_html=True)
             
         with res_col3:
             st.markdown(f"""
             <div class="metric-card">
-                <span style="font-size: 0.95rem; color: #94A3B8; font-weight: 600;">ACADEMIC STANDING</span>
-                <div style="font-size: 1.15rem; font-weight: 700; margin-top: 1rem; color: #E2E8F0;">
+                <span style="font-size: 0.9rem; color: #94A3B8; font-weight: 600;">EXPECTED GRADE</span><br>
+                <span class="grade-pill {res['grade_css']}">{res['letter_grade']}</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with res_col4:
+            st.markdown(f"""
+            <div class="metric-card">
+                <span style="font-size: 0.9rem; color: #94A3B8; font-weight: 600;">ACADEMIC STANDING</span>
+                <div style="font-size: 1.05rem; font-weight: 700; margin-top: 0.8rem; color: #E2E8F0;">
                     {res['standing_desc']}
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
-        # Progress bar
+        # Plotly Visual Confidence Range Chart
         st.markdown("<br>", unsafe_allow_html=True)
-        st.progress(res["pred_score"] / 100.0)
+        
+        fig_gauge = go.Figure()
+        
+        # Add background grade zones
+        fig_gauge.add_vrect(x0=10, x1=50, fillcolor="#DC2626", opacity=0.15, layer="below", line_width=0, annotation_text="F (Fail)", annotation_position="top left")
+        fig_gauge.add_vrect(x0=50, x1=60, fillcolor="#EF4444", opacity=0.15, layer="below", line_width=0, annotation_text="D", annotation_position="top left")
+        fig_gauge.add_vrect(x0=60, x1=70, fillcolor="#F59E0B", opacity=0.15, layer="below", line_width=0, annotation_text="C", annotation_position="top left")
+        fig_gauge.add_vrect(x0=70, x1=80, fillcolor="#3B82F6", opacity=0.15, layer="below", line_width=0, annotation_text="B", annotation_position="top left")
+        fig_gauge.add_vrect(x0=80, x1=100, fillcolor="#10B981", opacity=0.15, layer="below", line_width=0, annotation_text="A / A+", annotation_position="top left")
+        
+        # Confidence interval band (horizontal bar)
+        fig_gauge.add_trace(go.Scatter(
+            x=[res_lower, res_upper],
+            y=[1, 1],
+            mode="lines",
+            line=dict(color="#FBBF24", width=10),
+            name=f"{confidence_level_str} Confidence Interval",
+            hoverinfo="x+name"
+        ))
+        
+        # Point Estimate Marker
+        fig_gauge.add_trace(go.Scatter(
+            x=[res["pred_score"]],
+            y=[1],
+            mode="markers+text",
+            marker=dict(color="#38BDF8", size=20, symbol="diamond-dot", line=dict(color="#ffffff", width=2)),
+            text=[f"Predicted: {res['pred_score']:.1f}"],
+            textposition="top center",
+            name="Point Estimate",
+            hoverinfo="x+name"
+        ))
+        
+        fig_gauge.update_layout(
+            title=f"🎯 Prediction Range: [{res_lower:.1f} to {res_upper:.1f}] with {confidence_level_str} Confidence",
+            xaxis=dict(title="Score Scale (10 to 100)", range=[10, 100], dtick=10),
+            yaxis=dict(showticklabels=False, range=[0.5, 1.5]),
+            template="plotly_dark",
+            height=260,
+            margin=dict(l=20, r=20, t=50, b=20),
+            showlegend=True
+        )
+        st.plotly_chart(fig_gauge, width="stretch")
+
+        st.info(f"📊 **Statistical Interpretation:** There is a **{confidence_level_str} probability** that a student with these exact study habits will score between **{res_lower:.1f}** and **{res_upper:.1f}** on the final exam.")
 
         # Live Engineered Features Card
         st.markdown("#### 🔬 Custom Engineered Metrics")
@@ -419,14 +524,14 @@ with tab1:
                 st.info(f"📄 **Mock Practice Boost:** Practicing **3 more question papers** is estimated to raise predicted score by **+{res['delta_papers']:.1f} points**.")
     else:
         st.markdown("---")
-        st.info("👈 Set the student's study inputs above and click **'🚀 Calculate Predicted Score'** to generate the prediction.")
+        st.info("👈 Set the student's study inputs above and click **'🚀 Calculate Predicted Score & Confidence Interval'** to generate the prediction.")
 
 # -------------------------------------------------------------
 # TAB 2: Batch CSV Prediction
 # -------------------------------------------------------------
 with tab2:
-    st.subheader("📂 Batch Prediction for Classrooms & Cohorts")
-    st.write(f"Inference Engine: **`{selected_model_name}`**. Upload a CSV file to automatically compute engineered features and predict scores.")
+    st.subheader("📂 Batch Prediction with Confidence Intervals")
+    st.write(f"Inference Engine: **`{selected_model_name}`** | Confidence Level: **`{confidence_level_str}`** (Margin ±{cur_margin:.2f} pts).")
     
     # Sample download or demo load
     demo_col1, demo_col2 = st.columns([1, 2])
@@ -478,6 +583,12 @@ with tab2:
             
             result_df = df_engineered.copy()
             result_df["Predicted_Score"] = np.round(preds, 1)
+            
+            # Add Confidence Interval Bounds
+            z = Z_SCORES.get(confidence_level_str, 1.960)
+            batch_margin = z * residual_std
+            result_df[f"Lower_Bound_{confidence_level_str}"] = np.round(np.clip(result_df["Predicted_Score"] - batch_margin, 10.0, 100.0), 1)
+            result_df[f"Upper_Bound_{confidence_level_str}"] = np.round(np.clip(result_df["Predicted_Score"] + batch_margin, 10.0, 100.0), 1)
             result_df["Grade"] = [compute_grade_and_status(s)[0] for s in result_df["Predicted_Score"]]
             result_df["Status"] = [compute_grade_and_status(s)[2] for s in result_df["Predicted_Score"]]
             
@@ -486,7 +597,7 @@ with tab2:
             b_col1, b_col2, b_col3, b_col4 = st.columns(4)
             b_col1.metric("Total Students", len(result_df))
             b_col2.metric("Cohort Average Score", f"{result_df['Predicted_Score'].mean():.1f} / 100")
-            b_col3.metric("Highest Predicted Score", f"{result_df['Predicted_Score'].max():.1f}")
+            b_col3.metric("Margin of Error", f"±{batch_margin:.2f} pts")
             b_col4.metric("Pass Rate (Score ≥ 50)", f"{(result_df['Predicted_Score'] >= 50).mean() * 100:.1f}%")
             
             # Distribution plot of batch
@@ -503,34 +614,50 @@ with tab2:
             st.plotly_chart(fig_batch, width="stretch")
             
             # Data table
-            st.markdown("#### 📋 Detailed Predictions Table (with Engineered Features)")
+            st.markdown("#### 📋 Detailed Predictions Table (with Confidence Bounds)")
             st.dataframe(result_df, width="stretch", height=320)
             
             # Download predicted CSV
             csv_output = result_df.to_csv(index=False).encode('utf-8')
             st.download_button(
-                label="📥 Download Complete Predictions CSV",
+                label=f"📥 Download Complete Predictions CSV (with {confidence_level_str} Intervals)",
                 data=csv_output,
-                file_name="student_predictions_results.csv",
+                file_name="student_predictions_with_intervals.csv",
                 mime="text/csv",
                 type="primary"
             )
 
 # -------------------------------------------------------------
-# TAB 3: Model Benchmarks & Boosters
+# TAB 3: Model Benchmarks & Confidence Calibration
 # -------------------------------------------------------------
 with tab3:
-    st.subheader("📊 Model Benchmarking: Classic Models vs. Advanced Gradient Boosters")
-    st.write("Compare the performance of all 9 trained regression algorithms (including **XGBoost**, **LightGBM**, **GBDT**, and **Stacking Ensemble**) on the test set of 1,975 real students.")
+    st.subheader("📊 Model Benchmarks & Confidence Interval Calibration")
+    st.write("Examine algorithm leaderboards, empirical coverage calibration, and feature weights evaluated on the test set of 1,975 real students.")
     
     if metrics:
+        # Confidence Diagnostics Section
+        st.markdown("#### 🎯 Prediction Confidence Interval Calibration (Test Set Diagnostics)")
+        cov_data = metrics.get("confidence_intervals", {}).get("coverage_diagnostics", {})
+        if cov_data:
+            cov_rows = []
+            for conf_key, diag in cov_data.items():
+                cov_rows.append({
+                    "Confidence Level (Nominal)": conf_key,
+                    "Target Coverage": f"{float(diag['target_coverage'])*100:.0f}%",
+                    "Empirical Coverage (Actual)": f"{float(diag['empirical_coverage'])*100:.2f}%",
+                    "Z-Multiplier": f"{diag['z_multiplier']:.3f}",
+                    "Margin of Error": f"±{diag['margin_of_error']:.2f} pts",
+                    "Calibration Status": "✅ Well Calibrated" if abs(diag['empirical_coverage'] - diag['target_coverage']) <= 0.02 else "⚠️ Slight Bias"
+                })
+            cov_df = pd.DataFrame(cov_rows)
+            st.dataframe(cov_df, width="stretch")
+            
         # Comparison Table
         st.markdown("#### 🏆 Comprehensive Multi-Model Leaderboard")
         benchmarks = metrics.get("all_model_benchmarks", {})
         bench_df = pd.DataFrame(benchmarks).T.reset_index()
         bench_df.columns = ["Model", "Train R²", "Test R²", "MAE (Test)", "RMSE (Test)", "MSE (Test)"]
         
-        # Add model category tag
         def get_category(name):
             if "XGBoost" in name or "LightGBM" in name or "Gradient" in name or "Hist" in name:
                 return "⚡ Advanced Gradient Booster"
@@ -557,22 +684,6 @@ with tab3:
             width="stretch"
         )
         
-        # Plotly Bar comparison of MAE and R²
-        st.markdown("#### 📈 Model Comparison Chart: Test R² vs. MAE")
-        fig_comp = px.bar(
-            bench_df,
-            x="Model",
-            y="Test R²",
-            color="Category",
-            text="Test R²",
-            title="Algorithm Comparison by Test R² Score",
-            template="plotly_dark",
-            color_discrete_sequence=["#38BDF8", "#34D399", "#FBBF24", "#F472B6"]
-        )
-        fig_comp.update_traces(texttemplate='%{text:.4f}', textposition='outside')
-        fig_comp.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20), yaxis_range=[0.95, 1.0])
-        st.plotly_chart(fig_comp, width="stretch")
-        
         m_col1, m_col2 = st.columns(2)
         
         with m_col1:
@@ -598,24 +709,51 @@ with tab3:
                 st.plotly_chart(fig_feat, width="stretch")
                 
         with m_col2:
-            st.markdown("#### 🎯 Actual vs. Predicted (Test Set)")
+            st.markdown("#### 🎯 Actual vs. Predicted with 95% Confidence Band")
             plot_data = metrics.get("sample_test_plot_data", {})
             if plot_data:
                 actual = plot_data.get("actual", [])
                 predicted = plot_data.get("predicted", [])
+                lower_95 = plot_data.get("lower_95", [])
+                upper_95 = plot_data.get("upper_95", [])
                 
-                scatter_df = pd.DataFrame({"Actual Score": actual, "Predicted Score": predicted})
+                scatter_df = pd.DataFrame({
+                    "Actual Score": actual,
+                    "Predicted Score": predicted,
+                    "Lower 95%": lower_95,
+                    "Upper 95%": upper_95
+                }).sort_values(by="Actual Score").reset_index(drop=True)
                 
                 fig_scatter = go.Figure()
+                
+                # Confidence band shaded region
+                fig_scatter.add_trace(go.Scatter(
+                    x=scatter_df["Actual Score"],
+                    y=scatter_df["Upper 95%"],
+                    mode="lines",
+                    line=dict(width=0),
+                    showlegend=False
+                ))
+                fig_scatter.add_trace(go.Scatter(
+                    x=scatter_df["Actual Score"],
+                    y=scatter_df["Lower 95%"],
+                    mode="lines",
+                    line=dict(width=0),
+                    fill='tonexty',
+                    fillcolor='rgba(56, 189, 248, 0.15)',
+                    name="95% Confidence Band"
+                ))
+                
+                # Predictions
                 fig_scatter.add_trace(go.Scatter(
                     x=scatter_df["Actual Score"],
                     y=scatter_df["Predicted Score"],
                     mode="markers",
                     name="Student Predictions",
-                    marker=dict(color="#38BDF8", size=8, opacity=0.75)
+                    marker=dict(color="#38BDF8", size=7, opacity=0.85)
                 ))
                 
-                # Add ideal reference line y = x
+                # Ideal reference line y = x
                 min_val = min(min(actual), min(predicted))
                 max_val = max(max(actual), max(predicted))
                 fig_scatter.add_trace(go.Scatter(
@@ -627,7 +765,7 @@ with tab3:
                 ))
                 
                 fig_scatter.update_layout(
-                    title=f"Actual vs. Predicted Performance (R² = {metrics['best_model_metrics']['test_r2']:.4f})",
+                    title=f"Actual vs. Predicted with 95% Prediction Tunnel (R² = {metrics['best_model_metrics']['test_r2']:.4f})",
                     xaxis_title="Actual Score",
                     yaxis_title="Predicted Score",
                     template="plotly_dark",
@@ -653,7 +791,6 @@ with tab4:
             
         with eda_col2:
             st.markdown("#### 🔥 Correlation Heatmap")
-            # Numeric correlation using standard pandas type selector
             numeric_df = df_raw.select_dtypes(include=['number'])
             corr = numeric_df.corr()
             
@@ -670,7 +807,6 @@ with tab4:
         st.markdown("---")
         st.markdown("#### 🔍 Interactive Relationship Inspector")
         
-        # Extract numeric columns safely across all Pandas/NumPy versions
         all_numeric_cols = [c for c in df_raw.select_dtypes(include=['number']).columns if c != "Performance_Index"]
         if not all_numeric_cols:
             all_numeric_cols = NUMERICAL_FEATURES
