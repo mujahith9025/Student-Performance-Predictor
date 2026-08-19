@@ -24,6 +24,10 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
     4. 📖 **Humanities & Literature:** Arts, language, and extracurricular communication focus.
   - Dynamically loads discipline-specific models, tailored SHAP waterfalls, and custom subject recommendations.
 - **🔮 Single Student Predictor**: Interactive sliders and dropdowns with real-time score prediction, letter grades (A+, A, B, C, D, F), academic standing indicators, and personalized study boost recommendations.
+- **📄 Official Academic Diagnostic PDF Report Generator**:
+  - Automatically compiles and exports a clean vector-rendered **PDF Academic Diagnostic Report** in 1 click.
+  - Formatted for student advising, parent-teacher reviews, or personal study planning.
+  - Contains executive score summaries, confidence bounds, 6-D habit diagnostics, SHAP factor attribution matrix, and concrete personalized study recommendations.
 - **🕸️ Student Habit Radar Chart**:
   - Multi-dimensional polar/spider chart comparing the student's **6 key study & health dimensions** (Study Time, Exam Foundation, Mock Practice, Sleep Quality, Study Effort, and Extracurriculars) against **🌟 A+ Top Performers** and **👥 Cohort Averages**.
   - Calculates a holistic **Habit Balance Index (0–100%)** with personalized qualitative assessment.

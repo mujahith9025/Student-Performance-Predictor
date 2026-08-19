@@ -10,7 +10,7 @@ import streamlit as st
 
 # Setup page config
 st.set_page_config(
-    page_title="Student Performance Predictor | Multi-Subject AI & Habit Radar",
+    page_title="Student Performance Predictor | Multi-Subject AI & PDF Reports",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -45,6 +45,11 @@ try:
     from explainability import compute_shap_waterfall
 except ImportError:
     from src.explainability import compute_shap_waterfall
+
+try:
+    from pdf_generator import create_student_pdf_report
+except ImportError:
+    from src.pdf_generator import create_student_pdf_report
 
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pkl")
 ALL_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "all_trained_models.pkl")
@@ -220,7 +225,7 @@ if not subject_models_bundle:
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/graduation-cap.png", width=110)
     st.title("🎓 Student AI Predictor")
-    st.caption("Multi-Subject ML, SHAP & Habit Radar")
+    st.caption("Multi-Subject ML, SHAP & PDF Reports")
     
     st.markdown("---")
     
@@ -288,7 +293,7 @@ with st.sidebar:
 st.markdown(f"""
 <div class="main-header">
     <h1>{active_subject_meta['icon']} Student Academic Performance Predictor</h1>
-    <p>Predict outcomes for <b>{selected_subject}</b> using <b>Student Habit Radar Charts</b>, SHAP Explainability, and Confidence Intervals (80%–99%).</p>
+    <p>Predict outcomes for <b>{selected_subject}</b> using <b>PDF Report Generation</b>, Habit Radar Charts, SHAP Explainability, and Confidence Intervals (80%–99%).</p>
     <div class="subject-pill">{active_subject_meta['icon']} Active Subject: {selected_subject} ({active_subject_meta['badge']})</div>
 </div>
 """, unsafe_allow_html=True)
@@ -313,6 +318,12 @@ with tab1:
         
         with col_input1:
             st.markdown("#### 📚 Academic & Study Habits")
+            student_name_input = st.text_input(
+                "👤 Student Name or Identifier (for PDF Report):",
+                value="Alex Johnson",
+                help="Appears on the downloadable academic diagnostic report"
+            )
+            
             hours_studied = st.slider(
                 "⏱️ Daily Hours Studied",
                 min_value=1,
@@ -355,7 +366,7 @@ with tab1:
             )
             
             st.markdown("<br>", unsafe_allow_html=True)
-            predict_btn = st.form_submit_button(f"🚀 Predict {selected_subject} Score & Habit Radar", type="primary", width="stretch")
+            predict_btn = st.form_submit_button(f"🚀 Predict {selected_subject} Score & Generate Insights", type="primary", width="stretch")
 
     # If user clicked calculate, compute and store in session_state
     if predict_btn:
@@ -402,6 +413,7 @@ with tab1:
         habit_balance_score = round((dim_study + dim_foundation + dim_practice + dim_sleep + dim_effort + dim_ec) / 6.0, 1)
 
         st.session_state["single_prediction"] = {
+            "student_name": student_name_input.strip() or "Student",
             "subject": selected_subject,
             "model_used": selected_model_name,
             "conf_level": confidence_level_str,
@@ -441,7 +453,7 @@ with tab1:
         res_lower, res_upper, res_margin = get_interval_bounds(res["pred_score"], confidence_level_str, residual_std)
         
         st.markdown("---")
-        st.markdown(f"### 🎯 Prediction Results for {res.get('subject', selected_subject)} (via `{res.get('model_used', selected_model_name)}`)")
+        st.markdown(f"### 🎯 Prediction Results for {res.get('student_name', 'Student')} in {res.get('subject', selected_subject)} (via `{res.get('model_used', selected_model_name)}`)")
         
         res_col1, res_col2, res_col3, res_col4 = st.columns([1, 1, 1, 1])
         
@@ -535,7 +547,6 @@ with tab1:
             categories = list(radar_dict.keys())
             student_values = list(radar_dict.values())
             
-            # Close the polygon loop for Plotly radar
             categories_closed = categories + [categories[0]]
             student_closed = student_values + [student_values[0]]
             top_performer_closed = [85.0, 90.0, 80.0, 95.0, 88.0, 85.0, 85.0]
@@ -543,7 +554,6 @@ with tab1:
             
             fig_radar = go.Figure()
             
-            # 1. Top Performers (A+ Benchmark)
             fig_radar.add_trace(go.Scatterpolar(
                 r=top_performer_closed,
                 theta=categories_closed,
@@ -553,7 +563,6 @@ with tab1:
                 name='🌟 Top Performers (A+ Target)'
             ))
             
-            # 2. Cohort Average
             fig_radar.add_trace(go.Scatterpolar(
                 r=cohort_avg_closed,
                 theta=categories_closed,
@@ -563,7 +572,6 @@ with tab1:
                 name='👥 Cohort Average'
             ))
             
-            # 3. Current Student
             fig_radar.add_trace(go.Scatterpolar(
                 r=student_closed,
                 theta=categories_closed,
@@ -607,7 +615,6 @@ with tab1:
             </div>
             """, unsafe_allow_html=True)
             
-            # Dimension Breakdown
             st.markdown("**Detailed Dimension Breakdown:**")
             dim_data = res.get("radar_dims", {})
             for d_name, d_val in dim_data.items():
@@ -676,26 +683,80 @@ with tab1:
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown(f"#### 💡 Personalized Study Plan for {selected_subject}")
 
+        recs_list = []
         rec_col1, rec_col2 = st.columns(2)
         with rec_col1:
             if "Math" in selected_subject:
-                st.info(f"📐 **Math Practice Boost:** Solving **3 more question papers** is estimated to raise predicted math score by **+{res['delta_papers']:.1f} points**.")
+                msg_math = f"📐 **Math Practice Boost:** Solving **3 more question papers** is estimated to raise predicted math score by **+{res['delta_papers']:.1f} points**."
+                st.info(msg_math)
+                recs_list.append(f"Math Practice Boost: Solving 3 more mock papers is estimated to raise predicted score by +{res['delta_papers']:.1f} points.")
             else:
                 if res["hours_studied"] < 7:
-                    st.info(f"📈 **Study Habit Boost:** Increasing daily study time by **2 hours** (to {res['hours_studied'] + 2} hrs) is predicted to increase score by **+{res['delta_study']:.1f} points**.")
+                    msg_study = f"📈 **Study Habit Boost:** Increasing daily study time by **2 hours** (to {res['hours_studied'] + 2} hrs) is predicted to increase score by **+{res['delta_study']:.1f} points**."
+                    st.info(msg_study)
+                    recs_list.append(f"Study Time Target: Increasing daily study by 2 hours is estimated to boost score by +{res['delta_study']:.1f} points.")
                 else:
                     st.success("🌟 **Study Discipline:** Current study hours are already strong! Maintain consistency.")
+                    recs_list.append("Maintain existing high daily study volume while focusing on active recall.")
                 
         with rec_col2:
             if "Science" in selected_subject and res["sleep_hours"] < 7:
-                st.warning(f"😴 **STEM Sleep Hygiene:** Sleeping only {res['sleep_hours']} hrs. In science/physics, **7-8 hours** of sleep is critical for memory consolidation.")
+                msg_sci = f"😴 **STEM Sleep Hygiene:** Sleeping only {res['sleep_hours']} hrs. In science/physics, **7-8 hours** of sleep is critical for memory consolidation."
+                st.warning(msg_sci)
+                recs_list.append(f"Sleep Optimization: Prioritize 7.5 hours of sleep to support cognitive STEM problem solving (currently {res['sleep_hours']} hrs).")
             elif "Humanities" in selected_subject:
                 st.success("📖 **Humanities Focus:** Active reading and extracurricular debates strongly support language performance!")
+                recs_list.append("Humanities Enrichment: Continue extracurricular involvement and structured reading routines.")
             else:
-                st.info(f"📄 **Mock Practice Boost:** Practicing **3 more question papers** is estimated to raise predicted score by **+{res['delta_papers']:.1f} points**.")
+                msg_papers = f"📄 **Mock Practice Boost:** Practicing **3 more question papers** is estimated to raise predicted score by **+{res['delta_papers']:.1f} points**."
+                st.info(msg_papers)
+                recs_list.append(f"Practice Mock Papers: Completing 3 additional mock exams is estimated to raise predicted score by +{res['delta_papers']:.1f} points.")
+
+        # ------------------------------------------------------------------
+        # PDF REPORT GENERATOR SECTION
+        # ------------------------------------------------------------------
+        st.markdown("---")
+        st.markdown("### 📄 Official Student Academic Diagnostic Report (PDF)")
+        st.write("Generate and download a comprehensive vector-rendered PDF report formatted for student counseling, parent-teacher reviews, or personal study planning.")
+        
+        raw_dict = res["raw_input"].iloc[0].to_dict()
+        eng_dict = res["engineered_input"].iloc[0].to_dict()
+        
+        pdf_bytes = create_student_pdf_report(
+            student_name=res.get("student_name", "Student"),
+            subject=selected_subject,
+            model_name=res.get("model_used", selected_model_name),
+            confidence_level=confidence_level_str,
+            pred_score=res["pred_score"],
+            lower_bound=res_lower,
+            upper_bound=res_upper,
+            margin=res_margin,
+            letter_grade=res["letter_grade"],
+            standing_desc=res["standing_desc"],
+            inputs=raw_dict,
+            engineered_inputs=eng_dict,
+            habit_balance_score=res.get("habit_balance_score", 75.0),
+            shap_contributions=contribs,
+            shap_base_value=base_val,
+            recommendations=recs_list
+        )
+        
+        pdf_col1, pdf_col2 = st.columns([1, 2])
+        with pdf_col1:
+            st.download_button(
+                label="📥 Download Official Academic Report (PDF)",
+                data=pdf_bytes,
+                file_name=f"{res.get('student_name', 'student').lower().replace(' ', '_')}_{selected_subject.lower().replace(' ', '_')}_report.pdf",
+                mime="application/pdf",
+                type="primary",
+                width="stretch"
+            )
+        with pdf_col2:
+            st.caption("✅ **Includes:** Executive Prediction Summary, 6-D Habit Diagnostics, Confidence Intervals, SHAP Attribution Matrix, and Personalized Action Plan.")
+
     else:
         st.markdown("---")
-        st.info(f"👈 Set the student's study inputs above and click **'🚀 Predict {selected_subject} Score & Habit Radar'** to generate the prediction.")
+        st.info(f"👈 Set the student's study inputs above and click **'🚀 Predict {selected_subject} Score & Generate Insights'** to generate the prediction.")
 
 # -------------------------------------------------------------
 # TAB 2: Batch CSV Prediction
@@ -916,7 +977,6 @@ with tab4:
         # Cross-Grade Habit Radar Analysis
         st.markdown("#### 🕸️ Cohort Habit Radar Footprint by Letter Grade (A+ vs. A vs. C vs. F)")
         
-        # Calculate grade column for dataset
         df_eda = df_raw.copy()
         df_eda["Grade_Category"] = pd.cut(
             df_eda["Performance_Index"],
@@ -925,7 +985,6 @@ with tab4:
             right=False
         )
         
-        # Group by grade
         grade_stats = df_eda.groupby("Grade_Category", observed=False).agg({
             "Hours_Studied": "mean",
             "Previous_Score": "mean",
@@ -939,7 +998,6 @@ with tab4:
         
         fig_grade_radar = go.Figure()
         
-        # Plot A+ tier
         if "A+ (90-100)" in grade_stats["Grade_Category"].values:
             row_ap = grade_stats[grade_stats["Grade_Category"] == "A+ (90-100)"].iloc[0]
             vals_ap = [
@@ -958,7 +1016,6 @@ with tab4:
                 name='🌟 Top Tier (Grade A+)'
             ))
             
-        # Plot B tier
         if "B (70-80)" in grade_stats["Grade_Category"].values:
             row_b = grade_stats[grade_stats["Grade_Category"] == "B (70-80)"].iloc[0]
             vals_b = [
@@ -977,7 +1034,6 @@ with tab4:
                 name='👍 Above Average (Grade B)'
             ))
             
-        # Plot F tier
         if "F (<50)" in grade_stats["Grade_Category"].values:
             row_f = grade_stats[grade_stats["Grade_Category"] == "F (<50)"].iloc[0]
             vals_f = [
