@@ -10,7 +10,7 @@ import streamlit as st
 
 # Setup page config
 st.set_page_config(
-    page_title="Student Performance Predictor | ML & Confidence Intervals",
+    page_title="Student Performance Predictor | ML & SHAP Explainability",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -21,6 +21,7 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from src.data_loader import engineer_features, NUMERICAL_FEATURES, CATEGORICAL_FEATURES
+from src.explainability import compute_shap_waterfall
 
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pkl")
 ALL_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "all_trained_models.pkl")
@@ -204,7 +205,7 @@ residual_std = metrics.get("confidence_intervals", {}).get("residual_std", 2.075
 with st.sidebar:
     st.image("https://img.icons8.com/clouds/200/graduation-cap.png", width=110)
     st.title("🎓 Student AI Predictor")
-    st.caption("Powered by Machine Learning & Prediction Intervals")
+    st.caption("Powered by Machine Learning, SHAP & Confidence Intervals")
     
     st.markdown("---")
     
@@ -246,19 +247,18 @@ with st.sidebar:
                 st.metric("MAE", f"±{model_bench.get('test_mae', 1.65):.2f}")
             
     st.markdown("---")
-    st.markdown("### ⚡ Advanced Gradient Boosters")
+    st.markdown("### 🧠 Explainable AI (SHAP)")
     st.markdown("""
-    - **XGBoost Regressor:** Extreme gradient boosting
-    - **LightGBM Regressor:** High-speed tree booster
-    - **GBDT / HistGBDT:** Scikit-Learn gradient boosting
-    - **Stacking Ensemble:** Meta-learner combiner
+    - **Local Attribution:** Why *this* student scored higher/lower
+    - **Base Value:** Baseline average student score
+    - **Feature Push:** Individual +/- point impact
     """)
 
 # Main Header Banner
 st.markdown("""
 <div class="main-header">
     <h1>🎓 Student Academic Performance Predictor</h1>
-    <p>Predict exam outcomes with <b>Prediction Confidence Intervals (80%–99%)</b>, Advanced Gradient Boosters (XGBoost/LightGBM), and Custom Feature Engineering.</p>
+    <p>Predict exam outcomes with <b>SHAP Explainability (XAI)</b>, Prediction Confidence Intervals (80%–99%), and Advanced Gradient Boosters.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -266,7 +266,7 @@ st.markdown("""
 tab1, tab2, tab3, tab4 = st.tabs([
     "🔮 Single Student Predictor",
     "📂 Batch CSV Prediction",
-    "📊 Benchmarks & Confidence Calibration",
+    "📊 Benchmarks & SHAP Explainability",
     "📈 Dataset Explorer (EDA)"
 ])
 
@@ -274,7 +274,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # TAB 1: Single Student Predictor
 # -------------------------------------------------------------
 with tab1:
-    st.subheader("Interactive Student Outcome Prediction with Confidence Bounds")
+    st.subheader("Interactive Student Outcome Prediction with SHAP & Confidence Bounds")
     st.write(f"Inference Model: **`{selected_model_name}`** | Confidence Level: **`{confidence_level_str}`** (Margin ±{cur_margin:.2f} pts).")
     
     with st.form(key="student_prediction_form"):
@@ -324,7 +324,7 @@ with tab1:
             )
             
             st.markdown("<br>", unsafe_allow_html=True)
-            predict_btn = st.form_submit_button("🚀 Calculate Predicted Score & Confidence Interval", type="primary", width="stretch")
+            predict_btn = st.form_submit_button("🚀 Calculate Predicted Score & SHAP Breakdown", type="primary", width="stretch")
 
     # If user clicked calculate, compute and store in session_state
     if predict_btn:
@@ -345,6 +345,9 @@ with tab1:
         lower_bound, upper_bound, margin = get_interval_bounds(pred_score, confidence_level_str, residual_std)
         lower_grade, _, _ = compute_grade_and_status(lower_bound)
         upper_grade, _, _ = compute_grade_and_status(upper_bound)
+
+        # Compute SHAP Waterfall decomposition
+        shap_res = compute_shap_waterfall(active_model, raw_input_data)
 
         # What-if scenario boost calculations
         boost_study = raw_input_data.copy()
@@ -371,6 +374,7 @@ with tab1:
             "upper_grade": upper_grade,
             "grade_css": grade_css,
             "standing_desc": standing_desc,
+            "shap_res": shap_res,
             "hours_studied": hours_studied,
             "sleep_hours": sleep_hours,
             "sample_papers": sample_papers,
@@ -429,15 +433,12 @@ with tab1:
         st.markdown("<br>", unsafe_allow_html=True)
         
         fig_gauge = go.Figure()
-        
-        # Add background grade zones
         fig_gauge.add_vrect(x0=10, x1=50, fillcolor="#DC2626", opacity=0.15, layer="below", line_width=0, annotation_text="F (Fail)", annotation_position="top left")
         fig_gauge.add_vrect(x0=50, x1=60, fillcolor="#EF4444", opacity=0.15, layer="below", line_width=0, annotation_text="D", annotation_position="top left")
         fig_gauge.add_vrect(x0=60, x1=70, fillcolor="#F59E0B", opacity=0.15, layer="below", line_width=0, annotation_text="C", annotation_position="top left")
         fig_gauge.add_vrect(x0=70, x1=80, fillcolor="#3B82F6", opacity=0.15, layer="below", line_width=0, annotation_text="B", annotation_position="top left")
         fig_gauge.add_vrect(x0=80, x1=100, fillcolor="#10B981", opacity=0.15, layer="below", line_width=0, annotation_text="A / A+", annotation_position="top left")
         
-        # Confidence interval band (horizontal bar)
         fig_gauge.add_trace(go.Scatter(
             x=[res_lower, res_upper],
             y=[1, 1],
@@ -447,7 +448,6 @@ with tab1:
             hoverinfo="x+name"
         ))
         
-        # Point Estimate Marker
         fig_gauge.add_trace(go.Scatter(
             x=[res["pred_score"]],
             y=[1],
@@ -464,13 +464,72 @@ with tab1:
             xaxis=dict(title="Score Scale (10 to 100)", range=[10, 100], dtick=10),
             yaxis=dict(showticklabels=False, range=[0.5, 1.5]),
             template="plotly_dark",
-            height=260,
+            height=240,
             margin=dict(l=20, r=20, t=50, b=20),
             showlegend=True
         )
         st.plotly_chart(fig_gauge, width="stretch")
 
-        st.info(f"📊 **Statistical Interpretation:** There is a **{confidence_level_str} probability** that a student with these exact study habits will score between **{res_lower:.1f}** and **{res_upper:.1f}** on the final exam.")
+        # ------------------------------------------------------------------
+        # SHAP EXPLAINABILITY WATERFALL SECTION
+        # ------------------------------------------------------------------
+        st.markdown("---")
+        st.markdown("### 🧠 SHAP Explainability: Why did the student get this score?")
+        st.write("SHAP (SHapley Additive exPlanations) breaks down the exact positive and negative contribution of each habit relative to the average student baseline.")
+        
+        shap_data = res.get("shap_res")
+        if not shap_data:
+            shap_data = compute_shap_waterfall(active_model, res["raw_input"])
+            
+        base_val = shap_data["base_value"]
+        contribs = shap_data["contributions"]
+        
+        # Sort contributions by absolute impact
+        sorted_contribs = sorted(contribs.items(), key=lambda item: abs(item[1]), reverse=True)
+        
+        waterfall_x = ["Baseline (Average Student)"] + [k for k, v in sorted_contribs] + ["Final Predicted Score"]
+        waterfall_y = [base_val] + [v for k, v in sorted_contribs] + [res["pred_score"]]
+        waterfall_measures = ["absolute"] + ["relative"] * len(sorted_contribs) + ["total"]
+        
+        fig_waterfall = go.Figure(go.Waterfall(
+            name="SHAP Feature Attribution",
+            orientation="v",
+            measure=waterfall_measures,
+            x=waterfall_x,
+            textposition="outside",
+            text=[f"{v:+.2f}" if i not in [0, len(waterfall_y)-1] else f"{v:.1f}" for i, v in enumerate(waterfall_y)],
+            y=waterfall_y,
+            connector={"line": {"color": "#64748B"}},
+            decreasing={"marker": {"color": "#EF4444"}},
+            increasing={"marker": {"color": "#10B981"}},
+            totals={"marker": {"color": "#38BDF8"}}
+        ))
+        
+        fig_waterfall.update_layout(
+            title=f"SHAP Decision Waterfall: Base Score ({base_val:.1f}) ➔ Predicted Score ({res['pred_score']:.1f})",
+            xaxis_title="Input Variables & Habit Adjustments",
+            yaxis_title="Score Impact (Points)",
+            template="plotly_dark",
+            height=420,
+            margin=dict(l=20, r=20, t=50, b=40)
+        )
+        st.plotly_chart(fig_waterfall, width="stretch")
+        
+        # Narrative Explanation
+        top_pos = [f"**{k}** (+{v:.1f} pts)" for k, v in sorted_contribs if v > 0][:2]
+        top_neg = [f"**{k}** ({v:.1f} pts)" for k, v in sorted_contribs if v < 0][:2]
+        
+        exp_col1, exp_col2 = st.columns(2)
+        with exp_col1:
+            if top_pos:
+                st.success(f"🟢 **Top Score Drivers:** {', '.join(top_pos)} provided the largest positive lift above average.")
+            else:
+                st.info("ℹ️ Habits are close to the average cohort baseline.")
+        with exp_col2:
+            if top_neg:
+                st.warning(f"🔴 **Areas Holding Score Back:** {', '.join(top_neg)} reduced the overall predicted score.")
+            else:
+                st.success("🌟 All attributes contributed positively above cohort average!")
 
         # Live Engineered Features Card
         st.markdown("#### 🔬 Custom Engineered Metrics")
@@ -524,7 +583,7 @@ with tab1:
                 st.info(f"📄 **Mock Practice Boost:** Practicing **3 more question papers** is estimated to raise predicted score by **+{res['delta_papers']:.1f} points**.")
     else:
         st.markdown("---")
-        st.info("👈 Set the student's study inputs above and click **'🚀 Calculate Predicted Score & Confidence Interval'** to generate the prediction.")
+        st.info("👈 Set the student's study inputs above and click **'🚀 Calculate Predicted Score & SHAP Breakdown'** to generate the prediction.")
 
 # -------------------------------------------------------------
 # TAB 2: Batch CSV Prediction
@@ -628,30 +687,13 @@ with tab2:
             )
 
 # -------------------------------------------------------------
-# TAB 3: Model Benchmarks & Confidence Calibration
+# TAB 3: Model Benchmarks & SHAP Explainability
 # -------------------------------------------------------------
 with tab3:
-    st.subheader("📊 Model Benchmarks & Confidence Interval Calibration")
-    st.write("Examine algorithm leaderboards, empirical coverage calibration, and feature weights evaluated on the test set of 1,975 real students.")
+    st.subheader("📊 Model Benchmarks & SHAP Global Explainability")
+    st.write("Examine algorithm leaderboards, global SHAP feature attributions, and empirical coverage calibration on 1,975 real test students.")
     
     if metrics:
-        # Confidence Diagnostics Section
-        st.markdown("#### 🎯 Prediction Confidence Interval Calibration (Test Set Diagnostics)")
-        cov_data = metrics.get("confidence_intervals", {}).get("coverage_diagnostics", {})
-        if cov_data:
-            cov_rows = []
-            for conf_key, diag in cov_data.items():
-                cov_rows.append({
-                    "Confidence Level (Nominal)": conf_key,
-                    "Target Coverage": f"{float(diag['target_coverage'])*100:.0f}%",
-                    "Empirical Coverage (Actual)": f"{float(diag['empirical_coverage'])*100:.2f}%",
-                    "Z-Multiplier": f"{diag['z_multiplier']:.3f}",
-                    "Margin of Error": f"±{diag['margin_of_error']:.2f} pts",
-                    "Calibration Status": "✅ Well Calibrated" if abs(diag['empirical_coverage'] - diag['target_coverage']) <= 0.02 else "⚠️ Slight Bias"
-                })
-            cov_df = pd.DataFrame(cov_rows)
-            st.dataframe(cov_df, width="stretch")
-            
         # Comparison Table
         st.markdown("#### 🏆 Comprehensive Multi-Model Leaderboard")
         benchmarks = metrics.get("all_model_benchmarks", {})
@@ -687,26 +729,27 @@ with tab3:
         m_col1, m_col2 = st.columns(2)
         
         with m_col1:
-            st.markdown("#### 🔍 Feature Weights / Importances")
+            st.markdown("#### 🧠 Global SHAP Feature Importance Ranking")
             feat_dict = metrics.get("feature_importances", {})
             if feat_dict:
                 feat_df = pd.DataFrame({
                     "Feature": [f.replace("_", " ") for f in feat_dict.keys()],
-                    "Importance / Weight": list(feat_dict.values())
-                }).sort_values(by="Importance / Weight", ascending=True)
+                    "Mean |SHAP Value| (Impact)": [abs(v) for v in feat_dict.values()]
+                }).sort_values(by="Mean |SHAP Value| (Impact)", ascending=True)
                 
-                fig_feat = px.bar(
+                fig_shap_global = px.bar(
                     feat_df,
-                    x="Importance / Weight",
+                    x="Mean |SHAP Value| (Impact)",
                     y="Feature",
                     orientation="h",
-                    title="Feature Importances & Regression Weights",
-                    color="Importance / Weight",
-                    color_continuous_scale="Blues",
+                    title="Global Feature Importance (Game-Theoretic SHAP)",
+                    color="Mean |SHAP Value| (Impact)",
+                    color_continuous_scale="Viridis",
                     template="plotly_dark"
                 )
-                fig_feat.update_layout(height=380, margin=dict(l=20, r=20, t=40, b=20))
-                st.plotly_chart(fig_feat, width="stretch")
+                fig_shap_global.update_layout(height=380, margin=dict(l=20, r=20, t=40, b=20))
+                st.plotly_chart(fig_shap_global, width="stretch")
+                st.caption("📌 **SHAP Interpretation:** Previous Exam Score and Study Hours dominate overall model variance, followed by Composite Study Effort.")
                 
         with m_col2:
             st.markdown("#### 🎯 Actual vs. Predicted with 95% Confidence Band")
@@ -773,6 +816,24 @@ with tab3:
                     margin=dict(l=20, r=20, t=40, b=20)
                 )
                 st.plotly_chart(fig_scatter, width="stretch")
+
+        # Confidence Diagnostics Section
+        st.markdown("---")
+        st.markdown("#### 🎯 Prediction Confidence Interval Calibration (Test Set Diagnostics)")
+        cov_data = metrics.get("confidence_intervals", {}).get("coverage_diagnostics", {})
+        if cov_data:
+            cov_rows = []
+            for conf_key, diag in cov_data.items():
+                cov_rows.append({
+                    "Confidence Level (Nominal)": conf_key,
+                    "Target Coverage": f"{float(diag['target_coverage'])*100:.0f}%",
+                    "Empirical Coverage (Actual)": f"{float(diag['empirical_coverage'])*100:.2f}%",
+                    "Z-Multiplier": f"{diag['z_multiplier']:.3f}",
+                    "Margin of Error": f"±{diag['margin_of_error']:.2f} pts",
+                    "Calibration Status": "✅ Well Calibrated" if abs(diag['empirical_coverage'] - diag['target_coverage']) <= 0.02 else "⚠️ Slight Bias"
+                })
+            cov_df = pd.DataFrame(cov_rows)
+            st.dataframe(cov_df, width="stretch")
 
 # -------------------------------------------------------------
 # TAB 4: Dataset Explorer (EDA)
