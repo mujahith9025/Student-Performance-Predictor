@@ -1,4 +1,4 @@
-name: 🚀 Automated CI/CD Testing & Quality Pipeline
+name: 🚀 Automated CI/CD Testing & Docker Pipeline
 
 on:
   push:
@@ -46,3 +46,22 @@ jobs:
       - name: 🚀 Verify Streamlit App Loading
         run: |
           python -u -c "import app; print('Streamlit app components validated successfully for CI/CD!')"
+
+  docker:
+    name: 🐳 Docker Container Build & Verification
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Set Up Docker Buildx
+        uses: actions/setup-buildx-action@v3
+
+      - name: 🐳 Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: student-performance-predictor:latest

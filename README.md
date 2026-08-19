@@ -1,9 +1,9 @@
 # 🎓 Student Academic Performance Predictor
 
 [![CI/CD Testing Pipeline](https://github.com/mujahith9025/student-Performance-Predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/mujahith9025/student-Performance-Predictor/actions/workflows/ci.yml)
+[![Docker Container](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](https://github.com/mujahith9025/student-Performance-Predictor)
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/)
 [![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
-[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org/)
 [![Automated Tests](https://img.shields.io/badge/Tests-19%20Passed%20%2F%20100%25-success.svg)](https://github.com/mujahith9025/student-Performance-Predictor)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
@@ -18,11 +18,16 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 
 ## 📌 Features & Highlights
 
+- **🐳 Docker Containerization & Docker Compose**:
+  - Fully containerized production environment with multi-stage `python:3.11-slim` image.
+  - Automated healthcheck endpoint at `http://localhost:8501/_stcore/health`.
+  - Persistent volume binding for SQLite database (`./data:/app/data`).
+  - Single-command orchestration via `docker-compose up -d`.
 - **🚀 Automated CI/CD Testing Pipeline (GitHub Actions)**:
   - Multi-OS matrix testing on **Ubuntu** and **Windows**.
   - Multi-Python compatibility testing across **Python 3.10, 3.11, and 3.12**.
   - **19 automated unit & integration tests** covering data loaders, feature engineering, model inference, SHAP explainability, reverse goal optimization, PDF generation, and SQLite CRUD.
-  - Automated syntax checking, code linting with `flake8`, and test coverage reporting.
+  - Automated Docker container build verification on GitHub Actions.
 - **🗄️ SQLite / Supabase Database Persistence Layer**:
   - **Persistent Prediction Audit Trail:** Automatically persists every predicted student record, confidence interval, 6-D habit balance index, teacher counseling remarks, and risk flags to an embedded SQLite database (`data/student_records.db`).
   - **📈 Longitudinal Student Score Growth Timeline:** Interactive time-series progress charts plotting a student's score evolution and habit changes across multiple tests/semesters.
@@ -83,7 +88,7 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 d:/Project/student_performance_predictor/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                # GitHub Actions Automated CI/CD Testing Pipeline
+│       └── ci.yml                # GitHub Actions Automated CI/CD & Docker Pipeline
 ├── data/
 │   ├── download_dataset.py       # Downloads & caches the official Kaggle dataset
 │   ├── Student_Performance.csv   # 10,000 real student records from Kaggle
@@ -113,6 +118,9 @@ d:/Project/student_performance_predictor/
 │   ├── test_db.py                # Unit tests for SQLite database persistence
 │   └── test_app_integration.py   # Integration tests for Streamlit app helpers
 ├── app.py                        # Interactive Streamlit Web Application (6 Tabs)
+├── Dockerfile                    # Multi-stage production container build
+├── docker-compose.yml            # 1-command Docker Compose orchestration
+├── .dockerignore                 # Excluded build context patterns
 ├── pytest.ini                    # Pytest configuration settings
 ├── requirements.txt              # Project dependencies list
 └── README.md                     # Documentation & online deployment guide
@@ -120,24 +128,45 @@ d:/Project/student_performance_predictor/
 
 ---
 
-## 🚀 Quickstart & Testing
+## 🐳 Running with Docker
 
-### 1. Navigate to the Project Directory
-```powershell
-cd d:\Project\student_performance_predictor
+You can run the entire application in a standardized container with zero local Python setup required:
+
+### Option A: Using Docker Compose (Recommended)
+```bash
+docker-compose up -d
+```
+Open **[http://localhost:8501](http://localhost:8501)** in your browser.
+
+To stop the container:
+```bash
+docker-compose down
 ```
 
-### 2. Install Dependencies
+### Option B: Using Plain Docker CLI
+```bash
+# 1. Build the Docker image
+docker build -t student-performance-predictor:latest .
+
+# 2. Run container with port forwarding and database volume mount
+docker run -d -p 8501:8501 -v $(pwd)/data:/app/data --name student_predictor_app student-performance-predictor:latest
+```
+
+---
+
+## 🚀 Local Quickstart & Testing
+
+### 1. Install Dependencies
 ```powershell
 pip install -r requirements.txt
 ```
 
-### 3. Run Automated Tests
+### 2. Run Automated Pytest Suite
 ```powershell
 pytest tests/
 ```
 
-### 4. Launch the Streamlit Web Application
+### 3. Launch Streamlit Application
 ```powershell
 streamlit run app.py
 ```
@@ -159,19 +188,6 @@ On the test set (1,975 real student records):
 | **HistGradientBoosting** | Advanced Gradient Booster | **98.76%** | **1.71** | **2.15** |
 | **Random Forest** | Ensemble Bagging | **98.61%** | **1.81** | **2.28** |
 | **Decision Tree** | Tree Model | **97.29%** | **2.55** | **3.17** |
-
----
-
-### 🎯 Prediction Confidence Interval Calibration
-
-Evaluated on 1,975 held-out test students:
-
-| Confidence Level (Nominal) | Empirical Coverage (Actual) | Z-Multiplier | Margin of Error | Calibration Status |
-| :--- | :---: | :---: | :---: | :---: |
-| **80% Confidence** | **80.25%** | 1.282 | **±2.66 pts** | ✅ Well Calibrated |
-| **90% Confidence** | **89.92%** | 1.645 | **±3.41 pts** | ✅ Well Calibrated |
-| **95% Confidence** | **94.58%** | 1.960 | **±4.07 pts** | ✅ Well Calibrated |
-| **99% Confidence** | **98.99%** | 2.576 | **±5.34 pts** | ✅ Well Calibrated |
 
 ---
 
