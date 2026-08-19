@@ -17,17 +17,34 @@ st.set_page_config(
 )
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+SRC_DIR = os.path.join(PROJECT_ROOT, "src")
 
-from src.data_loader import (
-    load_subject_data,
-    engineer_features,
-    NUMERICAL_FEATURES,
-    CATEGORICAL_FEATURES,
-    SUBJECT_METADATA
-)
-from src.explainability import compute_shap_waterfall
+# Prepend both project root and src directory to sys.path
+for path_entry in [SRC_DIR, PROJECT_ROOT]:
+    if path_entry not in sys.path:
+        sys.path.insert(0, path_entry)
+
+try:
+    from data_loader import (
+        load_subject_data,
+        engineer_features,
+        NUMERICAL_FEATURES,
+        CATEGORICAL_FEATURES,
+        SUBJECT_METADATA
+    )
+except ImportError:
+    from src.data_loader import (
+        load_subject_data,
+        engineer_features,
+        NUMERICAL_FEATURES,
+        CATEGORICAL_FEATURES,
+        SUBJECT_METADATA
+    )
+
+try:
+    from explainability import compute_shap_waterfall
+except ImportError:
+    from src.explainability import compute_shap_waterfall
 
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "best_model.pkl")
 ALL_MODELS_PATH = os.path.join(PROJECT_ROOT, "models", "all_trained_models.pkl")

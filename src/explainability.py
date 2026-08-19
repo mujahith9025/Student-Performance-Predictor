@@ -4,11 +4,17 @@ import numpy as np
 import pandas as pd
 import joblib
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_DIR not in sys.path:
-    sys.path.insert(0, PROJECT_DIR)
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(CURRENT_DIR)
 
-from src.data_loader import load_student_data, engineer_features, NUMERICAL_FEATURES, CATEGORICAL_FEATURES
+for p in [CURRENT_DIR, PROJECT_DIR]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+try:
+    from data_loader import load_student_data, engineer_features, NUMERICAL_FEATURES, CATEGORICAL_FEATURES
+except ImportError:
+    from src.data_loader import load_student_data, engineer_features, NUMERICAL_FEATURES, CATEGORICAL_FEATURES
 
 def compute_shap_waterfall(pipeline, raw_or_engineered_input):
     """
