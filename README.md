@@ -1,16 +1,17 @@
 # 🎓 Student Academic Performance Predictor
 
 [![CI/CD Testing Pipeline](https://github.com/mujahith9025/student-Performance-Predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/mujahith9025/student-Performance-Predictor/actions/workflows/ci.yml)
+[![FastAPI Microservice](https://img.shields.io/badge/FastAPI-v2.0-009688.svg?logo=fastapi&logoColor=white)](https://github.com/mujahith9025/student-Performance-Predictor)
 [![Docker Container](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](https://github.com/mujahith9025/student-Performance-Predictor)
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/)
 [![Python 3.10 | 3.11 | 3.12](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
-[![Automated Tests](https://img.shields.io/badge/Tests-19%20Passed%20%2F%20100%25-success.svg)](https://github.com/mujahith9025/student-Performance-Predictor)
+[![Automated Tests](https://img.shields.io/badge/Tests-29%20Passed%20%2F%20100%25-success.svg)](https://github.com/mujahith9025/student-Performance-Predictor)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 > 🌐 **Live Demo:** Try the online web app directly in your browser:  
 > 👉 **[Launch Student Performance Predictor on Streamlit Cloud](https://student-performance-predictor-7fzsxbt6zeodyepgp7rqjy.streamlit.app/)**
 
-An end-to-end Machine Learning project and interactive **Streamlit web application** that predicts a student's academic performance index based on study habits, previous exam scores, sleep patterns, practice tests, and extracurricular activities.
+An end-to-end Machine Learning project and interactive **Streamlit web application + FastAPI REST API Microservice** that predicts a student's academic performance index based on study habits, previous exam scores, sleep patterns, practice tests, and extracurricular activities.
 
 Built using **10,000 real student records from Kaggle** with a modular scikit-learn training pipeline ($R^2 \approx 98.84\%$).
 
@@ -18,22 +19,26 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
 
 ## 📌 Features & Highlights
 
+- **⚡ REST API Microservice (FastAPI)**:
+  - High-performance asynchronous REST API powered by **FastAPI & Uvicorn**.
+  - Interactive **Swagger UI (`/docs`)** and **ReDoc (`/redoc`)** with full Pydantic data validation schemas.
+  - Endpoints for single prediction, batch processing, SHAP explainability, reverse goal optimization, database history queries, and PDF binary streaming.
+  - Ready for integration with mobile apps, LMS platforms, or external web services.
 - **🐳 Docker Containerization & Docker Compose**:
   - Fully containerized production environment with multi-stage `python:3.11-slim` image.
-  - Automated healthcheck endpoint at `http://localhost:8501/_stcore/health`.
+  - Dual service orchestration running Streamlit UI (Port `8501`) and FastAPI (Port `8000`).
+  - Automated healthcheck endpoints (`/_stcore/health` and `/health`).
   - Persistent volume binding for SQLite database (`./data:/app/data`).
-  - Single-command orchestration via `docker-compose up -d`.
 - **🚀 Automated CI/CD Testing Pipeline (GitHub Actions)**:
   - Multi-OS matrix testing on **Ubuntu** and **Windows**.
   - Multi-Python compatibility testing across **Python 3.10, 3.11, and 3.12**.
-  - **19 automated unit & integration tests** covering data loaders, feature engineering, model inference, SHAP explainability, reverse goal optimization, PDF generation, and SQLite CRUD.
+  - **29 automated unit & integration tests** covering API endpoints, data loaders, feature engineering, model inference, SHAP explainability, reverse goal optimization, PDF generation, and SQLite CRUD.
   - Automated Docker container build verification on GitHub Actions.
 - **🗄️ SQLite / Supabase Database Persistence Layer**:
   - **Persistent Prediction Audit Trail:** Automatically persists every predicted student record, confidence interval, 6-D habit balance index, teacher counseling remarks, and risk flags to an embedded SQLite database (`data/student_records.db`).
   - **📈 Longitudinal Student Score Growth Timeline:** Interactive time-series progress charts plotting a student's score evolution and habit changes across multiple tests/semesters.
   - **🎯 Target Roadmap Bookmarks:** Preserves Reverse Goal Solver pathways and weekly study commitments.
   - **📥 Database Export Center:** 1-click export of complete historical audit logs into **CSV** and **JSON** formats.
-  - **Cloud Ready:** Plug-and-play architecture with zero extra configuration on SQLite, supporting Supabase PostgreSQL cloud sync via secrets.
 - **🎭 Teacher vs. Student View Toggle**:
   - Interactive persona switcher adapting the application layout, clinical diagnostics, and action roadmaps:
     - 🧑‍🎓 **Student Mode:** Motivational, goal-oriented view with habit scorecard, score booster missions, and self-directed study targets.
@@ -44,41 +49,55 @@ Built using **10,000 real student records from Kaggle** with a modular scikit-le
     2. 📐 **Mathematics & Statistics:** Quantitative logic emphasizing practice density and problem solving.
     3. 🔬 **Science & Physics:** Laboratory & STEM focus with cognitive rest & foundational scoring.
     4. 📖 **Humanities & Literature:** Arts, language, and extracurricular communication focus.
-  - Dynamically loads discipline-specific models, tailored SHAP waterfalls, and custom subject recommendations.
 - **🔮 Single Student Predictor**: Interactive sliders and dropdowns with real-time score prediction, letter grades (A+, A, B, C, D, F), academic standing indicators, and personalized study boost recommendations.
 - **🎯 Reverse Goal Simulator ("Target Score Solver")**:
   - Solves the **inverse academic optimization problem**: input a desired target score (e.g., `85` or `95`), and the system calculates the exact study habits required to achieve it.
-  - Automatically generates **3 tailored pathways**:
-    1. ⚖️ **Balanced Mastery Pathway** (Optimal 7.5 hrs sleep with sustainable study habits)
-    2. 📄 **Mock-Test Sprint Pathway** (High mock paper volume with active practice density)
-    3. ⚡ **Express Efficiency Pathway** (Minimal daily study hours needed)
-  - Features **Before vs. After Habit Radar Transformation** overlays, weekly study schedules, and 1-click **Target Roadmap PDF** exports.
+  - Automatically generates **3 tailored pathways** (Balanced Mastery, Mock-Test Sprint, Express Efficiency).
 - **📄 Official Academic Diagnostic PDF Report Generator**:
   - Automatically compiles and exports a clean vector-rendered **PDF Academic Diagnostic Report** in 1 click.
-  - Formatted for student advising, parent-teacher reviews, or personal study planning.
-  - Contains executive score summaries, confidence bounds, 6-D habit diagnostics, SHAP factor attribution matrix, and concrete personalized study recommendations.
 - **🕸️ Student Habit Radar Chart**:
-  - Multi-dimensional polar/spider chart comparing the student's **6 key study & health dimensions** (Study Time, Exam Foundation, Mock Practice, Sleep Quality, Study Effort, and Extracurriculars) against **🌟 A+ Top Performers** and **👥 Cohort Averages**.
-  - Calculates a holistic **Habit Balance Index (0–100%)** with personalized qualitative assessment.
-  - Grade-tier radar footprint analysis comparing habit footprints across A+, B, and F students.
-- **🔬 Custom Feature Engineering**:
-  - ⚖️ **Study-to-Sleep Ratio**: $\frac{\text{Hours Studied}}{\text{Sleep Hours}}$ (Work-rest balance metric).
-  - 📄 **Practice Density**: $\frac{\text{Mock Papers Practiced}}{\text{Hours Studied} + 1}$ (Active practice intensity).
-  - ⚡ **Study Effort Score**: $(0.6 \times \text{Hours}) + (0.4 \times \text{Mock Papers})$ (Composite academic effort index).
+  - Multi-dimensional polar/spider chart comparing the student's **6 key study & health dimensions** against **🌟 A+ Top Performers** and **👥 Cohort Averages**.
 - **🧠 SHAP Explainability (Explainable AI - XAI)**:
-  - **Local SHAP Waterfall**: Breaks down each student's predicted score starting from the cohort baseline ($\approx 54.8$ pts) and shows the exact point contributions ($+16.0$ for previous scores, $+3.9$ for study hours, etc.).
-  - **Global SHAP Feature Importance**: Game-theoretic Shapley value rankings illustrating which habits influence grades the most across the entire student population.
+  - Local waterfall attribution and global game-theoretic Shapley value rankings.
 - **🎯 Prediction Confidence Intervals (80%–99%)**:
-  - Provides rigorous uncertainty quantification: instead of a single point score, generates calibrated **Prediction Intervals** $[y_{\text{lower}}, y_{\text{upper}}]$.
-  - Supports user-selectable confidence levels: **80% (±2.66 pts)**, **90% (±3.41 pts)**, **95% (±4.07 pts)**, and **99% (±5.34 pts)**.
-  - Features visual **Confidence Band Gauges** and empirical coverage calibration on 1,975 real test students.
-- **⚡ Advanced Gradient Boosters & Ensembles**:
-  - **XGBoost Regressor**: Extreme Gradient Boosting with tree regularization.
-  - **LightGBM Regressor**: Fast, leaf-wise gradient boosting.
-  - **HistGradientBoosting**: Binned gradient boosting for rapid convergence.
-  - **Stacking Ensemble Regressor**: Meta-learner combining Linear, Random Forest, and GBDT predictions.
-- **📂 Batch Prediction (CSV Upload)**: Upload class rosters or cohort CSVs to generate predictions, automatically engineer features, and export results with confidence intervals in one click.
-- **📊 Multi-Model Comparison Dashboard**: Interactive comparison across 9 regression models with evaluation metrics ($R^2$, MAE, RMSE).
+  - Rigorous uncertainty quantification with calibrated prediction bounds $[y_{\text{lower}}, y_{\text{upper}}]$.
+
+---
+
+## ⚡ REST API Endpoints & Swagger Docs
+
+The FastAPI microservice runs at **`http://localhost:8000`** with interactive Swagger documentation at **`http://localhost:8000/docs`**:
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Service health status, loaded models, and database count |
+| `GET` | `/api/v1/meta/subjects` | Metadata for all 4 academic subject disciplines |
+| `GET` | `/api/v1/meta/models` | Available ML algorithms and performance benchmarks |
+| `POST` | `/api/v1/predict` | Single student prediction with confidence bounds & risk flags |
+| `POST` | `/api/v1/predict/batch`| Batch student predictions with cohort pass rates |
+| `POST` | `/api/v1/explain` | SHAP waterfall decision attribution & feature rankings |
+| `POST` | `/api/v1/solve-goal` | Reverse Goal Simulator (optimal study habit pathways) |
+| `GET` | `/api/v1/history` | Query database prediction audit records |
+| `GET` | `/api/v1/history/timeline/{student_name}` | Longitudinal score growth progression for a student |
+| `GET` | `/api/v1/stats` | High-level database summary metrics |
+| `POST` | `/api/v1/report/pdf` | Generate & stream vector-rendered academic diagnostic PDF |
+
+### Example cURL Request:
+```bash
+curl -X POST "http://localhost:8000/api/v1/predict" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "student_name": "Alex Johnson",
+       "hours_studied": 6.0,
+       "previous_score": 80.0,
+       "sleep_hours": 7.5,
+       "sample_papers": 4,
+       "extracurricular": "Yes",
+       "subject": "Mathematics & Statistics",
+       "confidence_level": "95%",
+       "save_to_db": true
+     }'
+```
 
 ---
 
@@ -110,6 +129,7 @@ d:/Project/student_performance_predictor/
 │   └── train.py                  # Trains & benchmarks all 9 regression models
 ├── tests/
 │   ├── __init__.py
+│   ├── test_api.py               # Unit & integration tests for FastAPI REST API
 │   ├── test_data_loader.py       # Unit tests for data loading & feature engineering
 │   ├── test_models.py            # Unit tests for 9 models & inference
 │   ├── test_explainability.py    # Unit tests for SHAP waterfall attributions
@@ -117,9 +137,10 @@ d:/Project/student_performance_predictor/
 │   ├── test_pdf_generator.py     # Unit tests for PDF compilation
 │   ├── test_db.py                # Unit tests for SQLite database persistence
 │   └── test_app_integration.py   # Integration tests for Streamlit app helpers
-├── app.py                        # Interactive Streamlit Web Application (6 Tabs)
+├── api.py                        # FastAPI REST API Microservice (Port 8000)
+├── app.py                        # Interactive Streamlit Web Application (Port 8501)
 ├── Dockerfile                    # Multi-stage production container build
-├── docker-compose.yml            # 1-command Docker Compose orchestration
+├── docker-compose.yml            # Dual-service Docker Compose orchestration
 ├── .dockerignore                 # Excluded build context patterns
 ├── pytest.ini                    # Pytest configuration settings
 ├── requirements.txt              # Project dependencies list
@@ -130,27 +151,14 @@ d:/Project/student_performance_predictor/
 
 ## 🐳 Running with Docker
 
-You can run the entire application in a standardized container with zero local Python setup required:
+You can run both the Streamlit UI and the FastAPI REST API microservice simultaneously:
 
-### Option A: Using Docker Compose (Recommended)
 ```bash
+# Start both Streamlit (8501) and FastAPI (8000)
 docker-compose up -d
 ```
-Open **[http://localhost:8501](http://localhost:8501)** in your browser.
-
-To stop the container:
-```bash
-docker-compose down
-```
-
-### Option B: Using Plain Docker CLI
-```bash
-# 1. Build the Docker image
-docker build -t student-performance-predictor:latest .
-
-# 2. Run container with port forwarding and database volume mount
-docker run -d -p 8501:8501 -v $(pwd)/data:/app/data --name student_predictor_app student-performance-predictor:latest
-```
+- **Streamlit Web UI:** [http://localhost:8501](http://localhost:8501)
+- **FastAPI REST API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
@@ -161,14 +169,20 @@ docker run -d -p 8501:8501 -v $(pwd)/data:/app/data --name student_predictor_app
 pip install -r requirements.txt
 ```
 
-### 2. Run Automated Pytest Suite
+### 2. Run Automated Pytest Suite (29 Tests)
 ```powershell
 pytest tests/
 ```
 
-### 3. Launch Streamlit Application
+### 3. Launch Streamlit Web UI
 ```powershell
 streamlit run app.py
+```
+
+### 4. Launch FastAPI REST API Microservice
+```powershell
+python api.py
+# or: uvicorn api:app --reload --port 8000
 ```
 
 ---

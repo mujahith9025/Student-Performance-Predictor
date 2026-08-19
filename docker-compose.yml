@@ -1,12 +1,12 @@
 version: '3.8'
 
 services:
-  student-predictor:
+  streamlit-app:
     build:
       context: .
       dockerfile: Dockerfile
     image: student-performance-predictor:latest
-    container_name: student_performance_predictor_app
+    container_name: student_predictor_streamlit
     ports:
       - "8501:8501"
     environment:
@@ -15,7 +15,6 @@ services:
       - STREAMLIT_SERVER_HEADLESS=true
       - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
     volumes:
-      # Mount the data folder to preserve SQLite database logs across container recreations
       - ./data:/app/data
     restart: unless-stopped
     healthcheck:
@@ -24,3 +23,24 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
+
+  fastapi-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: student-performance-predictor:latest
+    container_name: student_predictor_api
+    command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
