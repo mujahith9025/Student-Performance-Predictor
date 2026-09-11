@@ -538,3 +538,142 @@ def create_classroom_intervention_cluster_chart(cluster_summary):
     )
     return fig
 
+# ---------------------------------------------------------
+# ADVANCED STATISTICAL VISUALIZATIONS (UNCERTAINTY & ARCHETYPES)
+# ---------------------------------------------------------
+def create_confidence_interval_gauge(score, grade, ci_lower, ci_upper):
+    """
+    Interactive Speedometer Radial Gauge with 95% Conformal Prediction Interval.
+    """
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=score,
+        domain={'x': [0, 1], 'y': [0, 1]},
+        title={'text': f"<b>Predicted Math Marks ({grade})</b><br><span style='font-size:11px; color:#64748B;'>95% Confidence Interval: [{ci_lower} – {ci_upper}]</span>", 'font': {'size': 15, 'family': 'Outfit', 'color': '#1E3A8A'}},
+        number={'suffix': " / 100", 'font': {'size': 30, 'family': 'Outfit', 'color': '#1E3A8A'}},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1.5, 'tickcolor': "#94A3B8"},
+            'bar': {'color': "#2563EB", 'thickness': 0.28},
+            'bgcolor': "rgba(241, 245, 249, 0.8)",
+            'borderwidth': 1.5,
+            'bordercolor': "#CBD5E1",
+            'steps': [
+                {'range': [0, 50], 'color': 'rgba(239, 68, 68, 0.20)'},
+                {'range': [50, 70], 'color': 'rgba(245, 158, 11, 0.20)'},
+                {'range': [70, 85], 'color': 'rgba(59, 130, 246, 0.20)'},
+                {'range': [85, 100], 'color': 'rgba(16, 185, 129, 0.22)'},
+                {'range': [ci_lower, ci_upper], 'color': 'rgba(37, 99, 235, 0.35)'}  # 95% CI Shaded Band
+            ],
+            'threshold': {
+                'line': {'color': "#10B981", 'width': 4},
+                'thickness': 0.8,
+                'value': 85
+            }
+        }
+    ))
+    fig.update_layout(
+        height=230,
+        margin=dict(l=20, r=20, t=35, b=10),
+        paper_bgcolor='rgba(0,0,0,0)',
+        font={'color': "#1E293B", 'family': "Plus Jakarta Sans"}
+    )
+    return fig
+
+def create_archetype_pca_scatter_chart(cluster_bundle, current_pca_x=None, current_pca_y=None, student_name="Current Student"):
+    """
+    2D PCA Scatter plot showing 4 behavioral archetype clusters and current student positioning.
+    """
+    ref_df = cluster_bundle["reference_df"].sample(min(400, len(cluster_bundle["reference_df"])), random_state=42)
+    
+    color_map = {
+        0: "#10B981", # Honors (Green)
+        1: "#3B82F6", # High Effort (Blue)
+        2: "#8B5CF6", # Verbal Strong (Purple)
+        3: "#EF4444"  # At-Risk (Red)
+    }
+    
+    fig = go.Figure()
+    
+    for arch_id, color in color_map.items():
+        sub = ref_df[ref_df["Archetype_ID"] == arch_id]
+        if not sub.empty:
+            fig.add_trace(go.Scatter(
+                x=sub["PCA_1"],
+                y=sub["PCA_2"],
+                mode="markers",
+                name=sub["Archetype_Name"].iloc[0].split('(')[0].strip(),
+                marker=dict(size=7, color=color, opacity=0.65, line=dict(width=0.5, color='#FFFFFF')),
+                hovertemplate="<b>%{text}</b><br>Math: %{customdata[0]:.0f} | Reading: %{customdata[1]:.0f}<br>Att: %{customdata[2]:.0f}% | Study: %{customdata[3]:.0f}h<extra></extra>",
+                text=sub["Archetype_Name"],
+                customdata=sub[["math score", "reading score", "attendance_rate", "weekly_study_hours"]].values
+            ))
+            
+    # Highlight Current Student
+    if current_pca_x is not None and current_pca_y is not None:
+        fig.add_trace(go.Scatter(
+            x=[current_pca_x],
+            y=[current_pca_y],
+            mode="markers+text",
+            name=f"📍 {student_name}",
+            text=[f"⭐ {student_name}"],
+            textposition="top center",
+            textfont=dict(size=12, color="#B45309", family="Outfit"),
+            marker=dict(size=16, color="#F59E0B", symbol="star", line=dict(width=2, color="#78350F"))
+        ))
+        
+    exp_var = cluster_bundle.get("explained_variance", [0.27, 0.14])
+    fig.update_layout(
+        title="<b>Cohort Unsupervised Behavioral Archetypes (2D PCA Map)</b>",
+        title_font=dict(size=14, family="Outfit", color="#1E3A8A"),
+        xaxis=dict(title=f"Principal Component 1 ({exp_var[0]*100:.1f}% Variance)", showgrid=True, gridcolor="rgba(226, 232, 240, 0.6)"),
+        yaxis=dict(title=f"Principal Component 2 ({exp_var[1]*100:.1f}% Variance)", showgrid=True, gridcolor="rgba(226, 232, 240, 0.6)"),
+        height=280,
+        margin=dict(l=20, r=20, t=35, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.7)',
+        legend=dict(orientation="h", yanchor="bottom", y=-0.35, xanchor="center", x=0.5, font=dict(size=9))
+    )
+    return fig
+
+def create_multi_subject_forecast_chart(math_pred, reading_score, writing_score, ci_lower=None, ci_upper=None):
+    """
+    3-Subject Comparative Performance Bar Chart with Math Confidence Bounds.
+    """
+    subjects = ["Mathematics (AI Forecast)", "Reading Comprehension", "Analytical Writing"]
+    scores = [math_pred, reading_score, writing_score]
+    colors = ["#2563EB", "#0284C7", "#7C3AED"]
+    
+    error_y = None
+    if ci_lower is not None and ci_upper is not None:
+        error_y = dict(
+            type="data",
+            symmetric=False,
+            array=[ci_upper - math_pred, 0, 0],
+            arrayminus=[math_pred - ci_lower, 0, 0],
+            color="#1E3A8A",
+            thickness=2,
+            width=6
+        )
+        
+    fig = go.Figure(go.Bar(
+        x=subjects,
+        y=scores,
+        marker=dict(color=colors, line=dict(color="#FFFFFF", width=1.5)),
+        text=[f"<b>{s:.1f}</b>" for s in scores],
+        textposition="outside",
+        error_y=error_y
+    ))
+    
+    fig.update_layout(
+        title="<b>Multi-Subject Tri-Axis Competency Comparison</b>",
+        title_font=dict(size=14, family="Outfit", color="#1E3A8A"),
+        yaxis=dict(title="Score (0 - 100)", range=[0, 110], showgrid=True, gridcolor="rgba(226, 232, 240, 0.6)"),
+        height=260,
+        margin=dict(l=20, r=20, t=35, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.7)',
+        font=dict(family="Plus Jakarta Sans", size=10)
+    )
+    return fig
+
+

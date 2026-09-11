@@ -17,8 +17,12 @@ from src.prescriptive_solutions import (
 from src.pdf_generator import generate_student_pdf_report, generate_classroom_pdf_report
 
 def verify_entire_system():
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
     print("=" * 75)
-    print("     RUNNING SYSTEM-WIDE VERIFICATION SUITE (ALL 8 ENGINES)     ")
+    print("     RUNNING SYSTEM-WIDE VERIFICATION SUITE (ALL 10 ENGINES)     ")
     print("=" * 75)
     
     # 1. Load Artifacts
@@ -116,11 +120,26 @@ def verify_entire_system():
         intervention_matrix=matrix
     )
     assert len(pdf_class) > 1000
-    print(f"[8/8] Verified PDF Suite: Single Cert = {len(pdf_single)} bytes, Class Report = {len(pdf_class)} bytes.")
+    print(f"[8/10] Verified PDF Suite: Single Cert = {len(pdf_single)} bytes, Class Report = {len(pdf_class)} bytes.")
+    
+    # 9. Test Conformal Prediction Uncertainty Quantifier
+    from src.advanced_ml_statistical import predict_with_confidence_intervals, classify_student_archetype
+    unc_dict = joblib.load("artifacts/uncertainty_model.joblib")
+    ci_res = predict_with_confidence_intervals(t_feat, reg_model, unc_dict)
+    assert "ci_95_range" in ci_res
+    print(f"[9/10] Statistical Uncertainty Engine Verified: 95% CI = {ci_res['ci_95_str']}")
+    
+    # 10. Test Unsupervised Behavioral Archetype Clusterer
+    cluster_bundle = joblib.load("artifacts/archetype_clusterer.joblib")
+    arch_res = classify_student_archetype(t_feat, cluster_bundle)
+    assert "name" in arch_res
+    assert "affinity_score" in arch_res
+    print(f"[10/10] Behavioral Archetype Engine Verified: Assigned to '{arch_res['name']}' (Affinity: {arch_res['affinity_score']:.1f}%)")
     
     print("\n" + "=" * 75)
-    print(" ALL 8 ENGINES PASSED 100% VERIFICATION WITH ZERO ERRORS! ")
+    print(" ALL 10 ENGINES PASSED 100% VERIFICATION WITH ZERO ERRORS! ")
     print("=" * 75)
 
 if __name__ == "__main__":
     verify_entire_system()
+

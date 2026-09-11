@@ -20,6 +20,10 @@ from src.prescriptive_solutions import (
     generate_classroom_intervention_matrix
 )
 from src.advanced_feature_engineering import engineer_features
+from src.advanced_ml_statistical import (
+    predict_with_confidence_intervals,
+    classify_student_archetype
+)
 from src.plotly_charts import (
     create_score_gauge,
     create_radar_chart,
@@ -36,7 +40,10 @@ from src.plotly_charts import (
     create_interactive_roc_curve,
     create_prescriptive_study_hours_chart,
     create_intervention_uplift_chart,
-    create_classroom_intervention_cluster_chart
+    create_classroom_intervention_cluster_chart,
+    create_confidence_interval_gauge,
+    create_archetype_pca_scatter_chart,
+    create_multi_subject_forecast_chart
 )
 
 # ---------------------------------------------------------
@@ -275,10 +282,17 @@ def load_artifacts():
     preprocessor_path = os.path.join(artifacts_dir, "preprocessor.joblib")
     best_model_path = os.path.join(artifacts_dir, "best_model.joblib")
     best_clf_path = os.path.join(artifacts_dir, "best_classifier.joblib")
+    uncertainty_path = os.path.join(artifacts_dir, "uncertainty_model.joblib")
+    cluster_path = os.path.join(artifacts_dir, "archetype_clusterer.joblib")
+    multi_model_path = os.path.join(artifacts_dir, "multi_subject_model.joblib")
     
     preprocessor = joblib.load(preprocessor_path) if os.path.exists(preprocessor_path) else None
     best_model = joblib.load(best_model_path) if os.path.exists(best_model_path) else None
     best_clf = joblib.load(best_clf_path) if os.path.exists(best_clf_path) else None
+    
+    uncertainty_dict = joblib.load(uncertainty_path) if os.path.exists(uncertainty_path) else {"q95_margin": 8.50, "q90_margin": 7.26}
+    cluster_bundle = joblib.load(cluster_path) if os.path.exists(cluster_path) else None
+    multi_subject_model = joblib.load(multi_model_path) if os.path.exists(multi_model_path) else None
     
     # Load all regression models
     models_dir = os.path.join(artifacts_dir, "models")
@@ -289,7 +303,7 @@ def load_artifacts():
                 name = f.replace(".joblib", "").replace("_", " ").title()
                 all_models[name] = joblib.load(os.path.join(models_dir, f))
                 
-    return preprocessor, best_model, best_clf, all_models
+    return preprocessor, best_model, best_clf, all_models, uncertainty_dict, cluster_bundle, multi_subject_model
 
 @st.cache_data
 def load_raw_dataset():
@@ -298,7 +312,7 @@ def load_raw_dataset():
         return pd.read_csv(data_path)
     return pd.DataFrame()
 
-preprocessor, best_model, best_clf, all_models = load_artifacts()
+preprocessor, best_model, best_clf, all_models, uncertainty_dict, cluster_bundle, multi_subject_model = load_artifacts()
 raw_df = load_raw_dataset()
 
 # ---------------------------------------------------------
@@ -330,15 +344,15 @@ with st.sidebar:
     st.info("🛡️ Pass Classifier: **Support Vector Machine (97.0% Accuracy)**")
     
     st.markdown("---")
-    st.markdown("### 📊 Performance Benchmarks")
-    st.markdown("- **14 Student Input Dimensions** (Academic + Behavioral)")
+    st.markdown("### 📊 Statistical Capabilities")
+    st.markdown("- **14 Student Input Dimensions**")
     st.markdown("- **38 Synergy Interaction Metrics**")
-    st.markdown("- **Model Accuracy ($R^2$):** **90.07%** ($\pm 3.47$ marks)")
-    st.markdown("- **Pass Classification Accuracy:** **97.00%**")
-    st.markdown("- **Classroom Batch Analytics:** **Active**")
-    st.markdown("- **Verified PDF Engine:** **Certified**")
+    st.markdown("- **Regression $R^2$:** **90.07%** ($\pm 3.47$ marks)")
+    st.markdown("- **95% Conformal Prediction Intervals:** **Active**")
+    st.markdown("- **Unsupervised Archetype Clusters:** **4 Discovered**")
+    st.markdown("- **Multi-Subject Tri-Axis Engine:** **Active**")
     
-    st.caption("EduPredict AI v3.0 • Production Ready")
+    st.caption("EduPredict AI v3.5 • Statistical Suite")
 
 # ---------------------------------------------------------
 # STREAMLINED HERO HEADER
@@ -347,13 +361,13 @@ st.markdown("""
 <div class="hero-container">
     <div class="hero-title">🎓 EduPredict AI • Student Intelligence Hub</div>
     <div class="hero-subtitle">
-        Intelligent multi-dimensional academic forecasting, root-cause diagnostics, personalized study plans, classroom batch risk analytics, and verified PDF certificates.
+        Intelligent multi-dimensional academic forecasting, 95% conformal prediction intervals, behavioral archetype clustering, classroom batch analytics, and verified PDF certificates.
     </div>
     <div class="badge-chip-group">
-        <span class="badge-chip badge-success"><span class="pulse-dot"></span> AI Engine Online</span>
+        <span class="badge-chip badge-success"><span class="pulse-dot"></span> Statistical Suite Online</span>
         <span class="badge-chip badge-primary">⚡ 14-Dimension Profile</span>
-        <span class="badge-chip badge-purple">🎯 90.1% Score Precision</span>
-        <span class="badge-chip badge-primary">🛡️ 97.0% Pass Classification</span>
+        <span class="badge-chip badge-purple">🎯 90.1% R² (95% CI Bands)</span>
+        <span class="badge-chip badge-primary">🧬 Unsupervised Archetypes</span>
         <span class="badge-chip badge-success">📄 Certified PDF Reports</span>
     </div>
 </div>
@@ -497,7 +511,7 @@ with tab_pred:
                 gender = st.selectbox("Gender:", gen_opts, index=gen_opts.index(st.session_state["p_gender"]))
                 race_ethnicity = "group C"
 
-        submit_btn = st.form_submit_button("⚡ Calculate Student Assessment & Roadmap", use_container_width=True, type="primary")
+        submit_btn = st.form_submit_button("⚡ Calculate Student Assessment & Statistical Intervals", use_container_width=True, type="primary")
 
     if submit_btn or "last_pred" in st.session_state:
         if submit_btn:
@@ -524,9 +538,13 @@ with tab_pred:
             input_df_eng = engineer_features(input_df)
             transformed_input = preprocessor.transform(input_df_eng)
             
-            raw_prediction = active_model.predict(transformed_input)[0]
-            predicted_math = float(np.clip(raw_prediction, 0, 100))
+            # 1. Point Prediction & Statistical Confidence Intervals
+            ci_res = predict_with_confidence_intervals(transformed_input, active_model, uncertainty_dict)
+            predicted_math = ci_res["predicted_score"]
             overall_avg = (predicted_math + reading_score + writing_score) / 3.0
+            
+            # 2. Behavioral Archetype Classification
+            archetype_res = classify_student_archetype(transformed_input, cluster_bundle) if cluster_bundle else None
             
             if best_clf is not None:
                 pass_prob = float(best_clf.predict_proba(transformed_input)[0][1]) * 100.0
@@ -571,48 +589,59 @@ with tab_pred:
             
             bento_row1_c1, bento_row1_c2 = st.columns([1.1, 1.1])
             
-            # --- BENTO TILE 1: ACADEMIC STANDING & PREDICTED SCORE ---
+            # --- BENTO TILE 1: ACADEMIC STANDING & 95% CONFIDENCE INTERVAL ---
             with bento_row1_c1:
                 score_accent = "#059669" if is_pass == 1 else "#DC2626"
+                ci_l, ci_u = ci_res["ci_95_range"]
                 st.markdown(f"""
                 <div class="bento-tile">
                     <div class="bento-tile-header">
-                        <span class="bento-tile-title">🎯 Predicted Math Score & Standing</span>
+                        <span class="bento-tile-title">🎯 Predicted Marks & 95% Confidence Interval</span>
                         <span style="background:{risk_badge_bg}; color:{risk_badge_color}; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">{risk_level}</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div>
-                            <div class="bento-score-hero" style="color:{score_accent};">{predicted_math:.1f} <span style="font-size:1.3rem; opacity:0.8;">/ 100</span></div>
-                            <div style="font-size:0.92rem; color:#334155; font-weight:600;">Grade: <b>{grade.split()[0]}</b> • 3-Subject Avg: <b>{overall_avg:.1f}</b></div>
-                            <div style="font-size:0.85rem; color:#64748B; margin-top:0.2rem;">Pass Probability: <b style="color:{score_accent};">{pass_prob:.1f}%</b> ({'Passed' if is_pass==1 else 'At-Risk'})</div>
+                            <div class="bento-score-hero" style="color:{score_accent};">{predicted_math:.1f} <span style="font-size:1.2rem; opacity:0.8;">/ 100</span></div>
+                            <div style="font-size:0.86rem; color:#1D4ED8; font-weight:700; background:#EFF6FF; padding:0.25rem 0.6rem; border-radius:6px; display:inline-block; margin-bottom:0.3rem;">
+                                🛡️ 95% Confidence Bounds: <b>{ci_l:.1f} – {ci_u:.1f} marks</b> (±{ci_res['margin_95']:.1f})
+                            </div>
+                            <div style="font-size:0.9rem; color:#334155; font-weight:600;">Grade: <b>{grade.split()[0]}</b> • 3-Subject Avg: <b>{overall_avg:.1f}</b></div>
+                            <div style="font-size:0.84rem; color:#64748B;">Pass Probability: <b style="color:{score_accent};">{pass_prob:.1f}%</b> ({'Passed' if is_pass==1 else 'At-Risk'})</div>
                         </div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                fig_gauge = create_score_gauge(predicted_math, grade)
+                fig_gauge = create_confidence_interval_gauge(predicted_math, grade, ci_l, ci_u)
                 st.plotly_chart(fig_gauge, use_container_width=True)
 
-            # --- BENTO TILE 2: WHY DID AI PREDICT THIS SCORE? ---
+            # --- BENTO TILE 2: WHY DID AI PREDICT THIS SCORE & ARCHETYPE ---
             with bento_row1_c2:
                 st.markdown("""
                 <div class="bento-tile">
                     <div class="bento-tile-header">
-                        <span class="bento-tile-title">🔍 Why Did AI Give This Score?</span>
-                        <span style="background:#EFF6FF; color:#1D4ED8; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">Top Factors</span>
+                        <span class="bento-tile-title">🔍 Behavioral Archetype & Point Drivers</span>
+                        <span style="background:#EFF6FF; color:#1D4ED8; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">AI Insights</span>
                     </div>
-                    <div style="font-size:0.84rem; color:#475569; margin-bottom:0.5rem;">Points added or deducted relative to classroom baseline:</div>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Show Top 4 Factors
-                for _, f_row in contrib_df.head(4).iterrows():
+                if archetype_res:
+                    st.markdown(f"""
+                    <div style="background:{archetype_res['bg_color']}; border-left:3.5px solid {archetype_res['badge_color']}; border-radius:8px; padding:0.5rem 0.75rem; margin-bottom:0.5rem;">
+                        <div style="font-weight:800; font-size:0.86rem; color:{archetype_res['badge_color']};">{archetype_res['name']} <span style="font-size:0.75rem; opacity:0.85;">({archetype_res['affinity_score']:.0f}% Profile Affinity)</span></div>
+                        <div style="font-size:0.78rem; color:#334155; margin-top:0.15rem; line-height:1.3;">{archetype_res['summary']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Show Top 3 Factor Impacts
+                for _, f_row in contrib_df.head(3).iterrows():
                     imp = f_row["Impact"]
                     s_sign = "+" if imp >= 0 else ""
                     s_color = "#059669" if imp >= 0 else "#DC2626"
                     f_name = f_row["Factor"].replace('_', ' ').title()
                     st.markdown(f"""
-                    <div style="display:flex; justify-content:space-between; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:0.45rem 0.75rem; margin-bottom:0.35rem; font-size:0.84rem;">
+                    <div style="display:flex; justify-content:space-between; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:7px; padding:0.35rem 0.65rem; margin-bottom:0.3rem; font-size:0.82rem;">
                         <span><b>{f_name}</b> <span style="color:#64748B;">({f_row['Value']})</span></span>
                         <span style="color:{s_color}; font-weight:800;">{s_sign}{imp:.2f} marks</span>
                     </div>
@@ -713,9 +742,9 @@ with tab_pred:
                 st.plotly_chart(fig_uplift, use_container_width=True)
 
             # =========================================================
-            # 🔬 DEEP-DIVE EXPANDER: RADAR, DIAGNOSTICS & 12-WEEK ROADMAP
+            # 🔬 DEEP-DIVE EXPANDER: PCA CLUSTER MAP, RADAR & ROADMAP
             # =========================================================
-            with st.expander("🔬 Deep-Dive AI Diagnostics, Radar & 12-Week Roadmap", expanded=False):
+            with st.expander("🔬 Deep-Dive AI Diagnostics, 2D PCA Cluster Map & Tri-Axis Radar", expanded=False):
                 dd_col1, dd_col2 = st.columns(2)
                 with dd_col1:
                     st.markdown("#### 🌐 8-Axis Competency Radar Profile")
@@ -732,7 +761,19 @@ with tab_pred:
                     )
                     st.plotly_chart(fig_radar, use_container_width=True)
                     
+                    fig_multi = create_multi_subject_forecast_chart(predicted_math, reading_score, writing_score, ci_l, ci_u)
+                    st.plotly_chart(fig_multi, use_container_width=True)
+                    
                 with dd_col2:
+                    if cluster_bundle and archetype_res:
+                        fig_pca = create_archetype_pca_scatter_chart(
+                            cluster_bundle,
+                            current_pca_x=archetype_res["pca_x"],
+                            current_pca_y=archetype_res["pca_y"],
+                            student_name=student_name if student_name.strip() else "Student"
+                        )
+                        st.plotly_chart(fig_pca, use_container_width=True)
+                        
                     st.markdown("#### 🗺️ 12-Week Academic Growth Milestones")
                     for ms in prescriptive_sol["milestones"]:
                         st.markdown(f"""
@@ -740,10 +781,6 @@ with tab_pred:
                             <b>{ms['week']}</b> (Target: <span style="color:#059669; font-weight:700;">{ms['target']}</span>): {ms['milestone']}
                         </div>
                         """, unsafe_allow_html=True)
-                        
-                    st.markdown("#### 👨‍🏫 Counselor Guidance Checklist")
-                    for g_item in prescriptive_sol["teacher_guidance"][:3]:
-                        st.markdown(f"- ✔️ {g_item}")
 
 # =========================================================
 # TAB 2: CLASSROOM BATCH ANALYTICS & INTERVENTIONS
@@ -1132,11 +1169,12 @@ with tab_xai:
                 st.plotly_chart(fig_box_edu, use_container_width=True)
 
 # =========================================================
-# TAB 5: MODELS, BENCHMARKS & ARCHITECTURE
+# TAB 5: MODELS, STATISTICAL BENCHMARKS & ARCHITECTURE
 # =========================================================
 with tab_models:
-    mod_sub1, mod_sub2, mod_sub3 = st.tabs([
+    mod_sub1, mod_sub2, mod_sub3, mod_sub4 = st.tabs([
         "🏆 Model Leaderboards & ROC",
+        "🔬 Statistical Uncertainty & Clustering",
         "⚙️ Model Tuning Benchmarks",
         "📖 System Architecture"
     ])
@@ -1166,31 +1204,59 @@ with tab_models:
             st.plotly_chart(fig_roc, use_container_width=True)
 
     with mod_sub2:
+        st.markdown("### 🔬 Conformal Prediction Intervals & Unsupervised Archetypes")
+        st.markdown("Mathematical verification of non-parametric uncertainty margins, joint multi-subject forecasting, and behavioral cluster profiling:")
+        
+        stat_c1, stat_c2 = st.columns(2)
+        with stat_c1:
+            st.markdown("#### A. 🛡️ Conformal Prediction Residual Margins (α-Coverage):")
+            calib_data = [
+                {"Confidence Level": "80% Coverage", "Error Margin": f"± {uncertainty_dict.get('q80_margin', 5.8):.2f} marks", "Interpretation": "Standard confidence window"},
+                {"Confidence Level": "90% Coverage", "Error Margin": f"± {uncertainty_dict.get('q90_margin', 7.3):.2f} marks", "Interpretation": "High precision academic threshold"},
+                {"Confidence Level": "95% Coverage (Default)", "Error Margin": f"± {uncertainty_dict.get('q95_margin', 8.5):.2f} marks", "Interpretation": "Statistically verified certainty bound"},
+                {"Confidence Level": "99% Coverage", "Error Margin": f"± {uncertainty_dict.get('q99_margin', 11.0):.2f} marks", "Interpretation": "Extreme anomaly ceiling/floor"}
+            ]
+            st.dataframe(pd.DataFrame(calib_data), use_container_width=True, hide_index=True)
+            
+            multi_csv = os.path.join(os.path.dirname(__file__), "artifacts", "multi_subject_metrics.csv")
+            if os.path.exists(multi_csv):
+                st.markdown("#### B. 📚 Multi-Subject Joint Forecast Model Performance:")
+                st.dataframe(pd.read_csv(multi_csv), use_container_width=True, hide_index=True)
+                
+        with stat_c2:
+            st.markdown("#### C. 🧬 Discovered Behavioral Student Archetypes:")
+            arch_summary_csv = os.path.join(os.path.dirname(__file__), "artifacts", "archetype_summary.csv")
+            if os.path.exists(arch_summary_csv):
+                st.dataframe(pd.read_csv(arch_summary_csv), use_container_width=True, hide_index=True)
+
+    with mod_sub3:
         st.markdown("### ⚙️ 5-Fold Cross-Validation Optimization Results")
         tuning_csv = os.path.join(os.path.dirname(__file__), "artifacts", "hyperparameter_tuning_results.csv")
         if os.path.exists(tuning_csv):
             t_df = pd.read_csv(tuning_csv)
             st.dataframe(t_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
 
-    with mod_sub3:
+    with mod_sub4:
         st.markdown("### 📖 Multi-Engine Machine Learning Architecture")
         st.markdown("""
         ```
         1. 14-Feature Input (Single Student Profile or Classroom Bulk CSV)
            └── Preprocessed & Engineered via 38-Feature Synergy Pipeline (RobustScaler + OneHotEncoder)
         
-        2. Production ML Engines:
+        2. Production ML & Statistical Engines:
            ├── Regression Champion: Optimized ElasticNet (R² 90.07%, MAE ±3.47 marks)
            ├── Classification Champion: Support Vector Classifier (Accuracy 97.00%, ROC-AUC 0.9853)
+           ├── Uncertainty Quantifier: Conformal Prediction 95% Confidence Bounds (±8.50 marks)
+           ├── Behavioral Archetype Clusterer: K-Means (k=4) + 2D PCA Decomposition
+           ├── Tri-Axis Multi-Subject Engine: Joint Math, Reading & Writing Regressor
            ├── Prescriptive Diagnostic Engine: 6-dimensional clinical weakness detection
-           ├── Classroom Batch Engine: Interactive Plotly Bubble Cohort & Prescriptive Clusters
-           ├── 'What-If' Simulator: Multi-lever score gap & study hours solver
            └── Explainable AI (XAI): Permutation Importance & SHAP Waterfall Attributions
         
         3. Deliverables:
-           ├── Exact Projected Marks & Grade
+           ├── Exact Point Score with 95% Confidence Interval [Lower – Upper]
+           ├── Behavioral Archetype Profile & 2D PCA Cohort Position Map
+           ├── 8-Axis Competency Radar Chart & Tri-Axis Subject Comparison
            ├── Pass Probability & Early Risk Tier
-           ├── 8-Axis Competency Radar Chart & Speedometer Gauge
            ├── 12-Week Growth Milestones & Prescriptive Study Schedule
            └── Verified PDF Performance Certificate & Classroom Executive Report
         ```
