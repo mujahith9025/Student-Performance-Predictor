@@ -265,11 +265,11 @@ st.markdown("""
 
     /* Preset Selection Header */
     .preset-chip-box {
-        background: rgba(248, 250, 252, 0.7);
+        background: rgba(248, 250, 252, 0.8);
         border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 0.8rem 1rem;
-        margin-bottom: 1rem;
+        border-radius: 14px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 1.2rem;
     }
 
     /* Sidebar Glassmorphism */
@@ -457,7 +457,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
 # ----------------- TAB 1: PREDICTOR -----------------
 with tab1:
     st.markdown("### 📝 Enter Student Academic & Demographic Profile")
-    st.markdown("Select a quick-start demo persona or input custom student characteristics to run real-time dual-task assessment:")
+    st.markdown("Choose a quick-start persona below or input custom student characteristics:")
     
     # Session State Initialization for Form Inputs
     if "p_name" not in st.session_state: st.session_state["p_name"] = "Alex Johnson"
@@ -470,16 +470,16 @@ with tab1:
     if "p_read" not in st.session_state: st.session_state["p_read"] = 78
     if "p_write" not in st.session_state: st.session_state["p_write"] = 82
 
-    # Quick Select Persona Presets
+    # Quick Select Persona Presets (6 Personas in 2 Rows)
     st.markdown("""
     <div class="preset-chip-box">
-        <span style="font-size: 0.85rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">⚡ Quick-Load Demo Personas:</span>
+        <span style="font-size: 0.85rem; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">⚡ Quick-Load Demo Personas (1-Click Test):</span>
     </div>
     """, unsafe_allow_html=True)
     
-    p_col1, p_col2, p_col3 = st.columns(3)
-    with p_col1:
-        if st.button("🌟 Preset: Honors Candidate (90+ Marks)", use_container_width=True):
+    p_row1_c1, p_row1_c2, p_row1_c3 = st.columns(3)
+    with p_row1_c1:
+        if st.button("🌟 Honors Candidate (90+ Marks)", use_container_width=True):
             st.session_state["p_name"] = "Elena Rostova"
             st.session_state["p_id"] = "STU-2026-HONORS"
             st.session_state["p_gender"] = "female"
@@ -491,8 +491,8 @@ with tab1:
             st.session_state["p_write"] = 95
             st.rerun()
             
-    with p_col2:
-        if st.button("⚖️ Preset: Average Profile (60-70 Marks)", use_container_width=True):
+    with p_row1_c2:
+        if st.button("⚖️ Average Profile (60-70 Marks)", use_container_width=True):
             st.session_state["p_name"] = "Jordan Miller"
             st.session_state["p_id"] = "STU-2026-AVG"
             st.session_state["p_gender"] = "male"
@@ -504,8 +504,8 @@ with tab1:
             st.session_state["p_write"] = 62
             st.rerun()
             
-    with p_col3:
-        if st.button("🚨 Preset: High-Risk Alert (<40 Marks)", use_container_width=True):
+    with p_row1_c3:
+        if st.button("🚨 High-Risk Alert (<40 Marks)", use_container_width=True):
             st.session_state["p_name"] = "Marcus Vance"
             st.session_state["p_id"] = "STU-2026-RISK"
             st.session_state["p_gender"] = "male"
@@ -517,8 +517,57 @@ with tab1:
             st.session_state["p_write"] = 30
             st.rerun()
             
+    p_row2_c1, p_row2_c2, p_row2_c3 = st.columns(3)
+    with p_row2_c1:
+        if st.button("📖 Verbal Strong / Math Lagging", use_container_width=True):
+            st.session_state["p_name"] = "Sophia Chen"
+            st.session_state["p_id"] = "STU-2026-VERBAL"
+            st.session_state["p_gender"] = "female"
+            st.session_state["p_race"] = "group D"
+            st.session_state["p_edu"] = "bachelor's degree"
+            st.session_state["p_lunch"] = "standard"
+            st.session_state["p_prep"] = "completed"
+            st.session_state["p_read"] = 88
+            st.session_state["p_write"] = 85
+            st.rerun()
+            
+    with p_row2_c2:
+        if st.button("🚀 First-Gen Rising Star", use_container_width=True):
+            st.session_state["p_name"] = "Lucas Taylor"
+            st.session_state["p_id"] = "STU-2026-RISING"
+            st.session_state["p_gender"] = "male"
+            st.session_state["p_race"] = "group B"
+            st.session_state["p_edu"] = "high school"
+            st.session_state["p_lunch"] = "free/reduced"
+            st.session_state["p_prep"] = "completed"
+            st.session_state["p_read"] = 76
+            st.session_state["p_write"] = 74
+            st.rerun()
+            
+    with p_row2_c3:
+        if st.button("🎯 Borderline Pass (50 Marks)", use_container_width=True):
+            st.session_state["p_name"] = "Amara Patel"
+            st.session_state["p_id"] = "STU-2026-BORDER"
+            st.session_state["p_gender"] = "female"
+            st.session_state["p_race"] = "group C"
+            st.session_state["p_edu"] = "some college"
+            st.session_state["p_lunch"] = "free/reduced"
+            st.session_state["p_prep"] = "none"
+            st.session_state["p_read"] = 52
+            st.session_state["p_write"] = 49
+            st.rerun()
+
     st.write("")
     
+    # Contextual Educational Insights Popover
+    with st.expander("💡 Understanding the Predictive Factors (Domain Guidance)"):
+        st.markdown("""
+        - **Reading & Writing Scores:** Linguistic ability and text comprehension strongly correlate with mathematical problem structuring ($r > 0.80$).
+        - **Test Preparation Course:** Statistically provides a **$+9.4$ marks** average boost across all exam subjects.
+        - **Standard Lunch Plan:** Nutritional security correlates with improved test endurance and a **$+8.0$ marks** average gain.
+        - **Parental Level of Education:** Sets the initial baseline academic environment and resources.
+        """)
+
     with st.form("prediction_form"):
         # Student Info Header
         st.markdown("#### 🆔 Student Identification")
@@ -758,14 +807,14 @@ with tab2:
     st.markdown("### 📂 Classroom Batch Prediction (Bulk CSV Upload)")
     st.markdown("Upload a CSV file containing an entire classroom or student cohort to generate predictions, grade distribution analysis, and risk diagnostics at scale.")
     
-    # Template download header
-    col_t1, col_t2 = st.columns([1.5, 1])
+    # 1-Click Instant Sample Loader & Download header
+    col_t1, col_t2 = st.columns([1.2, 1])
     with col_t1:
-        st.markdown("**Need a sample file format?** Download our pre-formatted 10-student sample CSV:")
+        load_sample_btn = st.button("⚡ 1-Click Load 10-Student Sample Classroom Directly", use_container_width=True, type="primary")
     with col_t2:
         sample_csv_data = generate_sample_csv_template()
         st.download_button(
-            label="📄 Download Sample CSV Template",
+            label="📄 Download CSV Template (.CSV)",
             data=sample_csv_data,
             file_name="classroom_sample_template.csv",
             mime="text/csv",
@@ -773,16 +822,32 @@ with tab2:
         )
         
     st.write("")
-    uploaded_file = st.file_uploader("📤 Upload Classroom Student CSV File", type=["csv"])
+    uploaded_file = st.file_uploader("📤 Or Upload Custom Classroom Student CSV File", type=["csv"])
     
-    if uploaded_file is not None:
+    batch_to_process = None
+    batch_source_name = ""
+    
+    if load_sample_btn:
+        batch_to_process = pd.read_csv(io.StringIO(sample_csv_data))
+        batch_source_name = "Built-in 10-Student Sample Classroom"
+        st.session_state["cached_batch"] = batch_to_process
+        st.session_state["cached_batch_name"] = batch_source_name
+    elif uploaded_file is not None:
+        batch_to_process = pd.read_csv(uploaded_file)
+        batch_source_name = uploaded_file.name
+        st.session_state["cached_batch"] = batch_to_process
+        st.session_state["cached_batch_name"] = batch_source_name
+    elif "cached_batch" in st.session_state:
+        batch_to_process = st.session_state["cached_batch"]
+        batch_source_name = st.session_state.get("cached_batch_name", "Loaded Cohort")
+    
+    if batch_to_process is not None:
         try:
-            input_batch_df = pd.read_csv(uploaded_file)
-            st.success(f"✅ Successfully loaded `{uploaded_file.name}` ({len(input_batch_df)} students found).")
+            st.success(f"✅ Successfully loaded `{batch_source_name}` ({len(batch_to_process)} students found).")
             
             if preprocessor is not None and active_model is not None:
                 processed_batch, summary = process_batch_predictions(
-                    input_batch_df, preprocessor, active_model, best_clf
+                    batch_to_process, preprocessor, active_model, best_clf
                 )
                 
                 # Summary Metric Cards
@@ -854,7 +919,7 @@ with tab2:
                 st.download_button(
                     label="📥 Download Complete Processed Classroom Report (.CSV)",
                     data=enriched_csv_buffer.getvalue(),
-                    file_name=f"Processed_Report_{uploaded_file.name}",
+                    file_name=f"Processed_Report_Classroom.csv",
                     mime="text/csv",
                     type="primary",
                     use_container_width=True
