@@ -18,6 +18,7 @@ from src.plotly_charts import (
     create_score_gauge,
     create_radar_chart,
     create_local_xai_waterfall,
+    create_goal_trajectory_chart,
     create_batch_bubble_chart,
     create_global_importance_plotly,
     create_eda_distribution_plotly,
