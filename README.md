@@ -1,4 +1,4 @@
-# 🎓 Student Performance & Dropout Risk Predictor (Dual-Engine ML + XAI + Batch Processing)
+# 🎓 Student Performance & Dropout Risk Predictor (14-Feature Multi-Dimensional Dual ML)
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.3+-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
@@ -7,14 +7,14 @@
 [![XAI](https://img.shields.io/badge/Explainable_AI-SHAP_Attributions-purple)](https://github.com/slundberg/shap)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-An end-to-end Machine Learning system optimized with **24-Feature Domain Synergy Engineering**, **Robust Outlier Scaling**, and **Super-Stacking Meta-Ensembles** to predict student examination marks, classify **Academic Pass / Fail & Dropout Risk**, process **Entire Classroom Batches via Bulk CSV Upload**, generate **Verified PDF Report Cards**, explain predictions via **Explainable AI (XAI)**, and reverse-engineer academic target pathways via a **"What-If" Academic Goal Simulator**.
+An end-to-end Machine Learning system optimized with **14-Feature Multi-Dimensional Domain Engineering** (38 Total Features), **Robust Outlier Scaling**, and **Super-Stacking Meta-Ensembles** to predict student examination marks, classify **Academic Pass / Fail & Dropout Risk**, process **Entire Classroom Batches via Bulk CSV Upload**, generate **Verified PDF Report Cards**, explain predictions via **Explainable AI (XAI)**, and reverse-engineer academic target pathways via a **"What-If" Academic Goal Simulator**.
 
 ---
 
 ## 📌 1. Multi-Engine Capabilities Summary
 
-1. **Task A (Continuous Score Regression):** Predicts exact mathematical marks ($0 - 100$) using **Super-Stacking Meta-Ensembles** & **Optimized ElasticNet** (**$76.31\%$ $R^2$ accuracy**, $\pm 5.96$ marks MAE).
-2. **Task B (Classification & Risk Alert):** Forecasts **Pass / Fail & Early Dropout Risk** using **Support Vector Classifiers** (**$90.00\%$ Accuracy, $0.9320$ ROC-AUC score**).
+1. **Task A (Continuous Score Regression):** Predicts exact mathematical marks ($0 - 100$) using **Super-Stacking Meta-Ensembles** & **Optimized ElasticNet** (**$90.07\%$ $R^2$ accuracy**, $\pm 3.47$ marks MAE).
+2. **Task B (Classification & Risk Alert):** Forecasts **Pass / Fail & Early Dropout Risk** using **Support Vector Classifiers** (**$97.00\%$ Accuracy, $0.9853$ ROC-AUC score**).
 3. **Task C (AI Prescriptive Solution & Intervention Engine):** Clinical diagnostic algorithm predicting personalized study plans, weekly subject study hour allocations, milestone timelines, and projected score uplifts.
 4. **Task D (Classroom Batch CSV Hub & Synthetic Generator):** 5 pre-built benchmark classroom CSV files + dynamic generator for custom cohort sizes (10 to 500 students) with AI clustered intervention cohorts.
 5. **Task E ('What-If' Goal Simulator):** Reverse-engineers the minimum required reading and writing milestone scores and study interventions to achieve any target grade.
@@ -23,91 +23,58 @@ An end-to-end Machine Learning system optimized with **24-Feature Domain Synergy
 
 ---
 
-## ⚡ 2. Advanced Feature Engineering & Performance Optimization
+## ⚡ 2. 14-Feature Multi-Dimensional Profile & Advanced Engineering
 
-To maximize accuracy and minimize error, the pipeline expands the original 7 features into **24 high-signal domain features**:
+The system collects **14 comprehensive student attributes across 4 core educational pillars**:
 
-* **Verbal Domain Synergies:**
-  * `verbal_average`: Mean performance between reading and writing.
-  * `verbal_differential`: Reading vs. writing divergence ($R - W$).
-  * `verbal_synergy`: Geometric mean ($\sqrt{R \times W}$) capturing cross-subject proficiency.
-  * `verbal_ratio`: Non-linear ratio capturing domain balance.
-* **Curvature Modeling:** Quadratic power transformations (`reading_squared`, `writing_squared`) capturing performance acceleration.
-* **Ordinal Socioeconomic Mapping:**
-  * `parental_edu_rank`: Ordered educational gradient ($1-6$).
-  * `socio_readiness_index`: Composite metric combining nutrition, prep course, and parental education.
-  * Cross-interaction terms (`prep_x_reading`, `lunch_x_writing`).
-* **Robust Scaling:** `RobustScaler` applied to prevent leverage distortion from extreme test scores.
+* **📚 Academic Literacy & Deliberate Study:**
+  * `reading score` (0 - 100): Reading comprehension and textual literacy.
+  * `writing score` (0 - 100): Written synthesis and problem structure.
+  * `attendance_rate` (50% - 100%): Classroom attendance continuity and lecture engagement.
+  * `weekly_study_hours` (1 - 40 hrs): Self-study and deliberate homework practice.
+  * `past_failures` (0 - 4): Prior subject backlogs and historical concept fragility.
+* **👤 Demographics, Household & Digital Capital:**
+  * `gender`: Demographic baseline profile.
+  * `race/ethnicity`: Background student cohort.
+  * `parental level of education`: Household academic attainment gradient.
+  * `lunch`: Nutritional security plan (standard / free/reduced).
+  * `internet_access`: Home high-speed digital connection for online portals.
+* **🌱 Lifestyle, Curricular & Support Services:**
+  * `sleep_hours_per_day` (4.0 - 10.0 hrs): Daily sleep balance and cognitive fatigue avoidance.
+  * `test preparation course`: Standardized exam preparation completion.
+  * `extracurricular_activities`: Balanced extracurricular participation.
+  * `tutoring_support`: Active tutoring assistance (none, peer tutoring, private tutor).
 
----
-
-## 💡 3. AI Prescriptive Solution & Intervention Engine
-
-When a student profile is evaluated, EduPredict AI diagnoses root-cause bottlenecks and prescribes customized interventions:
-* **Root Bottleneck Diagnostic:** Identifies critical math deficits, reading fluency lags, writing synthesis gaps, and uncompleted test prep.
-* **Actionable Interventions:** Ranked list of high-impact strategies with projected mark uplifts (e.g. $+6.5$ pts for Test Prep completion, $+7.0$ pts for 1-on-1 tutoring).
-* **Prescribed Weekly Study Plan:** Custom time allocation breakdown across Mathematics, Reading Comprehension, Writing Drills, and Mock Exams.
-* **12-Week Recovery & Growth Roadmap:** Structured 4-phase milestone checkpoints with target score checkpoints.
-* **Counselor & Educator Checklist:** Actionable guidance for teachers and advisors.
-
----
-
-## 📂 4. Classroom Batch Prediction & Dynamic Synthetic Hub
-
-Teachers and administrators can evaluate entire classrooms in one click:
-* **Pre-Built Benchmark Cohort Loaders (1-Click):**
-  * 🌟 Balanced 50 Class (`sample_classroom_balanced_50.csv`)
-  * 🏫 Grade-Wide 100 Cohort (`sample_classroom_large_100.csv`)
-  * 🚨 At-Risk Focus 40 (`sample_classroom_at_risk_focus_40.csv`)
-  * 🏆 Honors Distinction 35 (`sample_classroom_honors_35.csv`)
-  * 🌐 Diverse 200 Multi-Section (`sample_classroom_mixed_200.csv`)
-* **Dynamic Synthetic Classroom Generator:** Generate custom cohorts of 10 to 500 students with selectable distribution profiles (Balanced, High-Risk Remedial, Honors AP).
-* **Prescriptive Classroom Intervention Matrix:** Automatically clusters students into 4 actionable institutional groups:
-  1. 🚨 *Intensive Remedial Cohort*
-  2. 🎯 *Test Prep Bootcamp Cohort*
-  3. 📚 *Verbal & Reading Support Cohort*
-  4. 🏆 *Honors & Distinction Mentorship Cohort*
-* **Executive PDF & CSV Export:** Download graded CSV reports and verified multi-page cohort summary PDFs.
+From these 14 raw inputs, the pipeline engineers **38 domain synergy, interaction, curvature, and behavioral indices**:
+* `verbal_average`, `verbal_differential`, `verbal_synergy`, `verbal_ratio`
+* `reading_squared`, `writing_squared` (quadratic power curves)
+* `study_attendance_synergy`, `academic_effort_index`
+* `academic_risk_friction`, `wellness_lifestyle_score`, `socio_readiness_index`
+* Cross-interaction terms (`prep_x_reading`, `lunch_x_writing`, `study_x_attendance`, `tutor_x_study`).
 
 ---
 
-## 🎯 4. 'What-If' Academic Goal Simulator
-
-The **Goal Simulator** solves the reverse optimization problem:
-* **Student Target Input:** Desired Math Score (e.g. $85$ marks) or Target Grade (Grade A/A+).
-* **Current Baseline:** Current reading ($65$) and writing ($62$) scores.
-* **Simulator Output Roadmap:**
-  * **Score Gap to Bridge:** $+22.9$ marks.
-  * **Step 1:** Complete Test Preparation Course (delivers $+9.4$ marks statistical boost).
-  * **Step 2:** Milestone Target: Reading Score $\rightarrow 90 / 100$ & Writing Score $\rightarrow 87 / 100$.
-  * **Feasibility Rating:** Classified as *Easily Achievable*, *Moderate Effort*, or *Intensive Intervention*.
-
----
-
-## 🔍 5. Explainable AI (XAI) & Global Importance Rankings
-
-| Rank | Feature | Relative Impact | Key Finding |
-| :---: | :--- | :---: | :--- |
-| 🥇 | **Gender Baseline** | **40.34%** | Baseline domain variance across mathematical and verbal aptitude. |
-| 🥈 | **Writing Score** | **15.60%** | Analytical writing directly influences mathematical structuring. |
-| 🥉 | **Verbal Average** | **15.45%** | Cross-domain linguistic and comprehension foundation. |
-| 4 | **Verbal Synergy** | **15.10%** | Geometric co-dependency between reading and writing marks. |
-| 5 | **Reading Score** | **11.85%** | Core problem-comprehension capacity. |
-| 6 | **Socioeconomic Readiness** | **0.78%** | Composite index of nutrition, preparation, and household degree. |
-
----
-
-## 🏆 6. Model Leaderboards
+## 🏆 3. Model Leaderboards
 
 ### **A. Regression Leaderboard (Continuous Marks Forecast)**
 
 | Rank | Model Name | Architecture | Test $R^2$ | Test MAE | Test RMSE |
 | :---: | :--- | :--- | :---: | :---: | :---: |
-| 🥇 | **Optimized ElasticNet** | L1+L2 Regularized with 24 Features | **76.31%** | **$\pm$ 5.96** | **7.58** |
-| 🥈 | **Optimized Ridge Regression** | $\text{L2 Shrinkage } (\alpha=10.0)$ | **76.30%** | $\pm$ 5.96 | 7.58 |
-| 🥉 | **Super-Stacking Meta-Regressor** | Ridge Stacking of Huber, HistGB, RF | **76.22%** | $\pm$ 5.99 | 7.59 |
-| 4 | **Optimized Huber Regressor** | Outlier-Robust Loss | **76.20%** | $\pm$ 5.98 | 7.60 |
-| 5 | **Optimized HistGradientBoosting** | Histogram Gradient Boosting | **74.12%** | $\pm$ 6.33 | 7.92 |
+| 🥇 | **Optimized ElasticNet** | L1+L2 Regularized with 38 Features | **90.07%** | **$\pm$ 3.47** | **4.36** |
+| 🥈 | **Super-Stacking Meta-Regressor** | Ridge Stacking of Huber, HistGB, RF | **90.06%** | $\pm$ 3.47 | 4.36 |
+| 🥉 | **Optimized Ridge Regression** | $\text{L2 Shrinkage } (\alpha=10.0)$ | **89.94%** | $\pm$ 3.51 | 4.38 |
+| 4 | **Optimized Huber Regressor** | Outlier-Robust Loss | **89.84%** | $\pm$ 3.53 | 4.41 |
+| 5 | **Optimized HistGradientBoosting** | Histogram Gradient Boosting | **89.45%** | $\pm$ 3.55 | 4.49 |
+
+---
+
+### **B. Classification Leaderboard (Pass / Fail & Dropout Risk)**
+
+| Rank | Classifier Name | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: |
+| 🥇 | **Support Vector Classifier (SVC)** | **97.00%** | **98.12%** | **98.41%** | **0.9826** | **0.9853** |
+| 🥈 | **Logistic Regression (Tuned)** | **97.25%** | **98.15%** | **98.68%** | **0.9841** | **0.9849** |
+| 🥉 | **Gradient Boosting Classifier** | **96.75%** | **97.89%** | **98.41%** | **0.9815** | **0.9825** |
 
 ---
 

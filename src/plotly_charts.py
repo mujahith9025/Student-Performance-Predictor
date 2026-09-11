@@ -43,14 +43,29 @@ def create_score_gauge(score, grade):
     )
     return fig
 
-def create_radar_chart(reading, writing, predicted_math, socio_index):
+def create_radar_chart(reading, writing, predicted_math, socio_index, attendance=85.0, study_hours=12.0, sleep_hours=7.5, prep_status="none"):
     """
-    5-Axis Student Competency Radar Chart comparing student vs cohort median.
+    8-Axis Student Multidimensional Competency Radar Chart comparing student vs cohort benchmark.
     """
-    categories = ['Reading Score', 'Writing Score', 'Math (Pred)', 'Verbal Synergy', 'Socio-Readiness']
-    student_synergy = np.sqrt(max(0, reading * writing))
-    student_values = [reading, writing, predicted_math, student_synergy, min(100, socio_index * 10)]
-    benchmark_values = [69.2, 68.1, 66.1, 68.6, 55.0]
+    categories = [
+        'Reading Score', 'Writing Score', 'Math (Pred)',
+        'Attendance %', 'Study Effort', 'Sleep Wellness',
+        'Socio-Readiness', 'Test Readiness'
+    ]
+    
+    # Scale each dimension to 0 - 100 for radar uniformity
+    att_scaled = min(100.0, float(attendance))
+    study_scaled = min(100.0, (float(study_hours) / 20.0) * 100.0)
+    sleep_scaled = min(100.0, (float(sleep_hours) / 8.0) * 100.0)
+    socio_scaled = min(100.0, float(socio_index) * 12.0)
+    prep_scaled = 95.0 if prep_status == "completed" else 35.0
+    
+    student_values = [
+        reading, writing, predicted_math,
+        att_scaled, study_scaled, sleep_scaled,
+        socio_scaled, prep_scaled
+    ]
+    benchmark_values = [68.0, 68.0, 67.5, 85.0, 60.0, 90.0, 65.0, 50.0]
     
     fig = go.Figure()
     fig.add_trace(go.Scatterpolar(
@@ -71,13 +86,13 @@ def create_radar_chart(reading, writing, predicted_math, socio_index):
     ))
     fig.update_layout(
         polar=dict(
-            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color="#64748B")),
+            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=8, color="#64748B")),
             bgcolor="rgba(255, 255, 255, 0.5)"
         ),
         showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=1.05, xanchor="center", x=0.5, font=dict(size=11)),
-        height=250,
-        margin=dict(l=30, r=30, t=25, b=15),
+        legend=dict(orientation="h", yanchor="bottom", y=1.08, xanchor="center", x=0.5, font=dict(size=10)),
+        height=260,
+        margin=dict(l=25, r=25, t=25, b=15),
         paper_bgcolor='rgba(0,0,0,0)'
     )
     return fig

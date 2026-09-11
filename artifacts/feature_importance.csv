@@ -1,25 +1,39 @@
 Feature,Importance_Mean,Importance_Std,Relative_Impact_Pct
-gender_male,0.19713276317109604,0.02733144236531166,40.34
-writing score,0.0762297027824115,0.016347868712674372,15.6
-verbal_average,0.07549243243869737,0.016367608655513403,15.45
-verbal_synergy,0.07378539415179924,0.0161535714770802,15.1
-reading score,0.05789803777516639,0.014164964502896919,11.85
-socio_readiness_index,0.0038317104640962696,0.00277261901522111,0.78
-prep_x_reading,0.001630811950871247,0.0011157268066487897,0.33
-writing_squared,0.0012150317431612657,0.002767265957391925,0.25
-race/ethnicity_group C,0.0007850160278546281,0.0006602560908171135,0.16
-reading_squared,0.0005922354418963094,0.0019677358362092095,0.12
-parental level of education_some college,0.00014223733584412646,0.00016450136946676922,0.03
-verbal_differential,0.0,0.0,0.0
-verbal_ratio,0.0,0.0,0.0
+verbal_average,0.12114957716476685,0.008680046778429205,23.99
+verbal_synergy,0.11933176063895103,0.00858537051579065,23.63
+reading score,0.11024272269013757,0.00796007163562586,21.83
+writing score,0.10385339895316723,0.007907002226253242,20.57
+gender_male,0.04808638527619985,0.004821847286373776,9.52
+reading_squared,0.0009222142577376568,0.0004213357671720544,0.18
+writing_squared,0.0005889271617360681,0.0003236493192004422,0.12
+socio_readiness_index,0.0004034616462872198,0.00031500663468877707,0.08
+academic_risk_friction,0.0002274117620739613,9.439495724143139e-05,0.05
+past_failures,6.178239130295804e-05,2.7105761476692427e-05,0.01
+parental_edu_rank,3.614095116412974e-05,5.410282647802634e-05,0.01
+parental level of education_some college,0.0,0.0,0.0
+weekly_study_hours,0.0,0.0,0.0
 race/ethnicity_group B,0.0,0.0,0.0
-race/ethnicity_group D,0.0,0.0,0.0
+study_attendance_synergy,0.0,0.0,0.0
+verbal_ratio,0.0,0.0,0.0
+academic_effort_index,0.0,0.0,0.0
+wellness_lifestyle_score,0.0,0.0,0.0
+prep_x_reading,0.0,0.0,0.0
 lunch_x_writing,0.0,0.0,0.0
-lunch_standard,0.0,0.0,0.0
-race/ethnicity_group E,0.0,0.0,0.0
-parental level of education_master's degree,0.0,0.0,0.0
-parental level of education_high school,0.0,0.0,0.0
-test preparation course_none,0.0,0.0,0.0
+study_x_attendance,0.0,0.0,0.0
+verbal_differential,0.0,0.0,0.0
+tutoring_support_private_tutor,0.0,0.0,0.0
 parental level of education_some high school,0.0,0.0,0.0
-parental level of education_bachelor's degree,-8.892878013997629e-05,0.0003274482648498286,0.0
-parental_edu_rank,-0.0006179391031835668,0.0009486603446146806,0.0
+race/ethnicity_group C,0.0,0.0,0.0
+race/ethnicity_group D,0.0,0.0,0.0
+race/ethnicity_group E,0.0,0.0,0.0
+parental level of education_bachelor's degree,0.0,0.0,0.0
+parental level of education_high school,0.0,0.0,0.0
+parental level of education_master's degree,0.0,0.0,0.0
+extracurricular_activities_yes,0.0,0.0,0.0
+internet_access_yes,0.0,0.0,0.0
+lunch_standard,0.0,0.0,0.0
+test preparation course_none,-4.183810877775862e-06,0.00026184554498473017,0.0
+tutor_x_study,-2.317630370397783e-05,0.00019055937653090336,0.0
+sleep_hours_per_day,-3.801128793890829e-05,5.8841450949344565e-05,0.0
+tutoring_support_peer_tutoring,-3.831100697983425e-05,8.187897624741824e-05,0.0
+attendance_rate,-6.257806330467241e-05,0.00035283949540106823,0.0

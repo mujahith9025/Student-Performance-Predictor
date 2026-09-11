@@ -4,7 +4,6 @@ import random
 import pandas as pd
 import numpy as np
 
-# Realistic English student names for synthetic cohorts
 FIRST_NAMES = [
     "Emma", "Liam", "Olivia", "Noah", "Sophia", "James", "Isabella", "Lucas", "Mia", "Ethan",
     "Ava", "Mason", "Charlotte", "Oliver", "Amelia", "Elijah", "Harper", "Aiden", "Evelyn", "Alexander",
@@ -27,13 +26,7 @@ LAST_NAMES = [
 def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42):
     """
     Generates a realistic synthetic classroom dataset with student_id, student_name,
-    and all 7 required academic and socioeconomic features.
-    
-    cohort_type options:
-    - 'balanced': Normal distributed class (mix of high, mid, and low performers)
-    - 'at_risk_focus': Higher proportion of struggling students requiring intervention
-    - 'honors_advanced': High achieving students striving for distinction
-    - 'large_cohort': Diverse multi-tier cohort
+    and all 14 multi-dimensional academic, behavioral, lifestyle, and socioeconomic features.
     """
     random.seed(seed)
     np.random.seed(seed)
@@ -41,44 +34,46 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
     genders = ['female', 'male']
     race_ethnicity = ['group A', 'group B', 'group C', 'group D', 'group E']
     race_weights = [0.09, 0.19, 0.32, 0.26, 0.14]
-    
     parental_education = ["some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree"]
     
     if cohort_type == "honors_advanced":
         edu_weights = [0.03, 0.07, 0.20, 0.25, 0.30, 0.15]
         lunch_weights = [0.85, 0.15]
         prep_weights = [0.20, 0.80]
+        internet_weights = [0.95, 0.05]
+        tutor_weights = [0.40, 0.35, 0.25]
         base_mean = 84.0
         base_std = 7.5
+        att_mean = 94.0
+        study_mean = 20.0
+        fails_rate = 0.05
     elif cohort_type == "at_risk_focus":
         edu_weights = [0.35, 0.30, 0.20, 0.10, 0.04, 0.01]
         lunch_weights = [0.30, 0.70]
         prep_weights = [0.80, 0.20]
+        internet_weights = [0.65, 0.35]
+        tutor_weights = [0.80, 0.15, 0.05]
         base_mean = 48.0
         base_std = 9.0
+        att_mean = 72.0
+        study_mean = 6.0
+        fails_rate = 1.2
     else:  # balanced or large_cohort
         edu_weights = [0.18, 0.20, 0.23, 0.22, 0.12, 0.05]
         lunch_weights = [0.65, 0.35]
         prep_weights = [0.55, 0.45]
+        internet_weights = [0.85, 0.15]
+        tutor_weights = [0.60, 0.25, 0.15]
         base_mean = 68.0
-        base_std = 12.0
+        base_std = 11.5
+        att_mean = 86.0
+        study_mean = 13.0
+        fails_rate = 0.35
         
-    edu_boost = {
-        'some high school': -4,
-        'high school': -2,
-        'some college': 0,
-        "associate's degree": 2,
-        "bachelor's degree": 5,
-        "master's degree": 8
-    }
-    lunch_boost = {'standard': 4, 'free/reduced': -5}
-    prep_boost = {'completed': 6, 'none': -3}
-    
     records = []
     used_names = set()
     
     for i in range(1, n_students + 1):
-        # Generate Unique Name
         while True:
             fn = random.choice(FIRST_NAMES)
             ln = random.choice(LAST_NAMES)
@@ -91,17 +86,23 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
         gender = random.choices(genders, weights=[0.51, 0.49])[0]
         race = random.choices(race_ethnicity, weights=race_weights)[0]
         edu = random.choices(parental_education, weights=edu_weights)[0]
-        lunch = random.choices(lunches := ['standard', 'free/reduced'], weights=lunch_weights)[0]
-        prep = random.choices(preps := ['none', 'completed'], weights=prep_weights)[0]
+        lunch = random.choices(['standard', 'free/reduced'], weights=lunch_weights)[0]
+        prep = random.choices(['none', 'completed'], weights=prep_weights)[0]
+        internet = random.choices(['yes', 'no'], weights=internet_weights)[0]
+        extra = random.choices(['yes', 'no'], weights=[0.50, 0.50])[0]
+        tutoring = random.choices(['none', 'peer_tutoring', 'private_tutor'], weights=tutor_weights)[0]
+        
+        att = round(float(np.clip(np.random.normal(att_mean, 7.0), 50.0, 100.0)), 1)
+        study = round(float(np.clip(np.random.normal(study_mean, 4.0), 2.0, 36.0)), 1)
+        sleep = round(float(np.clip(np.random.normal(7.3, 1.0), 4.5, 9.5)), 1)
+        fails = int(np.clip(np.random.poisson(fails_rate), 0, 4))
         
         base = np.random.normal(base_mean, base_std)
-        adj = edu_boost[edu] + lunch_boost[lunch] + prep_boost[prep]
-        
         g_read = -2.5 if gender == 'male' else 2.5
         g_write = -3.5 if gender == 'male' else 3.5
         
-        reading = int(np.clip(round(base + adj + g_read + np.random.normal(0, 5)), 15, 100))
-        writing = int(np.clip(round((reading * 0.65) + (base + adj + g_write) * 0.35 + np.random.normal(0, 3)), 15, 100))
+        reading = int(np.clip(round(base + g_read + np.random.normal(0, 4.0)), 15, 100))
+        writing = int(np.clip(round((reading * 0.65) + (base + g_write) * 0.35 + np.random.normal(0, 2.5)), 15, 100))
         
         records.append({
             "student_id": student_id,
@@ -111,6 +112,13 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
             "parental level of education": edu,
             "lunch": lunch,
             "test preparation course": prep,
+            "internet_access": internet,
+            "extracurricular_activities": extra,
+            "tutoring_support": tutoring,
+            "attendance_rate": att,
+            "weekly_study_hours": study,
+            "sleep_hours_per_day": sleep,
+            "past_failures": fails,
             "reading score": reading,
             "writing score": writing
         })
@@ -120,7 +128,7 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
 
 def generate_and_save_sample_files():
     """
-    Generates sample classroom CSV files for testing bulk predictions and saves them to data/sample_classrooms/
+    Generates sample classroom CSV files with 14 features and saves them to data/sample_classrooms/
     """
     output_dir = os.path.join("data", "sample_classrooms")
     os.makedirs(output_dir, exist_ok=True)
@@ -139,7 +147,7 @@ def generate_and_save_sample_files():
         filepath = os.path.join(output_dir, filename)
         df.to_csv(filepath, index=False)
         generated_paths.append(filepath)
-        print(f" Generated: {filepath} ({len(df)} rows)")
+        print(f" Generated: {filepath} ({len(df)} rows, 14 features)")
         
     return generated_paths
 

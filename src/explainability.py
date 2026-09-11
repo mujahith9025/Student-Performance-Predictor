@@ -29,15 +29,7 @@ def compute_global_explainability():
         raw_feat_names = preprocessor.get_feature_names_out().tolist()
         feature_names = [f.replace("num__", "").replace("cat__", "") for f in raw_feat_names]
     except Exception:
-        num_cols = [
-            "reading score", "writing score", "verbal_average", "verbal_differential",
-            "verbal_synergy", "verbal_ratio", "reading_squared", "writing_squared",
-            "parental_edu_rank", "socio_readiness_index", "prep_x_reading", "lunch_x_writing"
-        ]
-        cat_cols = ["gender", "race/ethnicity", "parental level of education", "lunch", "test preparation course"]
-        cat_encoder = preprocessor.named_transformers_['cat'].named_steps['ohe']
-        encoded_cat_names = cat_encoder.get_feature_names_out(cat_cols).tolist()
-        feature_names = num_cols + encoded_cat_names
+        feature_names = [f"Feature_{i}" for i in range(X_test.shape[1])]
 
     print(f"\n[1] Analyzing {len(feature_names)} features across {X_test.shape[0]} test samples.")
 
@@ -67,7 +59,7 @@ def compute_global_explainability():
 
     print(f"{'Rank':<5} | {'Feature Name':<38} | {'Impact Score':<12} | {'Relative Impact':<15}")
     print("-" * 76)
-    for i, row in importance_df.iterrows():
+    for i, row in importance_df.head(12).iterrows():
         print(f"#{i+1:<4} | {row['Feature']:<38} | {row['Importance_Mean']:<12.4f} | {row['Relative_Impact_Pct']:>6.2f}%")
 
     # 3. Visualizations
@@ -78,7 +70,7 @@ def compute_global_explainability():
     plt.figure(figsize=(10, 6))
     top_features = importance_df.head(10).iloc[::-1]
     
-    colors_list = ["#0284C7" if "score" in f or "verbal" in f else "#3B82F6" for f in top_features["Feature"]]
+    colors_list = ["#0284C7" if "score" in f or "study" in f or "att" in f else "#3B82F6" for f in top_features["Feature"]]
     
     bars = plt.barh(top_features["Feature"], top_features["Relative_Impact_Pct"], color=colors_list, edgecolor="none", height=0.65)
     plt.title("Global Feature Importance: Top 10 Drivers of Student Marks", fontsize=13, fontweight="bold")
@@ -87,7 +79,7 @@ def compute_global_explainability():
     
     for bar in bars:
         w = bar.get_width()
-        plt.text(w + 0.5, bar.get_y() + bar.get_height()/2, f"{w:.1f}%", va="center", fontsize=10, fontweight="bold")
+        plt.text(w + 0.3, bar.get_y() + bar.get_height()/2, f"{w:.1f}%", va="center", fontsize=10, fontweight="bold")
         
     plt.xlim(0, max(top_features["Relative_Impact_Pct"].max() * 1.18, 10))
     plt.tight_layout()
@@ -99,13 +91,11 @@ def compute_global_explainability():
     # Chart 2: Directional Impact Breakdown
     plt.figure(figsize=(10, 6))
     
-    # Extract coefficients if linear, or surrogate feature correlations
     if hasattr(model, "coef_"):
         coefs = model.coef_
     elif hasattr(model, "named_steps") and hasattr(model.named_steps.get("regressor", None), "coef_"):
         coefs = model.named_steps["regressor"].coef_
     else:
-        # Surrogate correlation with target
         coefs = [np.corrcoef(X_train[:, idx], y_train)[0, 1] * 10 for idx in range(len(feature_names))]
         
     coef_df = pd.DataFrame({
@@ -130,49 +120,83 @@ def compute_global_explainability():
 
 def explain_single_student(input_df, preprocessor, model, feature_names=None):
     """
-    Computes local feature attributions (SHAP-style) for an individual student.
+    Computes local feature attributions (SHAP-style) across all 14 multi-dimensional student factors.
     Returns: base_value, predicted_value, contributions_df
     """
     input_eng = engineer_features(input_df)
     transformed = preprocessor.transform(input_eng)
     predicted = float(model.predict(transformed)[0])
-    base_value = 67.95  # Population baseline average
+    base_value = 67.5  # Population baseline average
     
-    # Calculate surrogate local attributions
-    reading_val = input_df["reading score"].iloc[0]
-    writing_val = input_df["writing score"].iloc[0]
-    gender_val = input_df["gender"].iloc[0]
-    prep_val = input_df["test preparation course"].iloc[0]
-    lunch_val = input_df["lunch"].iloc[0]
-    edu_val = input_df["parental level of education"].iloc[0]
+    # Extract Student Feature Values
+    r_val = float(input_df.get("reading score", pd.Series([65])).iloc[0])
+    w_val = float(input_df.get("writing score", pd.Series([65])).iloc[0])
+    att_val = float(input_df.get("attendance_rate", pd.Series([85.0])).iloc[0])
+    study_val = float(input_df.get("weekly_study_hours", pd.Series([12.0])).iloc[0])
+    sleep_val = float(input_df.get("sleep_hours_per_day", pd.Series([7.5])).iloc[0])
+    fails_val = int(input_df.get("past_failures", pd.Series([0])).iloc[0])
+    
+    gender_val = str(input_df.get("gender", pd.Series(["female"])).iloc[0])
+    prep_val = str(input_df.get("test preparation course", pd.Series(["none"])).iloc[0])
+    lunch_val = str(input_df.get("lunch", pd.Series(["standard"])).iloc[0])
+    edu_val = str(input_df.get("parental level of education", pd.Series(["some college"])).iloc[0])
+    internet_val = str(input_df.get("internet_access", pd.Series(["yes"])).iloc[0])
+    tutoring_val = str(input_df.get("tutoring_support", pd.Series(["none"])).iloc[0])
     
     contributions = []
     
-    # Reading impact
-    r_diff = (reading_val - 68.2) * 0.48
-    contributions.append({"Factor": "Reading Score", "Value": f"{reading_val}/100", "Impact": r_diff})
+    # 1. Reading & Writing Impact
+    r_diff = (r_val - 68.0) * 0.35
+    contributions.append({"Factor": "Reading Score", "Value": f"{r_val:.0f}/100", "Impact": r_diff})
     
-    # Writing impact
-    w_diff = (writing_val - 68.2) * 0.32
-    contributions.append({"Factor": "Writing Score", "Value": f"{writing_val}/100", "Impact": w_diff})
+    w_diff = (w_val - 68.0) * 0.25
+    contributions.append({"Factor": "Writing Score", "Value": f"{w_val:.0f}/100", "Impact": w_diff})
     
-    # Test Prep
-    prep_imp = 3.8 if prep_val == "completed" else -2.1
+    # 2. Attendance Impact
+    att_diff = (att_val - 85.0) * 0.32
+    contributions.append({"Factor": "Attendance Rate", "Value": f"{att_val:.1f}%", "Impact": att_diff})
+    
+    # 3. Weekly Study Hours
+    study_diff = (study_val - 12.0) * 0.38
+    contributions.append({"Factor": "Weekly Study Hours", "Value": f"{study_val:.1f} hrs/wk", "Impact": study_diff})
+    
+    # 4. Past Failures / Backlogs
+    fail_diff = fails_val * -5.0
+    if fails_val > 0:
+        contributions.append({"Factor": "Past Course Backlogs", "Value": f"{fails_val} course(s)", "Impact": fail_diff})
+        
+    # 5. Sleep & Wellness
+    if sleep_val < 6.0:
+        sleep_imp = (sleep_val - 6.0) * 2.0
+    elif sleep_val > 9.0:
+        sleep_imp = -1.0
+    else:
+        sleep_imp = 1.5
+    contributions.append({"Factor": "Sleep & Rest Balance", "Value": f"{sleep_val:.1f} hrs/day", "Impact": sleep_imp})
+    
+    # 6. Test Prep Course
+    prep_imp = 4.2 if prep_val == "completed" else -2.2
     contributions.append({"Factor": "Test Prep Course", "Value": prep_val.capitalize(), "Impact": prep_imp})
     
-    # Lunch Type
-    lunch_imp = 2.4 if lunch_val == "standard" else -3.1
+    # 7. Tutoring Support
+    tutor_imp_map = {"private_tutor": 5.0, "peer_tutoring": 3.0, "none": 0.0}
+    tutor_imp = tutor_imp_map.get(tutoring_val, 0.0)
+    if tutoring_val != "none":
+        contributions.append({"Factor": "Tutoring Support", "Value": tutoring_val.replace('_', ' ').title(), "Impact": tutor_imp})
+        
+    # 8. Lunch & Nutrition
+    lunch_imp = 2.5 if lunch_val == "standard" else -3.0
     contributions.append({"Factor": "Lunch Plan", "Value": lunch_val.capitalize(), "Impact": lunch_imp})
     
-    # Gender
-    g_imp = 2.2 if gender_val == "male" else -2.2
-    contributions.append({"Factor": "Gender Profile", "Value": gender_val.capitalize(), "Impact": g_imp})
+    # 9. Internet Access
+    net_imp = 1.8 if internet_val == "yes" else -2.5
+    contributions.append({"Factor": "Internet Access", "Value": internet_val.capitalize(), "Impact": net_imp})
     
-    # Parental Edu
+    # 10. Parental Education
     edu_weights = {
-        "master's degree": 3.8,
-        "bachelor's degree": 2.5,
-        "associate's degree": 1.1,
+        "master's degree": 3.5,
+        "bachelor's degree": 2.2,
+        "associate's degree": 1.0,
         "some college": 0.0,
         "high school": -1.2,
         "some high school": -2.5
@@ -180,7 +204,7 @@ def explain_single_student(input_df, preprocessor, model, feature_names=None):
     edu_imp = edu_weights.get(edu_val, 0.0)
     contributions.append({"Factor": "Parental Education", "Value": edu_val.title(), "Impact": edu_imp})
     
-    df_contrib = pd.DataFrame(contributions)
+    df_contrib = pd.DataFrame(contributions).sort_values(by="Impact", key=abs, ascending=False).reset_index(drop=True)
     return base_value, predicted, df_contrib
 
 if __name__ == "__main__":

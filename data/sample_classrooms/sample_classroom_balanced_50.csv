@@ -1,51 +1,51 @@
-student_id,student_name,gender,race/ethnicity,parental level of education,lunch,test preparation course,reading score,writing score
-STU-2026-1001,Amelia Johnson,male,group B,some high school,standard,completed,77,79
-STU-2026-1002,Adrian Garcia,male,group A,some high school,standard,completed,89,88
-STU-2026-1003,Christian Gonzalez,male,group D,some college,standard,none,89,86
-STU-2026-1004,Emma Carter,male,group D,high school,standard,completed,78,77
-STU-2026-1005,Carter Miller,female,group B,bachelor's degree,standard,completed,79,77
-STU-2026-1006,Lily Wright,female,group E,some high school,standard,completed,65,68
-STU-2026-1007,Layla Torres,female,group A,associate's degree,free/reduced,completed,56,63
-STU-2026-1008,Matthew Miller,female,group C,bachelor's degree,standard,none,74,70
-STU-2026-1009,Avery Hall,male,group D,some college,standard,completed,70,66
-STU-2026-1010,Abigail Robinson,female,group E,associate's degree,standard,completed,84,85
-STU-2026-1011,Lucas Anderson,male,group D,some college,standard,completed,78,74
-STU-2026-1012,Stella Rivera,female,group D,some college,free/reduced,none,54,49
-STU-2026-1013,David Rodriguez,female,group C,high school,standard,completed,71,71
-STU-2026-1014,Leo White,female,group E,some college,standard,none,78,77
-STU-2026-1015,Amelia Martinez,male,group D,some college,standard,none,64,60
-STU-2026-1016,Joshua King,female,group C,bachelor's degree,free/reduced,none,57,61
-STU-2026-1017,Aubrey Carter,female,group D,some high school,standard,none,63,67
-STU-2026-1018,David Allen,male,group C,some high school,standard,completed,63,66
-STU-2026-1019,Lillian Hill,female,group C,some high school,free/reduced,completed,85,81
-STU-2026-1020,Emma Hill,female,group A,bachelor's degree,free/reduced,completed,74,77
-STU-2026-1021,John Thomas,female,group E,bachelor's degree,standard,none,70,67
-STU-2026-1022,Mia Carter,male,group B,associate's degree,free/reduced,none,49,51
-STU-2026-1023,Ryan Hill,female,group B,some college,free/reduced,none,67,67
-STU-2026-1024,John Sanchez,male,group D,some college,standard,none,61,64
-STU-2026-1025,Camila Jones,female,group C,high school,standard,none,77,67
-STU-2026-1026,Mia Williams,male,group A,high school,free/reduced,none,66,65
-STU-2026-1027,Harper Campbell,male,group C,some college,free/reduced,completed,58,60
-STU-2026-1028,Ella Miller,female,group C,some college,standard,completed,92,88
-STU-2026-1029,Charlotte Brown,female,group C,bachelor's degree,standard,none,64,68
-STU-2026-1030,Julian Rodriguez,female,group B,high school,free/reduced,none,62,65
-STU-2026-1031,Ellie Miller,female,group E,bachelor's degree,free/reduced,completed,83,79
-STU-2026-1032,Luna Hernandez,female,group C,bachelor's degree,free/reduced,none,62,59
-STU-2026-1033,Emma Harris,female,group D,some college,standard,completed,85,85
-STU-2026-1034,Christian Nelson,male,group B,high school,free/reduced,completed,55,56
-STU-2026-1035,Adrian Brown,male,group A,some college,standard,completed,67,68
-STU-2026-1036,Abigail Brown,male,group A,high school,standard,completed,88,85
-STU-2026-1037,Luna Sanchez,female,group E,high school,standard,completed,81,76
-STU-2026-1038,Isaac Nelson,male,group C,bachelor's degree,standard,completed,80,87
-STU-2026-1039,Luna Taylor,female,group D,high school,standard,completed,78,78
-STU-2026-1040,Ethan Smith,female,group E,master's degree,standard,none,71,72
-STU-2026-1041,Chloe Jones,male,group C,some high school,free/reduced,completed,67,73
-STU-2026-1042,Leah Adams,male,group D,some college,free/reduced,none,44,49
-STU-2026-1043,Aiden Taylor,female,group B,some college,standard,completed,66,68
-STU-2026-1044,Carter Wilson,male,group D,some college,standard,completed,62,64
-STU-2026-1045,Isabella Garcia,male,group D,some high school,standard,none,52,48
-STU-2026-1046,David Hernandez,male,group C,some college,standard,none,81,81
-STU-2026-1047,Alexander Wright,female,group C,some college,standard,none,75,78
-STU-2026-1048,Layla Williams,male,group B,high school,standard,completed,81,84
-STU-2026-1049,Zoey Flores,male,group E,high school,standard,completed,81,75
-STU-2026-1050,Emily Clark,female,group D,high school,free/reduced,completed,56,56
+student_id,student_name,gender,race/ethnicity,parental level of education,lunch,test preparation course,internet_access,extracurricular_activities,tutoring_support,attendance_rate,weekly_study_hours,sleep_hours_per_day,past_failures,reading score,writing score
+STU-2026-1001,Amelia Johnson,male,group B,some high school,standard,completed,yes,no,none,89.5,12.4,7.9,0,84,86
+STU-2026-1002,Mason Wilson,female,group D,some college,free/reduced,completed,yes,yes,none,81.9,10.9,6.7,0,53,54
+STU-2026-1003,Emma Carter,male,group D,high school,standard,completed,yes,yes,none,78.9,14.3,6.4,0,47,49
+STU-2026-1004,Chloe Hill,female,group A,some college,standard,completed,yes,yes,peer_tutoring,100.0,14.6,7.4,0,62,63
+STU-2026-1005,Layla Torres,female,group A,associate's degree,free/reduced,completed,no,no,none,81.8,20.4,7.3,0,57,59
+STU-2026-1006,Lily Green,male,group B,high school,free/reduced,completed,yes,yes,peer_tutoring,77.1,17.4,9.5,0,82,81
+STU-2026-1007,Aubrey Campbell,female,group C,high school,free/reduced,completed,yes,yes,peer_tutoring,85.2,11.8,5.8,1,64,59
+STU-2026-1008,Lucas Anderson,male,group D,some college,standard,completed,yes,no,none,88.3,11.5,6.6,0,75,76
+STU-2026-1009,Nathan Sanchez,male,group D,some high school,standard,completed,yes,no,none,92.3,16.0,7.1,0,60,62
+STU-2026-1010,Natalie Sanchez,female,group E,some high school,standard,completed,no,yes,none,82.6,12.3,6.2,1,56,59
+STU-2026-1011,Nora Hill,female,group C,master's degree,standard,completed,no,yes,peer_tutoring,88.5,10.4,7.7,1,78,84
+STU-2026-1012,Aubrey Carter,female,group D,some high school,standard,none,no,no,none,86.6,11.8,7.4,1,54,51
+STU-2026-1013,Lillian Carter,female,group E,bachelor's degree,standard,completed,yes,yes,peer_tutoring,80.3,11.0,8.2,1,75,78
+STU-2026-1014,Adrian Roberts,male,group E,some college,standard,none,yes,no,peer_tutoring,81.1,11.7,6.9,1,49,48
+STU-2026-1015,Luna Brown,female,group C,some high school,free/reduced,completed,no,no,none,76.1,11.3,7.0,1,69,67
+STU-2026-1016,Eleanor Scott,female,group C,some college,free/reduced,completed,yes,no,peer_tutoring,87.8,12.7,5.4,0,71,70
+STU-2026-1017,Leo Nelson,male,group C,some college,standard,none,yes,no,none,81.4,13.0,7.8,0,62,59
+STU-2026-1018,Camila Smith,female,group D,high school,free/reduced,completed,yes,yes,peer_tutoring,94.0,16.0,8.1,0,66,68
+STU-2026-1019,Daniel Wright,female,group E,some college,standard,completed,yes,yes,none,79.8,13.3,6.8,0,82,81
+STU-2026-1020,Andrew Thompson,female,group C,associate's degree,free/reduced,completed,yes,yes,none,75.1,13.3,6.2,0,78,77
+STU-2026-1021,Oliver Thomas,female,group C,some high school,standard,none,no,yes,peer_tutoring,83.3,9.5,6.9,0,78,81
+STU-2026-1022,Ellie Miller,female,group E,bachelor's degree,free/reduced,completed,yes,yes,none,74.7,13.7,7.6,0,85,81
+STU-2026-1023,Daniel Sanchez,male,group B,some high school,standard,completed,yes,yes,peer_tutoring,90.3,17.9,7.5,0,76,74
+STU-2026-1024,Christian Nelson,male,group B,high school,free/reduced,completed,yes,no,none,99.1,14.9,6.1,1,78,74
+STU-2026-1025,Natalie Walker,female,group D,some high school,free/reduced,none,yes,no,peer_tutoring,92.7,14.7,8.1,0,87,87
+STU-2026-1026,Luna Sanchez,female,group E,high school,standard,completed,yes,no,none,92.2,12.0,8.5,0,76,83
+STU-2026-1027,David Wilson,male,group C,high school,standard,completed,yes,no,private_tutor,90.4,9.6,6.2,3,73,72
+STU-2026-1028,Liam Robinson,male,group C,some high school,standard,none,yes,yes,none,80.1,6.9,6.9,0,78,77
+STU-2026-1029,Jackson White,female,group C,some college,standard,completed,yes,no,peer_tutoring,90.4,20.1,7.5,1,65,64
+STU-2026-1030,Ellie Martin,male,group B,bachelor's degree,standard,completed,yes,yes,none,92.1,17.3,6.3,0,83,83
+STU-2026-1031,Elizabeth Rivera,female,group D,bachelor's degree,standard,none,no,yes,peer_tutoring,89.6,28.4,7.9,0,84,85
+STU-2026-1032,Joseph Williams,female,group D,associate's degree,standard,completed,yes,yes,none,77.9,7.0,7.5,0,70,62
+STU-2026-1033,Ethan Hall,male,group C,bachelor's degree,standard,none,yes,yes,private_tutor,90.8,6.5,6.8,0,84,82
+STU-2026-1034,James Thompson,female,group B,some high school,free/reduced,completed,yes,no,none,89.8,7.9,9.5,0,84,88
+STU-2026-1035,Luna Hernandez,male,group D,bachelor's degree,standard,completed,yes,no,peer_tutoring,81.4,16.4,6.5,0,61,66
+STU-2026-1036,Jackson Moore,female,group D,some college,standard,none,yes,no,none,83.7,11.7,7.6,1,53,57
+STU-2026-1037,Matthew Anderson,female,group B,high school,free/reduced,completed,yes,no,none,76.7,20.4,6.6,1,55,60
+STU-2026-1038,Aubrey Perez,male,group B,master's degree,standard,completed,yes,yes,none,85.9,9.3,6.0,0,71,65
+STU-2026-1039,Scarlett Ramirez,male,group C,some college,standard,none,yes,yes,private_tutor,82.9,13.5,8.7,0,51,52
+STU-2026-1040,Aubrey Baker,male,group D,associate's degree,standard,none,yes,yes,none,84.6,13.2,7.9,0,73,67
+STU-2026-1041,Elijah Campbell,male,group C,associate's degree,standard,completed,yes,yes,peer_tutoring,100.0,5.2,7.1,2,70,71
+STU-2026-1042,Victoria Baker,male,group B,some college,standard,completed,yes,yes,peer_tutoring,92.2,11.1,6.7,0,65,64
+STU-2026-1043,Eli Adams,female,group C,associate's degree,standard,completed,no,no,peer_tutoring,91.7,15.5,6.5,1,64,65
+STU-2026-1044,Mila Allen,male,group D,some high school,free/reduced,none,yes,no,none,94.9,10.6,7.8,1,66,67
+STU-2026-1045,James Thomas,male,group D,associate's degree,standard,completed,yes,no,none,95.1,13.1,8.0,0,61,59
+STU-2026-1046,Leo Thomas,female,group D,bachelor's degree,free/reduced,completed,yes,yes,peer_tutoring,99.4,17.3,5.5,0,70,71
+STU-2026-1047,Addison Robinson,female,group B,bachelor's degree,standard,completed,yes,no,none,90.4,15.5,7.3,0,52,60
+STU-2026-1048,Riley Flores,male,group E,some college,free/reduced,none,yes,no,none,83.8,16.2,7.9,0,82,80
+STU-2026-1049,Jackson Green,female,group D,some college,standard,none,yes,yes,none,82.7,13.9,5.9,3,51,52
+STU-2026-1050,Adrian Garcia,female,group B,associate's degree,free/reduced,none,yes,no,none,88.2,18.9,8.2,0,67,68

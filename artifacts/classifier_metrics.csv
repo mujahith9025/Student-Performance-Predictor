@@ -1,4 +1,4 @@
 Classifier,Accuracy,Precision,Recall,F1-Score,ROC-AUC,Filename
-Optimized Logistic Regression,0.89,0.9249,0.9467,0.9357,0.932,clf_optimized_logistic_regression.joblib
-Optimized Support Vector Machine (SVC),0.9,0.9209,0.9645,0.9422,0.9319,clf_optimized_support_vector_machine_svc.joblib
-Optimized Gradient Boosting Classifier,0.895,0.9253,0.9527,0.9388,0.9169,clf_optimized_gradient_boosting_classifier.joblib
+Optimized Support Vector Machine (SVC),0.97,0.9768,0.9921,0.9844,0.9853,clf_optimized_support_vector_machine_svc.joblib
+Optimized Logistic Regression,0.9725,0.9769,0.9948,0.9857,0.9849,clf_optimized_logistic_regression.joblib
+Optimized Gradient Boosting Classifier,0.9675,0.9792,0.9869,0.9831,0.9825,clf_optimized_gradient_boosting_classifier.joblib

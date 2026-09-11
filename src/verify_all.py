@@ -27,13 +27,20 @@ def verify_entire_system():
     clf_model = joblib.load("artifacts/best_classifier.joblib")
     print("[1/8] Artifacts loaded successfully.")
     
-    # 2. Test Single Student Inference
+    # 2. Test Single Student Inference with 14 Features
     sample_student = pd.DataFrame({
         "gender": ["female"],
         "race/ethnicity": ["group B"],
         "parental level of education": ["bachelor's degree"],
         "lunch": ["standard"],
         "test preparation course": ["completed"],
+        "internet_access": ["yes"],
+        "extracurricular_activities": ["yes"],
+        "tutoring_support": ["peer_tutoring"],
+        "attendance_rate": [94.0],
+        "weekly_study_hours": [18.0],
+        "sleep_hours_per_day": [7.8],
+        "past_failures": [0],
         "reading score": [82],
         "writing score": [85]
     })
@@ -44,14 +51,14 @@ def verify_entire_system():
     
     # 3. Test Explainability (XAI)
     base_val, pred_val, contrib_df = explain_single_student(sample_student, preprocessor, reg_model)
-    assert len(contrib_df) == 6, f"Expected 6 factors, got {len(contrib_df)}"
+    assert len(contrib_df) >= 8, f"Expected >=8 factors, got {len(contrib_df)}"
     print(f"[3/8] Explainable AI (XAI) Verified: {len(contrib_df)} local attributions computed.")
     
     # 4. Test Goal Simulator
     profile = sample_student.iloc[0].to_dict()
     goal_res = simulate_academic_goal(profile, 90, preprocessor, reg_model)
     assert "required_reading_score" in goal_res
-    print(f"[4/8] Goal Simulator Verified: Target 90 requires Reading {goal_res['required_reading_score']}, Writing {goal_res['required_writing_score']}")
+    print(f"[4/8] Goal Simulator Verified: Target 90 requires Reading {goal_res['required_reading_score']}, Study {goal_res['required_study_hours']}h/wk")
     
     # 5. Test AI Prescriptive Solutions Engine
     sol_res = generate_prescriptive_solution(profile, predicted_math=score, pass_prob=prob, grade="A (Excellent)")
@@ -60,11 +67,12 @@ def verify_entire_system():
     assert "projected_score" in sol_res
     print(f"[5/8] Prescriptive Solutions Verified: Projected Score = {sol_res['projected_score']:.1f}, Weekly Hours = {sol_res['total_study_hours']:.1f}h")
     
-    # 6. Test Synthetic Classroom Generator
+    # 6. Test Synthetic Classroom Generator (14 Features)
     syn_df = generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
     assert len(syn_df) == 50
     assert "student_name" in syn_df.columns
-    print(f"[6/8] Dynamic Synthetic Cohort Generator Verified: {len(syn_df)} students generated.")
+    assert "attendance_rate" in syn_df.columns
+    print(f"[6/8] Dynamic Synthetic Cohort Generator Verified: {len(syn_df)} students with 14 features generated.")
     
     # 7. Test Batch Classroom & Intervention Matrix
     proc_batch, summary = process_batch_predictions(syn_df, preprocessor, reg_model, clf_model)
@@ -91,7 +99,13 @@ def verify_entire_system():
         tips=["Optimal standing across all subjects."],
         pass_prob=float(prob),
         risk_level="Safe / Low Risk",
-        prescriptive_solution=sol_res
+        prescriptive_solution=sol_res,
+        attendance_rate=94.0,
+        weekly_study_hours=18.0,
+        sleep_hours_per_day=7.8,
+        past_failures=0,
+        tutoring_support="peer_tutoring",
+        internet_access="yes"
     )
     assert len(pdf_single) > 1000
     

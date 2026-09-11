@@ -466,10 +466,10 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
 
 # ----------------- TAB 1: PREDICTOR -----------------
 with tab1:
-    st.markdown("### 📝 Enter Student Academic & Demographic Profile")
-    st.markdown("Choose a quick-start persona below or input custom student characteristics:")
+    st.markdown("### 📝 Enter Student Multi-Dimensional Academic & Lifestyle Profile")
+    st.markdown("Choose a quick-start persona below or customize 14 academic, behavioral, lifestyle, and socioeconomic characteristics for ultra-accurate prediction:")
     
-    # Session State Initialization for Form Inputs
+    # Session State Initialization for 14 Form Inputs
     if "p_name" not in st.session_state: st.session_state["p_name"] = "Alex Johnson"
     if "p_id" not in st.session_state: st.session_state["p_id"] = "STU-2026-101"
     if "p_gender" not in st.session_state: st.session_state["p_gender"] = "female"
@@ -477,8 +477,15 @@ with tab1:
     if "p_edu" not in st.session_state: st.session_state["p_edu"] = "bachelor's degree"
     if "p_lunch" not in st.session_state: st.session_state["p_lunch"] = "standard"
     if "p_prep" not in st.session_state: st.session_state["p_prep"] = "completed"
+    if "p_internet" not in st.session_state: st.session_state["p_internet"] = "yes"
+    if "p_extra" not in st.session_state: st.session_state["p_extra"] = "yes"
+    if "p_tutor" not in st.session_state: st.session_state["p_tutor"] = "peer_tutoring"
     if "p_read" not in st.session_state: st.session_state["p_read"] = 78
     if "p_write" not in st.session_state: st.session_state["p_write"] = 82
+    if "p_att" not in st.session_state: st.session_state["p_att"] = 92.0
+    if "p_study" not in st.session_state: st.session_state["p_study"] = 16.0
+    if "p_sleep" not in st.session_state: st.session_state["p_sleep"] = 7.5
+    if "p_fails" not in st.session_state: st.session_state["p_fails"] = 0
 
     # Quick Select Persona Presets (6 Personas in 2 Rows)
     st.markdown("""
@@ -497,8 +504,15 @@ with tab1:
             st.session_state["p_edu"] = "master's degree"
             st.session_state["p_lunch"] = "standard"
             st.session_state["p_prep"] = "completed"
+            st.session_state["p_internet"] = "yes"
+            st.session_state["p_extra"] = "yes"
+            st.session_state["p_tutor"] = "private_tutor"
             st.session_state["p_read"] = 92
             st.session_state["p_write"] = 95
+            st.session_state["p_att"] = 98.0
+            st.session_state["p_study"] = 24.0
+            st.session_state["p_sleep"] = 8.0
+            st.session_state["p_fails"] = 0
             st.rerun()
             
     with p_row1_c2:
@@ -510,8 +524,15 @@ with tab1:
             st.session_state["p_edu"] = "some college"
             st.session_state["p_lunch"] = "standard"
             st.session_state["p_prep"] = "none"
+            st.session_state["p_internet"] = "yes"
+            st.session_state["p_extra"] = "no"
+            st.session_state["p_tutor"] = "none"
             st.session_state["p_read"] = 65
             st.session_state["p_write"] = 62
+            st.session_state["p_att"] = 86.0
+            st.session_state["p_study"] = 12.0
+            st.session_state["p_sleep"] = 7.2
+            st.session_state["p_fails"] = 0
             st.rerun()
             
     with p_row1_c3:
@@ -523,8 +544,15 @@ with tab1:
             st.session_state["p_edu"] = "some high school"
             st.session_state["p_lunch"] = "free/reduced"
             st.session_state["p_prep"] = "none"
+            st.session_state["p_internet"] = "no"
+            st.session_state["p_extra"] = "no"
+            st.session_state["p_tutor"] = "none"
             st.session_state["p_read"] = 34
             st.session_state["p_write"] = 30
+            st.session_state["p_att"] = 62.0
+            st.session_state["p_study"] = 4.0
+            st.session_state["p_sleep"] = 5.0
+            st.session_state["p_fails"] = 2
             st.rerun()
             
     p_row2_c1, p_row2_c2, p_row2_c3 = st.columns(3)
@@ -537,12 +565,19 @@ with tab1:
             st.session_state["p_edu"] = "bachelor's degree"
             st.session_state["p_lunch"] = "standard"
             st.session_state["p_prep"] = "completed"
+            st.session_state["p_internet"] = "yes"
+            st.session_state["p_extra"] = "yes"
+            st.session_state["p_tutor"] = "peer_tutoring"
             st.session_state["p_read"] = 88
             st.session_state["p_write"] = 85
+            st.session_state["p_att"] = 90.0
+            st.session_state["p_study"] = 14.0
+            st.session_state["p_sleep"] = 7.5
+            st.session_state["p_fails"] = 0
             st.rerun()
             
     with p_row2_c2:
-        if st.button("🚀 First-Gen Rising Star", use_container_width=True):
+        if st.button("🚀 High-Effort Rising Star", use_container_width=True):
             st.session_state["p_name"] = "Lucas Taylor"
             st.session_state["p_id"] = "STU-2026-RISING"
             st.session_state["p_gender"] = "male"
@@ -550,8 +585,15 @@ with tab1:
             st.session_state["p_edu"] = "high school"
             st.session_state["p_lunch"] = "free/reduced"
             st.session_state["p_prep"] = "completed"
+            st.session_state["p_internet"] = "yes"
+            st.session_state["p_extra"] = "yes"
+            st.session_state["p_tutor"] = "peer_tutoring"
             st.session_state["p_read"] = 76
             st.session_state["p_write"] = 74
+            st.session_state["p_att"] = 96.0
+            st.session_state["p_study"] = 20.0
+            st.session_state["p_sleep"] = 7.5
+            st.session_state["p_fails"] = 0
             st.rerun()
             
     with p_row2_c3:
@@ -563,23 +605,31 @@ with tab1:
             st.session_state["p_edu"] = "some college"
             st.session_state["p_lunch"] = "free/reduced"
             st.session_state["p_prep"] = "none"
+            st.session_state["p_internet"] = "yes"
+            st.session_state["p_extra"] = "no"
+            st.session_state["p_tutor"] = "none"
             st.session_state["p_read"] = 52
             st.session_state["p_write"] = 49
+            st.session_state["p_att"] = 78.0
+            st.session_state["p_study"] = 7.0
+            st.session_state["p_sleep"] = 6.0
+            st.session_state["p_fails"] = 1
             st.rerun()
 
     st.write("")
     
-    # Contextual Educational Insights Popover
-    with st.expander("💡 Understanding the Predictive Factors (Domain Guidance)"):
+    # Contextual Domain Insights Popover
+    with st.expander("💡 Understanding the 14 Multi-Dimensional Features (Domain Guidance)"):
         st.markdown("""
-        - **Reading & Writing Scores:** Linguistic ability and text comprehension strongly correlate with mathematical problem structuring ($r > 0.80$).
-        - **Test Preparation Course:** Statistically provides a **$+9.4$ marks** average boost across all exam subjects.
-        - **Standard Lunch Plan:** Nutritional security correlates with improved test endurance and a **$+8.0$ marks** average gain.
-        - **Parental Level of Education:** Sets the initial baseline academic environment and resources.
+        - **Attendance Rate (%) & Study Hours (hrs/wk):** The strongest behavioral drivers of academic momentum and examination success.
+        - **Reading & Writing Scores:** Prerequisite linguistic ability correlates directly with mathematical problem modeling ($r > 0.80$).
+        - **Sleep & Rest Balance:** Fatigue (<6 hrs/day) introduces working memory cognitive degradation.
+        - **Past Course Backlogs:** Critical historical indicator for pinpointing foundational concept gaps.
+        - **Digital Access & Tutoring Support:** Measure institutional and household educational resources.
         """)
 
     with st.form("prediction_form"):
-        # Student Info Header
+        # Student Identification
         st.markdown("#### 🆔 Student Identification")
         id_col1, id_col2 = st.columns(2)
         with id_col1:
@@ -588,70 +638,75 @@ with tab1:
             student_id = st.text_input("Student ID / Roll Number", value=st.session_state["p_id"], placeholder="e.g. STU-2026-101")
             
         st.write("")
-        col_left, col_right = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         
-        with col_left:
-            st.markdown("#### 👤 Demographics & Environment")
+        # Column 1: Academic Literacy & Deliberate Study
+        with col1:
+            st.markdown("#### 📚 Academic & Study Habits")
+            reading_score = st.slider("Reading Score (0 - 100)", min_value=0, max_value=100, value=int(st.session_state["p_read"]), step=1)
+            writing_score = st.slider("Writing Score (0 - 100)", min_value=0, max_value=100, value=int(st.session_state["p_write"]), step=1)
+            attendance_rate = st.slider("Attendance Rate (%)", min_value=50.0, max_value=100.0, value=float(st.session_state["p_att"]), step=0.5)
+            weekly_study_hours = st.slider("Weekly Self-Study (Hours/Week)", min_value=1.0, max_value=40.0, value=float(st.session_state["p_study"]), step=0.5)
+            past_failures = st.selectbox("Prior Course Backlogs / Failures", options=[0, 1, 2, 3, 4], index=[0, 1, 2, 3, 4].index(st.session_state["p_fails"]))
+
+        # Column 2: Demographics, Household & Digital
+        with col2:
+            st.markdown("#### 👤 Demographics & Digital Capital")
             gender_opts = ["female", "male"]
             gender = st.selectbox("Gender", options=gender_opts, index=gender_opts.index(st.session_state["p_gender"]))
             
             race_opts = ["group A", "group B", "group C", "group D", "group E"]
-            race_ethnicity = st.selectbox(
-                "Race / Ethnicity Group",
-                options=race_opts,
-                index=race_opts.index(st.session_state["p_race"])
-            )
+            race_ethnicity = st.selectbox("Race / Ethnicity Group", options=race_opts, index=race_opts.index(st.session_state["p_race"]))
             
-            edu_opts = [
-                "some high school",
-                "high school",
-                "some college",
-                "associate's degree",
-                "bachelor's degree",
-                "master's degree"
-            ]
-            parental_education = st.selectbox(
-                "Parental Level of Education",
-                options=edu_opts,
-                index=edu_opts.index(st.session_state["p_edu"])
-            )
+            edu_opts = ["some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree"]
+            parental_education = st.selectbox("Parental Level of Education", options=edu_opts, index=edu_opts.index(st.session_state["p_edu"]))
             
             lunch_opts = ["standard", "free/reduced"]
-            lunch = st.selectbox(
-                "Lunch Plan",
-                options=lunch_opts,
-                index=lunch_opts.index(st.session_state["p_lunch"])
-            )
+            lunch = st.selectbox("Lunch Plan", options=lunch_opts, index=lunch_opts.index(st.session_state["p_lunch"]))
+            
+            internet_opts = ["yes", "no"]
+            internet_access = st.selectbox("Home High-Speed Internet Access", options=internet_opts, index=internet_opts.index(st.session_state["p_internet"]))
+
+        # Column 3: Wellness, Curricular & Support
+        with col3:
+            st.markdown("#### 🌱 Wellness, Prep & Tutoring")
+            sleep_hours_per_day = st.slider("Average Daily Sleep (Hours/Day)", min_value=4.0, max_value=10.0, value=float(st.session_state["p_sleep"]), step=0.2)
             
             prep_opts = ["none", "completed"]
-            test_prep = st.selectbox(
-                "Test Preparation Course",
-                options=prep_opts,
-                index=prep_opts.index(st.session_state["p_prep"])
+            test_prep = st.selectbox("Test Preparation Course", options=prep_opts, index=prep_opts.index(st.session_state["p_prep"]))
+            
+            extra_opts = ["yes", "no"]
+            extracurricular_activities = st.selectbox("Extracurricular Engagement", options=extra_opts, index=extra_opts.index(st.session_state["p_extra"]))
+            
+            tutor_opts = ["none", "peer_tutoring", "private_tutor"]
+            tutoring_support = st.selectbox(
+                "Tutoring Support Enrolled",
+                options=tutor_opts,
+                index=tutor_opts.index(st.session_state["p_tutor"]),
+                format_func=lambda x: x.replace('_', ' ').title()
             )
-            
-        with col_right:
-            st.markdown("#### 📚 Existing Subject Marks (0 - 100)")
-            st.markdown("Scores earned by the student in prerequisite subjects:")
-            
-            reading_score = st.slider("Reading Score", min_value=0, max_value=100, value=st.session_state["p_read"], step=1)
-            writing_score = st.slider("Writing Score", min_value=0, max_value=100, value=st.session_state["p_write"], step=1)
-            
-            st.write("")
-            st.write("")
-            submit_btn = st.form_submit_button("⚡ Run Dual-Task ML Assessment", use_container_width=True, type="primary")
+
+        st.write("")
+        submit_btn = st.form_submit_button("⚡ Run Multi-Dimensional ML Assessment", use_container_width=True, type="primary")
 
     if submit_btn:
         if preprocessor is None or active_model is None:
             st.error("Model artifacts not found! Please run the training pipeline first.")
         else:
-            # Create DataFrame matching training format
+            # Create DataFrame matching 14-feature format
             input_dict = {
                 "gender": [gender],
                 "race/ethnicity": [race_ethnicity],
                 "parental level of education": [parental_education],
                 "lunch": [lunch],
                 "test preparation course": [test_prep],
+                "internet_access": [internet_access],
+                "extracurricular_activities": [extracurricular_activities],
+                "tutoring_support": [tutoring_support],
+                "attendance_rate": [attendance_rate],
+                "weekly_study_hours": [weekly_study_hours],
+                "sleep_hours_per_day": [sleep_hours_per_day],
+                "past_failures": [past_failures],
                 "reading score": [reading_score],
                 "writing score": [writing_score]
             }
@@ -669,7 +724,7 @@ with tab1:
                 pass_prob = float(best_clf.predict_proba(transformed_input)[0][1]) * 100.0
                 is_pass = int(best_clf.predict(transformed_input)[0])
             else:
-                pass_prob = 90.0 if predicted_math >= 50 else 30.0
+                pass_prob = 95.0 if predicted_math >= 50 else 25.0
                 is_pass = 1 if predicted_math >= 50 else 0
                 
             # Risk Level Assessment
@@ -717,7 +772,16 @@ with tab1:
                 st.plotly_chart(fig_gauge, use_container_width=True)
             with g_col2:
                 socio_index = input_df_eng["socio_readiness_index"].iloc[0]
-                fig_radar = create_radar_chart(reading_score, writing_score, predicted_math, socio_index)
+                fig_radar = create_radar_chart(
+                    reading=reading_score,
+                    writing=writing_score,
+                    predicted_math=predicted_math,
+                    socio_index=socio_index,
+                    attendance=attendance_rate,
+                    study_hours=weekly_study_hours,
+                    sleep_hours=sleep_hours_per_day,
+                    prep_status=test_prep
+                )
                 st.plotly_chart(fig_radar, use_container_width=True)
                 
             r_col1, r_col2, r_col3, r_col4 = st.columns(4)
@@ -733,7 +797,7 @@ with tab1:
             # 3. Local Explainable AI (SHAP Waterfall Breakdown)
             st.markdown("---")
             st.markdown("### 🔍 Why did the AI predict this score? (Interactive Waterfall Breakdown)")
-            st.markdown("This interactive breakdown details how each characteristic added or deducted marks from the **67.95 baseline population mark**:")
+            st.markdown("This interactive breakdown details how each student factor added or deducted marks from the baseline average:")
             
             base_val, pred_val, contrib_df = explain_single_student(input_df, preprocessor, active_model, None)
             
@@ -742,12 +806,17 @@ with tab1:
                 fig_waterfall = create_local_xai_waterfall(base_val, predicted_math, contrib_df)
                 st.plotly_chart(fig_waterfall, use_container_width=True)
             with xai_c2:
-                st.markdown("#### 📋 Factor Attribution Summary:")
-                for _, row in contrib_df.iterrows():
+                st.markdown("#### 📋 Top Factor Attributions:")
+                for _, row in contrib_df.head(6).iterrows():
                     impact = row["Impact"]
                     sign = "+" if impact >= 0 else ""
                     color = "#059669" if impact >= 0 else "#DC2626"
                     st.markdown(f"- **{row['Factor']}** (`{row['Value']}`): <span style='color:{color}; font-weight:bold;'>{sign}{impact:.2f} marks</span>", unsafe_allow_html=True)
+                st.dataframe(
+                    contrib_df.style.format({"Impact": "{:+.2f} marks"}),
+                    use_container_width=True,
+                    hide_index=True
+                )
                 st.dataframe(
                     contrib_df.style.format({"Impact": "{:+.2f} marks"}),
                     use_container_width=True,
@@ -888,7 +957,13 @@ with tab1:
                 pass_prob=pass_prob,
                 risk_level=risk_level,
                 custom_counselor_note=counselor_note,
-                prescriptive_solution=prescriptive_sol
+                prescriptive_solution=prescriptive_sol,
+                attendance_rate=attendance_rate,
+                weekly_study_hours=weekly_study_hours,
+                sleep_hours_per_day=sleep_hours_per_day,
+                past_failures=past_failures,
+                tutoring_support=tutoring_support,
+                internet_access=internet_access
             )
             
             clean_filename = f"Official_Academic_Report_{student_id.replace('/', '_')}.pdf"

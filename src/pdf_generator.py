@@ -23,11 +23,17 @@ def generate_student_pdf_report(
     pass_prob=None,
     risk_level="Safe",
     custom_counselor_note=None,
-    prescriptive_solution=None
+    prescriptive_solution=None,
+    attendance_rate=85.0,
+    weekly_study_hours=12.0,
+    sleep_hours_per_day=7.5,
+    past_failures=0,
+    tutoring_support="none",
+    internet_access="yes"
 ):
     """
     Generates a verified, executive-styled Single Student Performance & Risk Evaluation PDF Report,
-    including prescriptive intervention solutions and milestone roadmaps.
+    including 14 multidimensional academic, behavioral, lifestyle, and prescriptive solutions.
     """
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -98,13 +104,15 @@ def generate_student_pdf_report(
 
     # 1. Header Banner
     story.append(Paragraph("EDUPREDICT AI • OFFICIAL ACADEMIC REPORT CARD", title_style))
-    story.append(Paragraph("Machine Learning Diagnostic Forecast & Prescriptive Solution Action Plan", subtitle_style))
+    story.append(Paragraph("Machine Learning Multi-Dimensional Diagnostic & Prescriptive Action Plan", subtitle_style))
     story.append(Spacer(1, 6))
     story.append(HRFlowable(width="100%", thickness=2, color=secondary_color, spaceAfter=8))
 
-    # 2. Student Metadata Table
+    # 2. Student Metadata & Engagement Table
     current_date = datetime.now().strftime("%B %d, %Y")
     prob_text = f"<b>Pass Probability:</b> {pass_prob:.1f}% ({risk_level})" if pass_prob is not None else "Verified"
+    tutor_display = tutoring_support.replace('_', ' ').title() if tutoring_support != "none" else "None"
+    
     metadata_data = [
         [
             Paragraph("<b>Student Name:</b> " + str(student_name), body_style),
@@ -113,6 +121,10 @@ def generate_student_pdf_report(
         [
             Paragraph("<b>Date of Evaluation:</b> " + current_date, body_style),
             Paragraph("<b>Academic Risk Status:</b> " + prob_text, body_style)
+        ],
+        [
+            Paragraph(f"<b>Attendance:</b> {attendance_rate:.1f}% • <b>Study Effort:</b> {weekly_study_hours:.1f}h/wk", body_style),
+            Paragraph(f"<b>Tutoring:</b> {tutor_display} • <b>Past Backlogs:</b> {past_failures} • <b>Sleep:</b> {sleep_hours_per_day:.1f}h/day", body_style)
         ]
     ]
     meta_table = Table(metadata_data, colWidths=[270, 270])
@@ -120,8 +132,8 @@ def generate_student_pdf_report(
         ('BACKGROUND', (0, 0), (-1, -1), light_bg),
         ('BOX', (0, 0), (-1, -1), 1, border_color),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 8),
     ]))
