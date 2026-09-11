@@ -850,23 +850,60 @@ with tab2:
                     batch_to_process, preprocessor, active_model, best_clf
                 )
                 
-                # Summary Metric Cards
+                # 1. Summary Metric Cards
                 st.markdown("#### 📊 Classroom Overview Metrics:")
                 b1, b2, b3, b4, b5 = st.columns(5)
                 with b1:
                     st.metric("Total Students", summary["total_students"])
                 with b2:
-                    st.metric("Class Avg Math", f"{summary['class_avg_math']:.1f}")
+                    st.metric("Class Avg Math", f"{summary['class_avg_math']:.1f} / 100")
                 with b3:
-                    st.metric("Overall 3-Sub Avg", f"{summary['class_avg_overall']:.1f}")
+                    st.metric("Overall 3-Sub Avg", f"{summary['class_avg_overall']:.1f} / 100")
                 with b4:
-                    st.metric("Pass Rate (%)", f"{summary['pass_rate']}%")
+                    st.metric("Class Pass Rate", f"{summary['pass_rate']}%")
                 with b5:
                     st.metric("🚨 At-Risk Count", summary["at_risk_count"])
                     
                 st.write("")
                 
-                # Visual Analytics for Classroom
+                # 2. Priority Intervention & Honor Roll Highlights
+                high_risk_df = processed_batch[processed_batch["Risk_Tier"].str.contains("High", na=False)]
+                honors_df = processed_batch[processed_batch["Cumulative_3Subject_Avg"] >= 85.0]
+                
+                c_alert1, c_alert2 = st.columns(2)
+                with c_alert1:
+                    if not high_risk_df.empty:
+                        st.markdown(f"#### 🚨 Priority At-Risk Intervention Watchlist ({len(high_risk_df)} Students)")
+                        for _, s_row in high_risk_df.iterrows():
+                            s_name = s_row.get("student_name", s_row.get("student_id", "Student"))
+                            s_id = s_row.get("student_id", "N/A")
+                            st.markdown(f"""
+                            <div style="background: rgba(254, 242, 242, 0.85); border-left: 4px solid #EF4444; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 0.6rem;">
+                                <b>{s_name}</b> (`{s_id}`) • Predicted Math: <span style="color:#DC2626; font-weight:bold;">{s_row['Predicted_Math_Score']}</span> | Pass Prob: <span style="color:#DC2626; font-weight:bold;">{s_row['Pass_Probability_Pct']}%</span><br/>
+                                <span style="font-size: 0.85rem; color: #475569;">Action: Urgent math remedial tutoring + enroll in test preparation course.</span>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    else:
+                        st.success("🎉 No high-risk students identified in this classroom cohort!")
+                        
+                with c_alert2:
+                    if not honors_df.empty:
+                        st.markdown(f"#### 🌟 Distinction Honor Roll ({len(honors_df)} Students)")
+                        for _, h_row in honors_df.iterrows():
+                            h_name = h_row.get("student_name", h_row.get("student_id", "Student"))
+                            h_id = h_row.get("student_id", "N/A")
+                            st.markdown(f"""
+                            <div style="background: rgba(236, 253, 245, 0.85); border-left: 4px solid #10B981; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 0.6rem;">
+                                <b>{h_name}</b> (`{h_id}`) • Overall Avg: <span style="color:#059669; font-weight:bold;">{h_row['Cumulative_3Subject_Avg']} / 100</span> • Grade: <span style="color:#059669; font-weight:bold;">{h_row['Predicted_Grade']}</span><br/>
+                                <span style="font-size: 0.85rem; color: #475569;">Standing: Optimal across all prerequisite examination metrics.</span>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    else:
+                        st.info("ℹ️ No distinction earners (85+ marks) in this cohort.")
+                        
+                st.write("")
+                
+                # 3. Visual Analytics for Classroom
                 st.markdown("#### 📈 Cohort Visual Analytics (Interactive Plotly):")
                 chart_col1, chart_col2 = st.columns(2)
                 
@@ -907,17 +944,46 @@ with tab2:
                 # Classroom Cohort Multi-Dimensional Bubble Scatter
                 fig_bubble = create_batch_bubble_chart(processed_batch)
                 st.plotly_chart(fig_bubble, use_container_width=True)
+                
+                # 4. Cohort Test Prep Impact Breakdown Widget
+                prep_comp = processed_batch.groupby("test preparation course")["Predicted_Math_Score"].mean().to_dict()
+                if "completed" in prep_comp and "none" in prep_comp:
+                    prep_diff = round(prep_comp["completed"] - prep_comp["none"], 1)
+                    st.info(f"💡 **Classroom Insight:** Students who completed the Test Preparation Course in this cohort scored an average of **+{prep_diff} marks higher** in predicted mathematics ({prep_comp['completed']:.1f} vs. {prep_comp['none']:.1f} marks).")
                     
-                # Processed Data Table
-                st.markdown("#### 📋 Processed Classroom Predictions Table:")
-                st.dataframe(processed_batch, use_container_width=True, hide_index=True)
+                st.write("")
+                
+                # 5. Interactive Cohort Search & Filters
+                st.markdown("#### 🔍 Filter & Search Classroom Roster:")
+                f_col1, f_col2, f_col3 = st.columns(3)
+                with f_col1:
+                    search_term = st.text_input("Search Student Name or ID:", placeholder="e.g. Liam or STU-2026")
+                with f_col2:
+                    risk_filter = st.selectbox("Filter by Risk Tier:", options=["All Risk Tiers"] + sorted(list(processed_batch["Risk_Tier"].unique())))
+                with f_col3:
+                    grade_filter = st.selectbox("Filter by Grade:", options=["All Grades"] + sorted(list(processed_batch["Predicted_Grade"].unique())))
+                    
+                filtered_df = processed_batch.copy()
+                if search_term:
+                    mask = (
+                        filtered_df["student_name"].astype(str).str.contains(search_term, case=False, na=False) |
+                        filtered_df["student_id"].astype(str).str.contains(search_term, case=False, na=False)
+                    )
+                    filtered_df = filtered_df[mask]
+                if risk_filter != "All Risk Tiers":
+                    filtered_df = filtered_df[filtered_df["Risk_Tier"] == risk_filter]
+                if grade_filter != "All Grades":
+                    filtered_df = filtered_df[filtered_df["Predicted_Grade"] == grade_filter]
+                    
+                st.markdown(f"**Showing {len(filtered_df)} of {len(processed_batch)} students:**")
+                st.dataframe(filtered_df, use_container_width=True, hide_index=True)
                 
                 # Download Enriched CSV
                 enriched_csv_buffer = io.StringIO()
-                processed_batch.to_csv(enriched_csv_buffer, index=False)
+                filtered_df.to_csv(enriched_csv_buffer, index=False)
                 
                 st.download_button(
-                    label="📥 Download Complete Processed Classroom Report (.CSV)",
+                    label=f"📥 Download Processed Report ({len(filtered_df)} Students) (.CSV)",
                     data=enriched_csv_buffer.getvalue(),
                     file_name=f"Processed_Report_Classroom.csv",
                     mime="text/csv",
