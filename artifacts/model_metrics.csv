@@ -1,0 +1,7 @@
+Model,Train R2 Score,Test R2 Score,Test MAE (marks),Test RMSE (marks),Filename
+Ridge Regression,0.7635,0.7606,6.02,7.62,ridge_regression.joblib
+Lasso Regression,0.7611,0.7604,5.99,7.62,lasso_regression.joblib
+Linear Regression,0.7635,0.7602,6.03,7.63,linear_regression.joblib
+Random Forest Regressor,0.8919,0.7305,6.41,8.09,random_forest_regressor.joblib
+K Neighbors Regressor,0.7835,0.6885,6.97,8.69,k_neighbors_regressor.joblib
+Decision Tree Regressor,0.8118,0.6508,7.22,9.2,decision_tree_regressor.joblib
