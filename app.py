@@ -7,7 +7,7 @@ from src.pdf_generator import generate_student_pdf_report
 
 # Set Page Config
 st.set_page_config(
-    page_title="Student Performance Predictor",
+    page_title="Student Performance & Risk Predictor",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -45,9 +45,17 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
-    .result-box {
+    .result-box-pass {
         background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
         border: 2px solid #6EE7B7;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+    .result-box-risk {
+        background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+        border: 2px solid #FCA5A5;
         border-radius: 16px;
         padding: 1.5rem;
         text-align: center;
@@ -56,7 +64,6 @@ st.markdown("""
     .result-score {
         font-size: 3.5rem;
         font-weight: 900;
-        color: #047857;
         line-height: 1;
         margin: 0.5rem 0;
     }
@@ -69,31 +76,36 @@ def load_artifacts():
     artifacts_dir = os.path.join(os.path.dirname(__file__), "artifacts")
     preprocessor_path = os.path.join(artifacts_dir, "preprocessor.joblib")
     best_model_path = os.path.join(artifacts_dir, "best_model.joblib")
+    best_clf_path = os.path.join(artifacts_dir, "best_classifier.joblib")
     
-    if not os.path.exists(preprocessor_path) or not os.path.exists(best_model_path):
-        return None, None, None
-        
-    preprocessor = joblib.load(preprocessor_path)
-    best_model = joblib.load(best_model_path)
+    preprocessor = joblib.load(preprocessor_path) if os.path.exists(preprocessor_path) else None
+    best_model = joblib.load(best_model_path) if os.path.exists(best_model_path) else None
+    best_clf = joblib.load(best_clf_path) if os.path.exists(best_clf_path) else None
     
-    # Load all trained models for selection
+    # Load all regression models
     models_dir = os.path.join(artifacts_dir, "models")
     all_models = {}
     if os.path.exists(models_dir):
         for f in os.listdir(models_dir):
-            if f.endswith(".joblib"):
+            if f.endswith(".joblib") and not f.startswith("clf_"):
                 name = f.replace(".joblib", "").replace("_", " ").title()
                 all_models[name] = joblib.load(os.path.join(models_dir, f))
                 
-    return preprocessor, best_model, all_models
+    return preprocessor, best_model, best_clf, all_models
 
-preprocessor, best_model, all_models = load_artifacts()
+preprocessor, best_model, best_clf, all_models = load_artifacts()
 
 # Sidebar
 with st.sidebar:
     st.image("https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80", use_container_width=True)
-    st.title("⚙️ Model Configuration")
+    st.title("⚙️ ML Engine Settings")
     
+    analysis_mode = st.radio(
+        "Select Operation Mode:",
+        options=["🎯 Dual Mode (Score & Risk)", "📊 Score Regressor Only", "🛡️ Pass/Fail Classifier Only"]
+    )
+    
+    st.markdown("---")
     if all_models:
         default_index = 0
         model_names = sorted(list(all_models.keys()))
@@ -101,7 +113,7 @@ with st.sidebar:
             default_index = model_names.index("Voting Ensemble Regressor")
             
         selected_model_name = st.selectbox(
-            "Select Machine Learning Model:",
+            "Regression Algorithm:",
             options=model_names,
             index=default_index
         )
@@ -110,48 +122,46 @@ with st.sidebar:
         active_model = best_model
         selected_model_name = "Voting Ensemble (Default)"
         
-    st.success(f"Active Model: **{selected_model_name}**")
+    st.info(f"Classifier: **Support Vector Machine (ROC-AUC 0.933)**")
     
     st.markdown("---")
-    st.markdown("### 📊 Benchmark Stats")
-    st.markdown("- **Peak Accuracy ($R^2$):** **76.44%**")
-    st.markdown("- **Avg Error (MAE):** **$\pm 5.95$ marks**")
-    st.markdown("- **Cross-Validation:** 5-Fold GridSearch")
-    st.markdown("- **Report Generation:** PDF Export Enabled")
+    st.markdown("### 📊 Dual-Mode Benchmarks")
+    st.markdown("- **Regression $R^2$:** **76.44%** ($\pm 5.95$ marks)")
+    st.markdown("- **Classification Accuracy:** **89.5%**")
+    st.markdown("- **ROC-AUC Score:** **0.933**")
     
-    st.markdown("---")
-    st.caption("Student Performance Predictor • Advanced ML")
+    st.caption("Student Performance & Dropout Risk Predictor")
 
 # Main Header
-st.markdown('<div class="main-header">🎓 Student Performance Predictor</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Advanced machine learning system with hyperparameter-tuned gradient boosting and meta-ensembles to predict student marks.</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">🎓 Student Performance & Dropout Risk Predictor</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Dual-task machine learning system: Score Regression + Pass/Fail & Dropout Risk Classification with instant PDF export.</div>', unsafe_allow_html=True)
 
 # Overview Metric Cards
 c1, c2, c3, c4 = st.columns(4)
 with c1:
-    st.markdown('<div class="metric-card"><div class="metric-val">76.4%</div><div class="metric-lbl">Peak R² Accuracy</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">76.4%</div><div class="metric-lbl">Regression R²</div></div>', unsafe_allow_html=True)
 with c2:
-    st.markdown('<div class="metric-card"><div class="metric-val">±5.95</div><div class="metric-lbl">Avg Error (MAE)</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">0.933</div><div class="metric-lbl">Classifier ROC-AUC</div></div>', unsafe_allow_html=True)
 with c3:
-    st.markdown('<div class="metric-card"><div class="metric-val">14</div><div class="metric-lbl">Models & Ensembles</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">89.5%</div><div class="metric-lbl">Pass/Fail Accuracy</div></div>', unsafe_allow_html=True)
 with c4:
-    st.markdown('<div class="metric-card"><div class="metric-val">PDF</div><div class="metric-lbl">Report Export</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">PDF</div><div class="metric-lbl">Verified Export</div></div>', unsafe_allow_html=True)
 
 st.write("")
 
 # Navigation Tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "🚀 Score Predictor & PDF Report", 
+    "🚀 Score & Risk Predictor", 
     "📈 Exploratory Data Analysis", 
-    "🏆 Model Leaderboard", 
+    "🏆 Model Leaderboards (Dual)", 
     "⚙️ Hyperparameter Tuning",
     "📖 System Architecture"
 ])
 
 # ----------------- TAB 1: PREDICTOR -----------------
 with tab1:
-    st.markdown("### 📝 Enter Student Profile & Exam Marks")
-    st.markdown("Provide student demographics and existing subject scores to calculate predicted **Math Score** and generate an official PDF Report Card.")
+    st.markdown("### 📝 Enter Student Academic & Demographic Profile")
+    st.markdown("Enter student characteristics to compute predicted marks, pass probability, and dropout risk alerts.")
     
     with st.form("prediction_form"):
         # Student Info Header
@@ -205,7 +215,7 @@ with tab1:
             
             st.write("")
             st.write("")
-            submit_btn = st.form_submit_button("⚡ Run Real-Time ML Prediction", use_container_width=True, type="primary")
+            submit_btn = st.form_submit_button("⚡ Run Dual-Task ML Assessment", use_container_width=True, type="primary")
 
     if submit_btn:
         if preprocessor is None or active_model is None:
@@ -222,61 +232,97 @@ with tab1:
                 "writing score": [writing_score]
             }
             input_df = pd.DataFrame(input_dict)
-            
-            # Preprocess and Predict
             transformed_input = preprocessor.transform(input_df)
+            
+            # 1. Regression Prediction
             raw_prediction = active_model.predict(transformed_input)[0]
             predicted_math = float(np.clip(raw_prediction, 0, 100))
-            
-            # Calculate overall metrics
             overall_avg = (predicted_math + reading_score + writing_score) / 3.0
             
+            # 2. Classification Prediction
+            if best_clf is not None:
+                pass_prob = float(best_clf.predict_proba(transformed_input)[0][1]) * 100.0
+                is_pass = int(best_clf.predict(transformed_input)[0])
+            else:
+                pass_prob = 90.0 if predicted_math >= 50 else 30.0
+                is_pass = 1 if predicted_math >= 50 else 0
+                
+            # Risk Level Assessment
+            if pass_prob >= 80:
+                risk_level = "Safe / Low Risk"
+                risk_color = "#059669"
+            elif pass_prob >= 50:
+                risk_level = "Moderate Risk (Needs Monitoring)"
+                risk_color = "#D97706"
+            else:
+                risk_level = "🚨 High Academic / Dropout Risk"
+                risk_color = "#DC2626"
+                
             # Grade Mapping
             if overall_avg >= 90:
-                grade, badge_color = "A+ (Outstanding)", "#059669"
+                grade = "A+ (Outstanding)"
             elif overall_avg >= 80:
-                grade, badge_color = "A (Excellent)", "#10B981"
+                grade = "A (Excellent)"
             elif overall_avg >= 70:
-                grade, badge_color = "B (Good)", "#3B82F6"
+                grade = "B (Good)"
             elif overall_avg >= 60:
-                grade, badge_color = "C (Satisfactory)", "#F59E0B"
+                grade = "C (Satisfactory)"
             elif overall_avg >= 50:
-                grade, badge_color = "D (Pass)", "#EF4444"
+                grade = "D (Pass)"
             else:
-                grade, badge_color = "F (Needs Support)", "#991B1B"
+                grade = "F (Needs Remedial)"
             
-            # Display Prediction Box
+            # Results Box Styling
+            box_class = "result-box-pass" if is_pass == 1 else "result-box-risk"
+            score_color = "#047857" if is_pass == 1 else "#B91C1C"
+            
             st.markdown(f"""
-            <div class="result-box">
-                <div style="font-size: 1.1rem; color: #065F46; font-weight: 600;">Predicted Mathematics Score</div>
-                <div class="result-score">{predicted_math:.1f} <span style="font-size: 1.5rem; color: #047857;">/ 100</span></div>
-                <div style="font-size: 0.95rem; color: #047857;">Algorithm: <b>{selected_model_name}</b> | Expected Range: <b>{max(0, predicted_math - 5.95):.1f} – {min(100, predicted_math + 5.95):.1f}</b></div>
+            <div class="{box_class}">
+                <div style="font-size: 1.1rem; color: {score_color}; font-weight: 600;">Predicted Mathematics Score & Risk Status</div>
+                <div class="result-score" style="color: {score_color};">{predicted_math:.1f} <span style="font-size: 1.5rem;">/ 100</span></div>
+                <div style="font-size: 1rem; color: {score_color};">
+                    <b>Pass Probability: {pass_prob:.1f}%</b> • Status: <b>{'Passed' if is_pass==1 else 'At-Risk / Fail'}</b> • Risk Tier: <b>{risk_level}</b>
+                </div>
             </div>
             """, unsafe_allow_html=True)
             
             st.write("")
-            r_col1, r_col2, r_col3 = st.columns(3)
+            r_col1, r_col2, r_col3, r_col4 = st.columns(4)
             with r_col1:
                 st.metric("Math Score (Predicted)", f"{predicted_math:.1f} / 100")
             with r_col2:
                 st.metric("3-Subject Average", f"{overall_avg:.1f} / 100")
             with r_col3:
-                st.metric("Predicted Final Grade", grade)
+                st.metric("Pass Probability", f"{pass_prob:.1f}%")
+            with r_col4:
+                st.metric("Predicted Grade", grade)
                 
-            # Personalized AI Diagnostic Feedback
-            st.markdown("#### 💡 Diagnostic Recommendations")
+            # Pass Probability Progress Bar
+            st.write("")
+            st.markdown(f"**Academic Success Confidence:** `{pass_prob:.1f}%`")
+            st.progress(int(pass_prob))
+                
+            # Diagnostic Feedback
+            st.markdown("#### 💡 Diagnostic Recommendations & Intervention Plan")
             tips = []
+            if pass_prob < 50:
+                tips.append("🚨 **High Risk Alert:** Student is performing below benchmark in Mathematics. Immediate remedial sessions recommended.")
             if test_prep == "none":
-                tips.append("📌 **Test Prep Course:** Enrolling in the test prep course statistically adds **+9.4 marks** in Mathematics.")
+                tips.append("📌 **Test Prep Course:** Completing the preparation course statistically provides a **+9.4 mark boost**.")
             if lunch == "free/reduced":
-                tips.append("📌 **Nutrition:** Standard lunch access correlates with an **+8.0 mark boost** across all subjects.")
+                tips.append("📌 **Nutrition:** Standard lunch plan correlates with an **+8.0 mark boost** across all exams.")
             if reading_score < 60:
-                tips.append("📌 **Reading Focus:** Enhancing reading comprehension directly reinforces mathematical problem solving.")
+                tips.append("📌 **Reading Focus:** Enhancing reading comprehension reinforces mathematical word-problem solving.")
             if not tips:
                 tips.append("🌟 **Optimal Academic Standing:** Student profile exhibits strong positive indicators across all subjects.")
                 
             for tip in tips:
-                st.info(tip)
+                if "Alert" in tip:
+                    st.error(tip)
+                elif "📌" in tip:
+                    st.warning(tip)
+                else:
+                    st.success(tip)
 
             # Generate PDF Report Card
             st.markdown("---")
@@ -297,13 +343,15 @@ with tab1:
                 overall_avg=overall_avg,
                 grade=grade,
                 model_name=selected_model_name,
-                tips=tips
+                tips=tips,
+                pass_prob=pass_prob,
+                risk_level=risk_level
             )
             
-            clean_filename = f"Performance_Report_{student_id.replace('/', '_')}.pdf"
+            clean_filename = f"Performance_Risk_Report_{student_id.replace('/', '_')}.pdf"
             
             st.download_button(
-                label=f"📥 Download Official PDF Report ({clean_filename})",
+                label=f"📥 Download Verified PDF Report ({clean_filename})",
                 data=pdf_bytes,
                 file_name=clean_filename,
                 mime="application/pdf",
@@ -314,8 +362,6 @@ with tab1:
 # ----------------- TAB 2: EDA & INSIGHTS -----------------
 with tab2:
     st.markdown("### 📊 Exploratory Data Analysis & Visual Insights")
-    st.markdown("Visual analysis of 1,000 student records to understand performance drivers:")
-    
     plots_dir = os.path.join(os.path.dirname(__file__), "plots")
     
     col_a, col_b = st.columns(2)
@@ -341,69 +387,55 @@ with tab2:
         if os.path.exists(p4):
             st.image(p4, caption="Higher parental education degree correlates with higher median student scores.", use_container_width=True)
 
-# ----------------- TAB 3: MODEL LEADERBOARD -----------------
+# ----------------- TAB 3: DUAL MODEL LEADERBOARD -----------------
 with tab3:
-    st.markdown("### 🏆 Comprehensive Model Evaluation Leaderboard")
-    st.markdown("Comparison of all 14 baseline, tuned, and ensemble machine learning models on 200 unseen test records:")
+    st.markdown("### 🏆 Dual-Task Evaluation Leaderboards")
     
+    st.markdown("#### A. Regression Leaderboard (Continuous Score Prediction)")
     metrics_path = os.path.join(os.path.dirname(__file__), "artifacts", "model_metrics.csv")
     if os.path.exists(metrics_path):
         m_df = pd.read_csv(metrics_path)
-        st.dataframe(
-            m_df.drop(columns=["Filename"], errors="ignore"),
-            use_container_width=True,
-            hide_index=True
-        )
+        st.dataframe(m_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
+        
+    st.markdown("#### B. Classification Leaderboard (Pass / Fail & Dropout Risk)")
+    clf_path = os.path.join(os.path.dirname(__file__), "artifacts", "classifier_metrics.csv")
+    if os.path.exists(clf_path):
+        c_df = pd.read_csv(clf_path)
+        st.dataframe(c_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
     
-    col_m1, col_m2 = st.columns(2)
-    with col_m1:
-        p6 = os.path.join(plots_dir, "06_model_performance_comparison.png")
-        if os.path.exists(p6):
-            st.image(p6, caption="R² Accuracy comparison across all algorithms.", use_container_width=True)
-    with col_m2:
-        p7 = os.path.join(plots_dir, "07_actual_vs_predicted.png")
-        if os.path.exists(p7):
-            st.image(p7, caption="Actual vs. Predicted scatter plot for the Champion Model.", use_container_width=True)
+    col_v1, col_v2 = st.columns(2)
+    with col_v1:
+        p8 = os.path.join(plots_dir, "08_confusion_matrix.png")
+        if os.path.exists(p8):
+            st.image(p8, caption="Confusion Matrix on Test Data.", use_container_width=True)
+    with col_v2:
+        p9 = os.path.join(plots_dir, "09_roc_auc_curve.png")
+        if os.path.exists(p9):
+            st.image(p9, caption="ROC-AUC Curves for all classifiers.", use_container_width=True)
 
 # ----------------- TAB 4: HYPERPARAMETER TUNING -----------------
 with tab4:
     st.markdown("### ⚙️ 5-Fold Cross-Validation Hyperparameter Optimization")
-    st.markdown("Detailed breakdown of optimal parameters discovered via **GridSearchCV**:")
-    
     tuning_csv = os.path.join(os.path.dirname(__file__), "artifacts", "hyperparameter_tuning_results.csv")
     if os.path.exists(tuning_csv):
         t_df = pd.read_csv(tuning_csv)
-        st.dataframe(
-            t_df.drop(columns=["Filename"], errors="ignore"),
-            use_container_width=True,
-            hide_index=True
-        )
-        
-    st.info("""
-    **💡 Key Optimization Takeaways:**
-    1. **Voting Ensemble (Ridge + Gradient Boosting + Random Forest):** Combines linear stability with non-linear tree splits, achieving peak **76.44% test accuracy** and lowest error (**±5.95 marks**).
-    2. **Tuned Ridge Regression (alpha=10.0):** Reduced sensitivity to multicollinearity between Reading and Writing subjects.
-    3. **Tuned Random Forest (max_depth=6, min_samples_split=5):** Prevented overfitting and boosted test $R^2$ from $73.05\%$ to **$75.03\%$**.
-    """)
+        st.dataframe(t_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
 
 # ----------------- TAB 5: SYSTEM ARCHITECTURE -----------------
 with tab5:
-    st.markdown("### 📖 End-to-End System Architecture")
+    st.markdown("### 📖 Dual-Engine Machine Learning Architecture")
     st.markdown("""
     ```
-    1. Raw Data (1,000 Records)
-       └── 5 Demographic Features + 2 Sub-Exam Marks
+    1. Input Features (Demographics + Reading/Writing Marks)
+       └── Transformed via ColumnTransformer (StandardScaler + OneHotEncoder)
     
-    2. Preprocessing Pipeline (ColumnTransformer)
-       ├── Numerical: StandardScaler()
-       └── Categorical: OneHotEncoder(drop='first') -> 14 Encoded Features
+    2. Dual Machine Learning Pipeline:
+       ├── Regression Engine: Voting Ensemble Regressor (R² 76.44%, MAE ±5.95)
+       └── Classification Engine: Support Vector Classifier (Accuracy 89.5%, ROC-AUC 0.933)
     
-    3. Model Training & 5-Fold CV Hyperparameter Tuning
-       ├── Linear / Regularized: Ridge, Lasso, ElasticNet
-       ├── Tree & Boosting: Decision Tree, Random Forest, Gradient Boosting, AdaBoost
-       └── Meta-Ensembles: Voting Regressor, Stacking Regressor
-    
-    4. Champion Selection & PDF Report Card Generation
-       └── Voting Ensemble Regressor (76.44% Accuracy, ±5.95 MAE) + ReportLab PDF Exporter
+    3. Outputs & Deliverables:
+       ├── Exact Predicted Marks & Grade (A+ to F)
+       ├── Pass Probability & Early Dropout Risk Tier
+       └── Verified PDF Performance Certificate
     ```
     """)

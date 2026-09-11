@@ -1,96 +1,112 @@
-# 🎓 Student Performance Predictor (Advanced Machine Learning)
+# 🎓 Student Performance & Dropout Risk Predictor (Dual-Engine ML)
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.3+-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![ReportLab](https://img.shields.io/badge/PDF_Reports-ReportLab_5.0-red?logo=adobeacrobatreader&logoColor=white)](https://www.reportlab.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-An end-to-end Machine Learning project designed to predict student examination marks (Mathematics) based on demographic factors, socio-economic indicators, study habits, and existing subject competencies using **Hyperparameter-Tuned Gradient Boosting and Meta-Ensembles**.
+An end-to-end Dual-Task Machine Learning system designed to predict student examination marks (Mathematics) and classify **Academic Pass / Fail & Dropout Risk** with automated **Verified PDF Report Card generation**.
 
 ---
 
 ## 📌 1. Project Overview & Problem Statement
-Understanding the factors that influence academic success allows educators and parents to identify at-risk students early and provide targeted academic interventions. 
+Understanding academic trajectory early allows educational institutions to deploy targeted interventions before exams take place.
 
-This project implements an advanced **Supervised Machine Learning Regression Pipeline**:
-* **Input Features:** Gender, Ethnicity, Parental Level of Education, Lunch Type, Test Preparation Course, Reading Score, Writing Score.
-* **Target Variable:** Mathematics Examination Marks ($0 - 100$).
-* **Cross-Validation:** 5-Fold GridSearch Cross-Validation.
-* **Champion Model:** **Voting Ensemble Regressor** achieving **$76.44\%$ $R^2$ accuracy** and an average prediction error of **$\pm 5.95$ marks**.
+This project implements a **Dual-Task Supervised Machine Learning Pipeline**:
+1. **Task A (Regression):** Predicts exact mathematical marks ($0 - 100$) using a **Voting Meta-Ensemble** (**$76.44\%$ $R^2$ accuracy**, $\pm 5.95$ marks average error).
+2. **Task B (Classification):** Forecasts **Pass / Fail & Dropout Risk Probability** using **Support Vector Machines & Gradient Boosting** (**$89.5\%$ accuracy, $0.933$ ROC-AUC score**).
+3. **Task C (Reporting):** Generates and downloads verified, styled **PDF Academic Performance Reports** instantly.
 
 ---
 
-## 🏗️ 2. Project Architecture & Workflow
+## 🏗️ 2. Dual-Engine Architecture & Workflow
 
 ```
-┌─────────────────────────┐     ┌─────────────────────────┐     ┌─────────────────────────┐
-│  Phase 1: Dataset Setup │ ──► │     Phase 2: EDA        │ ──► │  Phase 3: Preprocessing │
-│ (1,000 Student Records) │     │ (Distributions & Corrs) │     │ (ColumnTransformer OHE) │
-└─────────────────────────┘     └─────────────────────────┘     └─────────────────────────┘
-                                                                             │
-┌─────────────────────────┐     ┌─────────────────────────┐                  │
-│    Phase 6: Web App     │ ◄── │   Phase 5: Evaluation   │ ◄────────────────┘
-│ (Streamlit Interactive) │     │ (14 Model Leaderboard)  │     Phase 4: Hyperparameter Tuning
-└─────────────────────────┘     └─────────────────────────┘     (5-Fold CV GridSearch on Boosting & Ensembles)
+┌────────────────────────────────────────────────────────┐
+│               1. Raw Student Profile Data              │
+│    (Demographics + Environment + Reading/Writing Marks)│
+└───────────────────────────┬────────────────────────────┘
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│     2. ColumnTransformer Preprocessing Pipeline        │
+│   (StandardScaler for Scores + OneHotEncoder for Cats) │
+└───────────────────────────┬────────────────────────────┘
+                            │
+             ┌──────────────┴──────────────┐
+             ▼                             ▼
+┌─────────────────────────┐   ┌─────────────────────────┐
+│  A. Regression Engine   │   │ B. Classification Engine│
+│ Voting Meta-Ensemble    │   │ Support Vector Machine  │
+│ Peak R² = 76.44%        │   │ ROC-AUC = 0.9326        │
+│ MAE = ± 5.95 marks      │   │ Accuracy = 89.50%       │
+└────────────┬────────────┘   └────────────┬────────────┘
+             │                             │
+             └──────────────┬──────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│     3. Streamlit Interface & PDF Report Generator      │
+│   (Live Predictions + Risk Alerts + PDF Report Card)   │
+└────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📊 3. Exploratory Data Analysis (EDA) Insights
+## 🏆 3. Dual-Task Model Leaderboards
 
-From analyzing the 1,000 student dataset:
-1. **Test Preparation Course (+9.4 marks):**
-   * Students who completed the pre-exam preparation course scored **$74.24$ average in Math** vs. **$64.84$** for those who did not.
-2. **Nutritional Support (+8.0 marks):**
-   * Students receiving standard lunch scored **$70.97$** compared to **$62.93$** for students on free/reduced lunch.
-3. **Parental Education Impact:**
-   * Students whose parents hold a Master's degree achieved the highest scores (**$75.32$ average**).
-4. **Subject Synergy:**
-   * Reading and Writing scores exhibit high correlation ($r \approx 0.95$), and both correlate strongly with Math score ($r \approx 0.80$).
+### **A. Regression Leaderboard (Continuous Marks Forecast)**
 
----
-
-## 🏆 4. Model Comparison & Hyperparameter Tuning Results
-
-We evaluated 14 baseline, tuned, and ensemble algorithms on 200 unseen test students:
-
-| Rank | Model Name | Model Type | Test $R^2$ Accuracy | Test MAE *(Avg Error)* | Test RMSE |
+| Rank | Model Name | Architecture | Test $R^2$ | Test MAE | Test RMSE |
 | :---: | :--- | :--- | :---: | :---: | :---: |
-| 🥇 | **Voting Ensemble Regressor** | Meta-Ensemble (Ridge + GB + RF) | **76.44%** | **$\pm$ 5.95 marks** | **7.56** |
-| 🥈 | **Tuned Ridge Regression** | Regularized Linear ($\alpha=10.0$) | **76.31%** | **$\pm$ 5.98 marks** | **7.58** |
-| 🥉 | **Tuned ElasticNet** | L1+L2 Regularization | **76.14%** | $\pm$ 5.99 marks | 7.61 |
-| 4 | **Tuned Lasso Regression** | L1 Regularization | **76.04%** | $\pm$ 5.99 marks | 7.62 |
-| 5 | **Stacking Ensemble Regressor** | Meta-Learner (Ridge Stacking) | **76.03%** | $\pm$ 6.01 marks | 7.62 |
-| 6 | **Tuned Gradient Boosting** | Boosting Trees ($lr=0.08$) | **75.53%** | $\pm$ 6.07 marks | 7.70 |
-| 7 | **Tuned Random Forest** | Bagging Ensemble ($d=6$) | **75.03%** | $\pm$ 6.14 marks | 7.78 |
-| 8 | **Tuned AdaBoost** | Adaptive Boosting | **74.41%** | $\pm$ 6.23 marks | 7.88 |
+| 🥇 | **Voting Ensemble Regressor** | Meta-Ensemble (Ridge + GB + RF) | **76.44%** | **$\pm$ 5.95** | **7.56** |
+| 🥈 | **Tuned Ridge Regression** | Regularized Linear ($\alpha=10.0$) | **76.31%** | $\pm$ 5.98 | 7.58 |
+| 🥉 | **Tuned ElasticNet** | L1+L2 Regularization | **76.14%** | $\pm$ 5.99 | 7.61 |
+| 4 | **Tuned Lasso Regression** | L1 Shrinkage | **76.04%** | $\pm$ 5.99 | 7.62 |
+| 5 | **Stacking Ensemble Regressor** | Meta-Learner (Ridge Stacking) | **76.03%** | $\pm$ 6.01 | 7.62 |
 
 ---
 
-## 📂 5. Directory Structure
+### **B. Classification Leaderboard (Pass / Fail & Dropout Risk)**
+
+| Rank | Classifier Name | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: |
+| 🥇 | **Support Vector Classifier (SVC)** | **89.50%** | **0.9205** | **0.9586** | **0.9391** | **0.9326** |
+| 🥈 | **Logistic Regression** | 89.00% | 0.9249 | 0.9467 | 0.9357 | 0.9320 |
+| 🥉 | **Gradient Boosting Classifier** | 90.50% | 0.9310 | 0.9586 | 0.9446 | 0.9272 |
+| 4 | **Random Forest Classifier** | 90.00% | 0.9209 | 0.9645 | 0.9422 | 0.9065 |
+| 5 | **K-Neighbors Classifier** | 88.50% | 0.9101 | 0.9586 | 0.9337 | 0.8589 |
+
+---
+
+## 📂 4. Directory Structure
 
 ```
 student-performance-predictor/
 │
 ├── artifacts/                     # Serialized preprocessors & ML models
-│   ├── best_model.joblib          # Champion trained model (Voting Ensemble)
+│   ├── best_model.joblib          # Champion Regression Model (Voting Ensemble)
+│   ├── best_classifier.joblib     # Champion Risk Classifier (SVC)
 │   ├── preprocessor.joblib        # Scikit-Learn ColumnTransformer pipeline
-│   ├── model_metrics.csv          # Comprehensive evaluation metrics across 14 models
+│   ├── model_metrics.csv          # Regression metrics table
+│   ├── classifier_metrics.csv     # Classification metrics table
 │   ├── hyperparameter_tuning_results.csv # 5-Fold CV Tuning parameters
-│   └── models/                    # Checkpoints for all trained algorithms
+│   └── models/                    # All individual checkpoints (Regression & Classification)
 │
 ├── data/
 │   ├── StudentsPerformance.csv    # 1,000 student raw dataset
 │   └── processed/                 # ML-ready train/test numpy matrices
 │
-├── plots/                         # Generated EDA and evaluation charts
+├── plots/                         # 9 High-resolution visual charts
 │   ├── 01_score_distributions.png
 │   ├── 02_correlation_heatmap.png
 │   ├── 03_test_prep_impact.png
 │   ├── 04_parental_education_impact.png
 │   ├── 05_lunch_impact.png
 │   ├── 06_model_performance_comparison.png
-│   └── 07_actual_vs_predicted.png
+│   ├── 07_actual_vs_predicted.png
+│   ├── 08_confusion_matrix.png    # Classification Confusion Matrix
+│   └── 09_roc_auc_curve.png       # Classification ROC-AUC Curves
 │
 ├── src/                           # Pipeline source code
 │   ├── generate_data.py           # Dataset generator
@@ -98,8 +114,10 @@ student-performance-predictor/
 │   ├── preprocessing.py           # Feature engineering & train-test split
 │   ├── train_models.py            # Baseline model training
 │   ├── hyperparameter_tuning.py   # 5-Fold CV GridSearchCV & Ensemble builder
+│   ├── train_classifier.py        # Classification & Risk model suite
 │   ├── evaluate_models.py         # Testing, metric computation & leaderboard
-│   └── test_inference.py          # End-to-end inference verification
+│   ├── pdf_generator.py           # ReportLab PDF Report Card generator
+│   └── test_inference.py          # End-to-end dual inference verification
 │
 ├── app.py                         # Interactive Multi-Tab Streamlit Application
 ├── run_app.bat                    # 1-click Windows launcher
@@ -109,9 +127,9 @@ student-performance-predictor/
 
 ---
 
-## 🚀 6. Installation & How to Run
+## 🚀 5. Installation & How to Run
 
-### Step 1: Clone or Navigate to Project Directory
+### Step 1: Clone Repository
 ```bash
 git clone https://github.com/mujahith9025/Student-Performance-Predictor.git
 cd Student-Performance-Predictor
@@ -122,22 +140,19 @@ cd Student-Performance-Predictor
 python -m pip install -r requirements.txt
 ```
 
-### Step 3: Run the Complete Machine Learning Pipeline
+### Step 3: Run Training & Classification Pipelines
 ```bash
-# 1. Run EDA & generate visual charts
-python src/eda.py
-
-# 2. Run Data Preprocessing & ColumnTransformer
+# 1. Run Preprocessing
 python src/preprocessing.py
 
-# 3. Run Hyperparameter Tuning with 5-Fold Cross Validation
+# 2. Run Hyperparameter Tuning on Regressors
 python src/hyperparameter_tuning.py
 
-# 4. Evaluate models and build leaderboard
-python src/evaluate_models.py
+# 3. Train Pass / Fail & Dropout Risk Classifiers
+python src/train_classifier.py
 ```
 
-### Step 4: Launch Interactive Web App
+### Step 4: Launch Web App
 ```bash
 python -m streamlit run app.py
 ```

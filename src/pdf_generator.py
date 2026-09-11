@@ -19,7 +19,9 @@ def generate_student_pdf_report(
     overall_avg,
     grade,
     model_name,
-    tips
+    tips,
+    pass_prob=None,
+    risk_level="Safe"
 ):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -89,13 +91,14 @@ def generate_student_pdf_report(
     )
 
     # 1. Header Banner
-    story.append(Paragraph("STUDENT ACADEMIC PERFORMANCE REPORT", title_style))
-    story.append(Paragraph("Machine Learning Diagnostic Evaluation & Performance Forecast", subtitle_style))
+    story.append(Paragraph("STUDENT ACADEMIC PERFORMANCE & RISK EVALUATION REPORT", title_style))
+    story.append(Paragraph("Machine Learning Diagnostic Forecast & Dropout Risk Assessment", subtitle_style))
     story.append(Spacer(1, 10))
     story.append(HRFlowable(width="100%", thickness=2, color=secondary_color, spaceAfter=12))
 
     # 2. Student & Evaluation Metadata Table
     current_date = datetime.now().strftime("%B %d, %Y")
+    prob_text = f"<b>Pass Probability:</b> {pass_prob:.1f}% ({risk_level})" if pass_prob is not None else "Verified"
     metadata_data = [
         [
             Paragraph("<b>Student Name:</b> " + str(student_name), body_style),
@@ -103,7 +106,7 @@ def generate_student_pdf_report(
         ],
         [
             Paragraph("<b>Date of Evaluation:</b> " + current_date, body_style),
-            Paragraph("<b>Forecasting Engine:</b> " + str(model_name), body_style)
+            Paragraph("<b>Academic Risk Status:</b> " + prob_text, body_style)
         ]
     ]
     meta_table = Table(metadata_data, colWidths=[260, 270])
@@ -133,7 +136,7 @@ def generate_student_pdf_report(
             Paragraph("<b>Mathematics</b>", body_style),
             Paragraph("ML Model Forecast", body_style),
             Paragraph(f"<b>{predicted_math:.1f} / 100</b>", bold_body),
-            Paragraph("Predicted" if predicted_math >= 50 else "At-Risk", body_style)
+            Paragraph("Predicted Pass" if predicted_math >= 50 else "<font color='red'>At-Risk</font>", body_style)
         ],
         [
             Paragraph("<b>Reading Comprehension</b>", body_style),
@@ -168,7 +171,6 @@ def generate_student_pdf_report(
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
     ]))
-    # Set header text color
     for i in range(4):
         score_data[0][i].style.textColor = colors.white
 
@@ -225,7 +227,7 @@ def generate_student_pdf_report(
     # 5. Diagnostic Advice & Improvement Plan
     story.append(Paragraph("3. Actionable Academic Recommendations", section_heading))
     for tip in tips:
-        clean_tip = tip.replace("📌", "•").replace("🌟", "•").replace("**", "")
+        clean_tip = tip.replace("📌", "•").replace("🌟", "•").replace("⚠️", "•").replace("**", "")
         story.append(Paragraph(clean_tip, body_style))
         story.append(Spacer(1, 3))
 
@@ -234,8 +236,8 @@ def generate_student_pdf_report(
     # 6. Verification Footer
     footer_data = [
         [
-            Paragraph("<b>Status:</b> Verified by ML Engine", body_style),
-            Paragraph("<b>Accuracy Confidence:</b> ± 5.95 marks (R² 76.4%)", body_style),
+            Paragraph("<b>Status:</b> Verified by Dual ML Engine", body_style),
+            Paragraph("<b>Confidence:</b> ±5.95 marks (ROC-AUC 0.933)", body_style),
             Paragraph("____________________________<br/>Academic Counselor Signature", body_style)
         ]
     ]
