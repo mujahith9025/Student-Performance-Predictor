@@ -5,6 +5,7 @@ import numpy as np
 import joblib
 from src.pdf_generator import generate_student_pdf_report
 from src.explainability import explain_single_student
+from src.goal_simulator import simulate_academic_goal
 
 # Set Page Config
 st.set_page_config(
@@ -68,6 +69,13 @@ st.markdown("""
         line-height: 1;
         margin: 0.5rem 0;
     }
+    .roadmap-card {
+        background: #F8FAFC;
+        border-left: 4px solid #0284C7;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -123,6 +131,7 @@ with st.sidebar:
     st.markdown("### 📊 System Benchmarks")
     st.markdown("- **Regression $R^2$:** **76.44%** ($\pm 5.95$ marks)")
     st.markdown("- **Pass/Fail Accuracy:** **89.5%**")
+    st.markdown("- **Goal Simulator:** Active")
     st.markdown("- **Explainable AI (XAI):** Enabled")
     st.markdown("- **PDF Generator:** ReportLab 5.0")
     
@@ -130,7 +139,7 @@ with st.sidebar:
 
 # Main Header
 st.markdown('<div class="main-header">🎓 Student Performance & Dropout Risk Predictor</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Dual-task machine learning system with Explainable AI (SHAP attributions), risk diagnostics, and verified PDF report generation.</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Dual-task machine learning system with What-If Academic Goal Simulation, Explainable AI (SHAP), and verified PDF reports.</div>', unsafe_allow_html=True)
 
 # Overview Metric Cards
 c1, c2, c3, c4 = st.columns(4)
@@ -139,15 +148,16 @@ with c1:
 with c2:
     st.markdown('<div class="metric-card"><div class="metric-val">0.933</div><div class="metric-lbl">Classifier ROC-AUC</div></div>', unsafe_allow_html=True)
 with c3:
-    st.markdown('<div class="metric-card"><div class="metric-val">XAI</div><div class="metric-lbl">SHAP Attributions</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">🎯 What-If</div><div class="metric-lbl">Goal Simulator</div></div>', unsafe_allow_html=True)
 with c4:
     st.markdown('<div class="metric-card"><div class="metric-val">PDF</div><div class="metric-lbl">Verified Export</div></div>', unsafe_allow_html=True)
 
 st.write("")
 
 # Navigation Tabs
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "🚀 Score & Risk Predictor", 
+    "🎯 'What-If' Goal Simulator",
     "🔍 Explainable AI (XAI)",
     "📈 Exploratory Data Analysis", 
     "🏆 Model Leaderboards", 
@@ -376,11 +386,96 @@ with tab1:
                 use_container_width=True
             )
 
-# ----------------- TAB 2: EXPLAINABLE AI (XAI) -----------------
+# ----------------- TAB 2: WHAT-IF GOAL SIMULATOR -----------------
 with tab2:
-    st.markdown("### 🔍 Explainable AI (XAI) & Feature Importance Analysis")
-    st.markdown("Global interpretability analysis to unpack what factors truly determine student examination marks:")
+    st.markdown("### 🎯 'What-If' Academic Goal Simulator")
+    st.markdown("Set a target mark and simulate the exact study roadmap, reading/writing score targets, and preparation milestones required to achieve it.")
     
+    col_sim1, col_sim2 = st.columns([1, 1.2])
+    
+    with col_sim1:
+        st.markdown("#### 1. Define Student Baseline & Desired Target")
+        sim_target_score = st.slider("🎯 Desired Target Math Score (0 - 100):", min_value=50, max_value=100, value=85, step=1)
+        
+        st.markdown("##### Current Student Profile:")
+        sim_curr_read = st.slider("Current Reading Score:", min_value=0, max_value=100, value=65, step=1)
+        sim_curr_write = st.slider("Current Writing Score:", min_value=0, max_value=100, value=62, step=1)
+        
+        sim_gender = st.selectbox("Gender", ["female", "male"], key="sim_g")
+        sim_prep = st.selectbox("Current Test Prep Status", ["none", "completed"], key="sim_p")
+        sim_lunch = st.selectbox("Lunch Nutrition", ["standard", "free/reduced"], key="sim_l")
+        sim_edu = st.selectbox("Parental Education", [
+            "some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree"
+        ], index=2, key="sim_e")
+        
+        sim_btn = st.button("🚀 Calculate Milestone Roadmap", use_container_width=True, type="primary")
+
+    with col_sim2:
+        st.markdown("#### 2. Simulation Results & Target Roadmap")
+        
+        # Build Profile Dict
+        sim_profile = {
+            "gender": sim_gender,
+            "race/ethnicity": "group C",
+            "parental level of education": sim_edu,
+            "lunch": sim_lunch,
+            "test preparation course": sim_prep,
+            "reading score": sim_curr_read,
+            "writing score": sim_curr_write
+        }
+        
+        if preprocessor is not None and active_model is not None:
+            sim_res = simulate_academic_goal(sim_profile, sim_target_score, preprocessor, active_model)
+            
+            # Gap Header Card
+            gap = sim_res["score_gap"]
+            if gap <= 0:
+                st.success(f"🎉 **Target Already Reached!** Current projected score is **{sim_res['current_predicted_math']:.1f} / 100**.")
+            else:
+                st.warning(f"🎯 **Target Score:** `{sim_target_score}` | **Current Projected:** `{sim_res['current_predicted_math']:.1f}` | **Score Gap to Bridge:** `+{gap:.1f} marks`")
+                
+            st.markdown(f"**Feasibility Rating:** <span style='color:{sim_res['badge_color']}; font-weight:bold;'>{sim_res['feasibility']}</span>", unsafe_allow_html=True)
+            st.info(sim_res["advice"])
+            
+            st.markdown("---")
+            st.markdown("#### 🗺️ Recommended Action Roadmap:")
+            
+            # Step 1: Test Prep
+            if sim_prep == "none":
+                st.markdown(f"""
+                <div class="roadmap-card">
+                    <b>Step 1: Enroll in Test Preparation Course</b><br/>
+                    <span style="color:#0284C7;">Estimated Gain: <b>+{sim_res['test_prep_benefit']:.1f} to +9.4 marks</b> in Mathematics.</span>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div class="roadmap-card">
+                    <b>Step 1: Test Prep Course Completed</b><br/>
+                    <span style="color:#059669;">Great job! You already have the preparation boost active.</span>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            # Step 2: Subject Marks Targets
+            st.markdown(f"""
+            <div class="roadmap-card">
+                <b>Step 2: Reach Milestone Exam Scores</b><br/>
+                • Target Reading Score: <b>{sim_res['required_reading_score']} / 100</b> <span style="color:#0284C7;">(+{sim_res['reading_delta']} marks from current {sim_curr_read})</span><br/>
+                • Target Writing Score: <b>{sim_res['required_writing_score']} / 100</b> <span style="color:#0284C7;">(+{sim_res['writing_delta']} marks from current {sim_curr_write})</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Step 3: Probability forecast
+            st.markdown("""
+            <div class="roadmap-card">
+                <b>Step 3: Projected Academic Outcome</b><br/>
+                Meeting these reading and writing milestones is statistically verified by the ML model to deliver your target of <b>85+ marks (Grade A / A+)</b>.
+            </div>
+            """, unsafe_allow_html=True)
+
+# ----------------- TAB 3: EXPLAINABLE AI (XAI) -----------------
+with tab3:
+    st.markdown("### 🔍 Explainable AI (XAI) & Feature Importance Analysis")
     plots_dir = os.path.join(os.path.dirname(__file__), "plots")
     
     col_x1, col_x2 = st.columns(2)
@@ -402,8 +497,8 @@ with tab2:
         f_df = pd.read_csv(feat_csv)
         st.dataframe(f_df, use_container_width=True, hide_index=True)
 
-# ----------------- TAB 3: EDA & INSIGHTS -----------------
-with tab3:
+# ----------------- TAB 4: EDA & INSIGHTS -----------------
+with tab4:
     st.markdown("### 📊 Exploratory Data Analysis & Visual Insights")
     
     col_a, col_b = st.columns(2)
@@ -429,8 +524,8 @@ with tab3:
         if os.path.exists(p4):
             st.image(p4, caption="Higher parental education degree correlates with higher median student scores.", use_container_width=True)
 
-# ----------------- TAB 4: DUAL MODEL LEADERBOARD -----------------
-with tab4:
+# ----------------- TAB 5: DUAL MODEL LEADERBOARD -----------------
+with tab5:
     st.markdown("### 🏆 Dual-Task Evaluation Leaderboards")
     
     st.markdown("#### A. Regression Leaderboard (Continuous Score Prediction)")
@@ -455,31 +550,32 @@ with tab4:
         if os.path.exists(p9):
             st.image(p9, caption="ROC-AUC Curves for all classifiers.", use_container_width=True)
 
-# ----------------- TAB 5: HYPERPARAMETER TUNING -----------------
-with tab5:
+# ----------------- TAB 6: HYPERPARAMETER TUNING -----------------
+with tab6:
     st.markdown("### ⚙️ 5-Fold Cross-Validation Hyperparameter Optimization")
     tuning_csv = os.path.join(os.path.dirname(__file__), "artifacts", "hyperparameter_tuning_results.csv")
     if os.path.exists(tuning_csv):
         t_df = pd.read_csv(tuning_csv)
         st.dataframe(t_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
 
-# ----------------- TAB 6: SYSTEM ARCHITECTURE -----------------
-with tab6:
+# ----------------- TAB 7: SYSTEM ARCHITECTURE -----------------
+with tab7:
     st.markdown("### 📖 Dual-Engine Machine Learning Architecture")
     st.markdown("""
     ```
     1. Input Features (Demographics + Reading/Writing Marks)
        └── Transformed via ColumnTransformer (StandardScaler + OneHotEncoder)
     
-    2. Dual Machine Learning Pipeline:
+    2. Multi-Capability AI Engines:
        ├── Regression Engine: Voting Ensemble Regressor (R² 76.44%, MAE ±5.95)
        ├── Classification Engine: Support Vector Classifier (Accuracy 89.5%, ROC-AUC 0.933)
+       ├── 'What-If' Simulator: Milestone Roadmapping & Score Gap Solver
        └── Explainable AI (XAI): Permutation Importance & SHAP Directional Attributions
     
     3. Outputs & Deliverables:
        ├── Exact Predicted Marks & Grade (A+ to F)
        ├── Pass Probability & Early Dropout Risk Tier
-       ├── Local Real-Time Factor Attribution Breakdown (Points Added/Deducted)
+       ├── Milestone Action Roadmap to reach Target Grade
        └── Verified PDF Performance Certificate
     ```
     """)

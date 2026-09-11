@@ -1,4 +1,4 @@
-# 🎓 Student Performance & Dropout Risk Predictor (Dual-Engine ML + XAI)
+# 🎓 Student Performance & Dropout Risk Predictor (Dual-Engine ML + XAI + Goal Simulator)
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.3+-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
@@ -7,35 +7,48 @@
 [![XAI](https://img.shields.io/badge/Explainable_AI-SHAP_Attributions-purple)](https://github.com/slundberg/shap)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-An end-to-end Dual-Task Machine Learning system designed to predict student examination marks, classify **Academic Pass / Fail & Dropout Risk**, generate **Verified PDF Report Cards**, and explain every prediction using **Explainable AI (XAI / SHAP Attributions)**.
+An end-to-end Machine Learning system designed to predict student examination marks, classify **Academic Pass / Fail & Dropout Risk**, generate **Verified PDF Report Cards**, explain every prediction using **Explainable AI (XAI)**, and reverse-engineer academic target pathways using a **"What-If" Academic Goal Simulator**.
 
 ---
 
-## 📌 1. Project Overview & Problem Statement
+## 📌 1. Project Overview & Capabilities
 Understanding academic trajectory early allows educational institutions to deploy targeted interventions before exams take place.
 
-This project implements a **Dual-Task Supervised Machine Learning Pipeline with Interpretability**:
+This project implements a multi-capability Machine Learning pipeline:
 1. **Task A (Regression):** Predicts exact mathematical marks ($0 - 100$) using a **Voting Meta-Ensemble** (**$76.44\%$ $R^2$ accuracy**, $\pm 5.95$ marks average error).
-2. **Task B (Classification):** Forecasts **Pass / Fail & Dropout Risk Probability** using **Support Vector Machines & Gradient Boosting** (**$89.5\%$ accuracy, $0.933$ ROC-AUC score**).
-3. **Task C (Explainable AI):** Provides **Global Permutation Feature Importance** and **Local Real-Time SHAP-Style Attributions** explaining exact positive and negative mark adjustments for any student.
-4. **Task D (Reporting):** Generates and downloads verified, styled **PDF Academic Performance Reports** instantly.
+2. **Task B (Classification):** Forecasts **Pass / Fail & Dropout Risk Probability** using **Support Vector Machines** (**$89.5\%$ accuracy, $0.933$ ROC-AUC score**).
+3. **Task C ('What-If' Goal Simulator):** Reverse-engineers the minimum required reading and writing milestone scores and study interventions to achieve any target grade.
+4. **Task D (Explainable AI):** Provides **Global Permutation Feature Importance** and **Local Real-Time SHAP Attributions** explaining exact points added or deducted.
+5. **Task E (Verified Reporting):** Generates and downloads verified, styled **PDF Academic Performance Reports** in one click.
 
 ---
 
-## 🔍 2. Explainable AI (XAI) & Key Findings
+## 🎯 2. 'What-If' Academic Goal Simulator
 
-### **A. Global Feature Importance Ranking**
+The **Goal Simulator** solves the reverse optimization problem:
+* **Student Target Input:** Desired Math Score (e.g. $85$ marks) or Target Grade (Grade A/A+).
+* **Current Baseline:** Current reading ($65$) and writing ($62$) scores.
+* **Simulator Output Roadmap:**
+  * **Gap to Bridge:** $+22.9$ marks.
+  * **Step 1:** Complete Test Preparation Course (delivers $+9.4$ marks statistical boost).
+  * **Step 2:** Milestone Target: Reading Score $\rightarrow 90 / 100$ ($+25$ marks) & Writing Score $\rightarrow 87 / 100$ ($+25$ marks).
+  * **Feasibility Rating:** Classified as *Easily Achievable*, *Moderate Effort*, or *Intensive Intervention*.
+
+---
+
+## 🔍 3. Explainable AI (XAI) & Global Importance Rankings
+
 | Rank | Feature | Relative Impact | Key Finding |
 | :---: | :--- | :---: | :--- |
 | 🥇 | **Writing Score** | **41.03%** | Writing proficiency strongly reinforces analytical and mathematical problem solving. |
 | 🥈 | **Reading Score** | **36.25%** | Reading comprehension is essential for understanding complex examination questions. |
-| 🥉 | **Gender Profile** | **21.46%** | Historical variance baseline across subject domains. |
+| 🥉 | **Gender Baseline** | **21.46%** | Historical variance baseline across subject domains. |
 | 4 | **Test Prep Course** | **0.65%** | Completing the course adds **$+9.4$ marks** average boost. |
 | 5 | **Lunch Nutrition Plan** | **0.03%** | Standard nutritional support adds **$+8.0$ marks** average boost. |
 
 ---
 
-## 🏗️ 3. Dual-Engine Architecture & Workflow
+## 🏗️ 4. Multi-Engine Architecture & Workflow
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -49,26 +62,26 @@ This project implements a **Dual-Task Supervised Machine Learning Pipeline with 
 │   (StandardScaler for Scores + OneHotEncoder for Cats) │
 └───────────────────────────┬────────────────────────────┘
                             │
-             ┌──────────────┼──────────────┐
-             ▼              ▼              ▼
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
 ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│ A. Regressor    │ │ B. Classifier   │ │ C. XAI Engine   │
-│ Voting Ensemble │ │ Support Vector  │ │ Permutation &   │
-│ Peak R²: 76.44% │ │ ROC-AUC: 0.9326 │ │ SHAP Attribs    │
-│ MAE: ±5.95 marks│ │ Accuracy: 89.5% │ │ Point Breakdown │
+│ A. Regressor    │ │ B. Classifier   │ │ C. Simulator    │
+│ Voting Ensemble │ │ Support Vector  │ │ 'What-If' Target│
+│ Peak R²: 76.44% │ │ ROC-AUC: 0.9326 │ │ Milestone Solver│
+│ MAE: ±5.95 marks│ │ Accuracy: 89.5% │ │ Gap Roadmapping │
 └────────────┬────┘ └────────┬────────┘ └────────┬────────┘
              │               │                   │
              └───────────────┼───────────────────┘
                              ▼
 ┌────────────────────────────────────────────────────────┐
 │   4. Streamlit Dashboard & Verified PDF Generator      │
-│   (Live Predictions + Risk Tiers + XAI + PDF Export)   │
+│  (Live Prediction + Risk Tiers + Roadmap + PDF Export) │
 └────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🏆 4. Model Leaderboards
+## 🏆 5. Model Leaderboards
 
 ### **A. Regression Leaderboard (Continuous Marks Forecast)**
 
@@ -94,7 +107,7 @@ This project implements a **Dual-Task Supervised Machine Learning Pipeline with 
 
 ---
 
-## 📂 5. Directory Structure
+## 📂 6. Directory Structure
 
 ```
 student-performance-predictor/
@@ -133,6 +146,7 @@ student-performance-predictor/
 │   ├── train_models.py            # Baseline model training
 │   ├── hyperparameter_tuning.py   # 5-Fold CV GridSearchCV & Ensemble builder
 │   ├── train_classifier.py        # Classification & Risk model suite
+│   ├── goal_simulator.py          # 'What-If' Academic Goal Simulator
 │   ├── explainability.py          # Explainable AI (XAI) & SHAP attributions
 │   ├── evaluate_models.py         # Testing, metric computation & leaderboard
 │   ├── pdf_generator.py           # ReportLab PDF Report Card generator
@@ -146,36 +160,17 @@ student-performance-predictor/
 
 ---
 
-## 🚀 6. Installation & How to Run
+## 🚀 7. Installation & How to Run
 
-### Step 1: Clone Repository
 ```bash
+# 1. Clone Repository
 git clone https://github.com/mujahith9025/Student-Performance-Predictor.git
 cd Student-Performance-Predictor
-```
 
-### Step 2: Install Dependencies
-```bash
+# 2. Install Dependencies
 python -m pip install -r requirements.txt
-```
 
-### Step 3: Run Full Pipeline
-```bash
-# 1. Run Preprocessing
-python src/preprocessing.py
-
-# 2. Run Hyperparameter Tuning
-python src/hyperparameter_tuning.py
-
-# 3. Train Pass / Fail Classifiers
-python src/train_classifier.py
-
-# 4. Generate XAI & Feature Importance
-python src/explainability.py
-```
-
-### Step 4: Launch Web App
-```bash
+# 3. Launch Web App
 python -m streamlit run app.py
 ```
 *(Or double-click `run_app.bat` on Windows).*
