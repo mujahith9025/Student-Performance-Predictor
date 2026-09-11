@@ -1392,16 +1392,31 @@ with tab3:
         st.markdown("#### 1. Define Student Baseline & Goal")
         sim_target_score = st.slider("🎯 Desired Target Math Score (0 - 100):", min_value=50, max_value=100, value=st.session_state["sim_target_val"], step=1)
         
-        st.markdown("##### Current Student Profile:")
+        st.markdown("##### 📚 Academic Baseline:")
         sim_curr_read = st.slider("Current Reading Score:", min_value=0, max_value=100, value=65, step=1)
         sim_curr_write = st.slider("Current Writing Score:", min_value=0, max_value=100, value=62, step=1)
         
-        sim_gender = st.selectbox("Gender", ["female", "male"], key="sim_g")
-        sim_prep = st.selectbox("Current Test Prep Status", ["none", "completed"], key="sim_p")
-        sim_lunch = st.selectbox("Lunch Nutrition", ["standard", "free/reduced"], key="sim_l")
-        sim_edu = st.selectbox("Parental Education", [
-            "some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree"
-        ], index=2, key="sim_e")
+        st.markdown("##### ⚡ Behavioral & Study Levers:")
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            sim_study_hours = st.slider("Weekly Study Hours:", min_value=1.0, max_value=40.0, value=12.0, step=0.5)
+            sim_attendance = st.slider("Attendance Rate (%):", min_value=50.0, max_value=100.0, value=85.0, step=1.0)
+        with col_s2:
+            sim_sleep = st.slider("Sleep (Hours/Day):", min_value=4.0, max_value=11.0, value=7.5, step=0.5)
+            sim_failures = st.selectbox("Past Failed Courses:", [0, 1, 2, 3, 4], index=0)
+            
+        st.markdown("##### 🏫 Context & Academic Support:")
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            sim_gender = st.selectbox("Gender", ["female", "male"], key="sim_g")
+            sim_prep = st.selectbox("Test Prep Course", ["none", "completed"], key="sim_p")
+            sim_tutoring = st.selectbox("Tutoring Support", ["none", "peer_tutoring", "private_tutor", "school_program"], index=0, key="sim_tut")
+        with col_c2:
+            sim_lunch = st.selectbox("Lunch Program", ["standard", "free/reduced"], key="sim_l")
+            sim_internet = st.selectbox("Internet Access", ["yes", "no"], index=0, key="sim_net")
+            sim_edu = st.selectbox("Parental Education", [
+                "some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree"
+            ], index=2, key="sim_e")
         
         sim_btn = st.button("🚀 Calculate Milestone Roadmap", use_container_width=True, type="primary")
 
@@ -1415,8 +1430,15 @@ with tab3:
             "parental level of education": sim_edu,
             "lunch": sim_lunch,
             "test preparation course": sim_prep,
+            "internet_access": sim_internet,
+            "extracurricular_activities": "no",
+            "tutoring_support": sim_tutoring,
             "reading score": sim_curr_read,
-            "writing score": sim_curr_write
+            "writing score": sim_curr_write,
+            "attendance_rate": sim_attendance,
+            "weekly_study_hours": sim_study_hours,
+            "sleep_hours_per_day": sim_sleep,
+            "past_failures": sim_failures
         }
         
         if preprocessor is not None and active_model is not None:
@@ -1436,40 +1458,52 @@ with tab3:
             fig_traj = create_goal_trajectory_chart(sim_res["current_predicted_math"], sim_res["test_prep_benefit"], sim_target_score)
             st.plotly_chart(fig_traj, use_container_width=True)
             
-            st.markdown("#### 🗺️ Step-by-Step Study Quest Roadmap:")
+            st.markdown("#### 🗺️ Step-by-Step Multi-Lever Quest Roadmap:")
             
-            # Quest 1: Test Prep
-            if sim_prep == "none":
+            # Quest 1: Test Prep & Tutoring
+            if sim_prep == "none" or sim_tutoring == "none":
                 st.markdown(f"""
                 <div class="roadmap-card">
-                    <b>⚔️ Quest 1: Complete Test Preparation Power-Up</b><br/>
-                    <span style="color:#0284C7; font-weight:600;">Immediate XP Gain: <b>+{sim_res['test_prep_benefit']:.1f} Marks</b> in Mathematics.</span><br/>
-                    <span style="font-size: 0.85rem; color: #64748B;">Action: Complete the online preparation modules and review practice question sets.</span>
+                    <b>⚔️ Quest 1: Unlock Academic Boosters (Test Prep & Tutoring)</b><br/>
+                    <span style="color:#0284C7; font-weight:600;">Immediate Projected Gain: <b>+{sim_res['test_prep_benefit']:.1f} Marks</b> in Mathematics.</span><br/>
+                    <span style="font-size: 0.85rem; color: #64748B;">Action: Complete test preparation modules and attend weekly peer/school tutoring sessions.</span>
                 </div>
                 """, unsafe_allow_html=True)
             else:
                 st.markdown("""
                 <div class="roadmap-card">
-                    <b>✅ Quest 1: Test Prep Power-Up Active</b><br/>
-                    <span style="color:#059669; font-weight:600;">Great job! Your profile already possesses the +9.4 prep boost.</span>
+                    <b>✅ Quest 1: Academic Support Active</b><br/>
+                    <span style="color:#059669; font-weight:600;">Great job! Your profile already utilizes test prep and active tutoring.</span>
                 </div>
                 """, unsafe_allow_html=True)
                 
-            # Quest 2: Subject Marks Targets
+            # Quest 2: Study Habits & Attendance
+            study_diff = sim_res['required_study_hours'] - sim_study_hours
+            att_diff = sim_res['required_attendance'] - sim_attendance
             st.markdown(f"""
             <div class="roadmap-card">
-                <b>📖 Quest 2: Reach Prerequisite Exam Milestones</b><br/>
+                <b>⏱️ Quest 2: Optimize Study Hours & Attendance Habit</b><br/>
+                • Target Weekly Study: <b>{sim_res['required_study_hours']:.1f} hrs/week</b> {'<span style="color:#0284C7; font-weight:bold;">(+'+str(round(study_diff, 1))+' hrs/wk)</span>' if study_diff > 0 else '✅'}<br/>
+                • Target Attendance: <b>{sim_res['required_attendance']:.0f}%</b> {'<span style="color:#0284C7; font-weight:bold;">(+'+str(round(att_diff, 0))+'%)</span>' if att_diff > 0 else '✅'}<br/>
+                <span style="font-size: 0.85rem; color: #64748B;">Action: Schedule dedicated daily study blocks and maintain consistent lecture presence.</span>
+            </div>
+            """, unsafe_allow_html=True)
+                
+            # Quest 3: Subject Marks Targets
+            st.markdown(f"""
+            <div class="roadmap-card">
+                <b>📖 Quest 3: Reach Prerequisite Exam Milestones</b><br/>
                 • Target Reading Score: <b>{sim_res['required_reading_score']} / 100</b> <span style="color:#0284C7; font-weight:bold;">(+{sim_res['reading_delta']} marks from current {sim_curr_read})</span><br/>
                 • Target Writing Score: <b>{sim_res['required_writing_score']} / 100</b> <span style="color:#0284C7; font-weight:bold;">(+{sim_res['writing_delta']} marks from current {sim_curr_write})</span><br/>
                 <span style="font-size: 0.85rem; color: #64748B;">Action: Focus on text comprehension drills and analytical writing structure.</span>
             </div>
             """, unsafe_allow_html=True)
             
-            # Quest 3: Victory Outcome
+            # Quest 4: Victory Outcome
             st.markdown(f"""
             <div class="roadmap-card">
                 <b>🏆 Final Victory Condition: Goal Achievement</b><br/>
-                Meeting these exam milestones is mathematically and statistically verified by the ML model to deliver your target of <b>{sim_target_score}+ marks (High Standing / Honor Roll)</b>.
+                Meeting these multi-lever milestones is mathematically and statistically verified by the ML model to deliver your target of <b>{sim_target_score}+ marks (High Standing / Honor Roll)</b>.
             </div>
             """, unsafe_allow_html=True)
 

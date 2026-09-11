@@ -25,7 +25,7 @@ def simulate_academic_goal(
     df_prep = df_current.copy()
     if current_profile.get("test preparation course", "none") == "none":
         df_prep["test preparation course"] = "completed"
-        if df_prep.get("tutoring_support", "none").iloc[0] == "none":
+        if current_profile.get("tutoring_support", "none") == "none":
             df_prep["tutoring_support"] = "peer_tutoring"
             
         df_prep_eng = engineer_features(df_prep)
