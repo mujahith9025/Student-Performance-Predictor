@@ -1,5 +1,4 @@
 import os
-import streamlit as pd_st
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -92,60 +91,72 @@ preprocessor, best_model, all_models = load_artifacts()
 # Sidebar
 with st.sidebar:
     st.image("https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80", use_container_width=True)
-    st.title("⚙️ Model Settings")
+    st.title("⚙️ Model Configuration")
     
     if all_models:
+        default_index = 0
+        model_names = sorted(list(all_models.keys()))
+        if "Voting Ensemble Regressor" in model_names:
+            default_index = model_names.index("Voting Ensemble Regressor")
+            
         selected_model_name = st.selectbox(
-            "Select ML Algorithm:",
-            options=list(all_models.keys()),
-            index=list(all_models.keys()).index("Ridge Regression") if "Ridge Regression" in all_models else 0
+            "Select Machine Learning Model:",
+            options=model_names,
+            index=default_index
         )
         active_model = all_models[selected_model_name]
     else:
         active_model = best_model
-        selected_model_name = "Ridge Regression (Default)"
+        selected_model_name = "Voting Ensemble (Default)"
         
-    st.info(f"Active Model: **{selected_model_name}**")
+    st.success(f"Active Model: **{selected_model_name}**")
     
     st.markdown("---")
     st.markdown("### 📊 Benchmark Stats")
-    st.markdown("- **Accuracy ($R^2$):** ~76.1%")
-    st.markdown("- **Avg Error (MAE):** $\pm 6.0$ marks")
-    st.markdown("- **Training Dataset:** 1,000 students")
+    st.markdown("- **Peak Accuracy ($R^2$):** **76.44%**")
+    st.markdown("- **Avg Error (MAE):** **$\pm 5.95$ marks**")
+    st.markdown("- **Cross-Validation:** 5-Fold GridSearch")
+    st.markdown("- **Algorithms Evaluated:** 14 Models")
     
     st.markdown("---")
-    st.caption("Machine Learning Project • Beginner Level")
+    st.caption("Student Performance Predictor • Advanced ML")
 
 # Main Header
 st.markdown('<div class="main-header">🎓 Student Performance Predictor</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">An end-to-end machine learning system to predict student examination marks and identify key academic success factors.</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Advanced machine learning system with hyperparameter-tuned gradient boosting and meta-ensembles to predict student marks.</div>', unsafe_allow_html=True)
 
 # Overview Metric Cards
 c1, c2, c3, c4 = st.columns(4)
 with c1:
-    st.markdown('<div class="metric-card"><div class="metric-val">76.1%</div><div class="metric-lbl">Model R² Accuracy</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">76.4%</div><div class="metric-lbl">Peak R² Accuracy</div></div>', unsafe_allow_html=True)
 with c2:
-    st.markdown('<div class="metric-card"><div class="metric-val">±6.0</div><div class="metric-lbl">Avg Prediction Error</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">±5.95</div><div class="metric-lbl">Avg Error (MAE)</div></div>', unsafe_allow_html=True)
 with c3:
-    st.markdown('<div class="metric-card"><div class="metric-val">6</div><div class="metric-lbl">Algorithms Evaluated</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">14</div><div class="metric-lbl">Models & Ensembles</div></div>', unsafe_allow_html=True)
 with c4:
-    st.markdown('<div class="metric-card"><div class="metric-val">Ridge</div><div class="metric-lbl">Champion Model</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">Voting</div><div class="metric-lbl">Champion Ensemble</div></div>', unsafe_allow_html=True)
 
 st.write("")
 
 # Navigation Tabs
-tab1, tab2, tab3, tab4 = st.tabs(["🚀 Score Predictor", "📈 Exploratory Data Analysis (EDA)", "🏆 Model Leaderboard", "📖 Project Guide"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "🚀 Score Predictor", 
+    "📈 Exploratory Data Analysis", 
+    "🏆 Model Leaderboard", 
+    "⚙️ Hyperparameter Tuning",
+    "📖 System Architecture"
+])
 
 # ----------------- TAB 1: PREDICTOR -----------------
 with tab1:
-    st.markdown("### 📝 Enter Student Academic & Demographic Details")
-    st.markdown("Fill in the student details below to generate a real-time predicted **Math Score**.")
+    st.markdown("### 📝 Enter Student Profile & Exam Marks")
+    st.markdown("Provide student demographics and existing subject scores to calculate predicted **Math Score**.")
     
     with st.form("prediction_form"):
         col_left, col_right = st.columns(2)
         
         with col_left:
-            st.markdown("#### 👤 Student Profile & Demographics")
+            st.markdown("#### 👤 Demographics & Environment")
             gender = st.selectbox("Gender", options=["female", "male"], help="Select student gender")
             race_ethnicity = st.selectbox(
                 "Race / Ethnicity Group",
@@ -165,30 +176,30 @@ with tab1:
                 index=2
             )
             lunch = st.selectbox(
-                "Lunch Type",
+                "Lunch Plan",
                 options=["standard", "free/reduced"],
-                help="Nutritional lunch plan status"
+                help="Nutritional lunch plan type"
             )
             test_prep = st.selectbox(
                 "Test Preparation Course",
                 options=["none", "completed"],
-                help="Whether the student completed the pre-exam prep course"
+                help="Pre-examination test preparation course completion"
             )
             
         with col_right:
             st.markdown("#### 📚 Existing Examination Marks")
             st.markdown("Scores earned by the student in other subjects (out of 100):")
             
-            reading_score = st.slider("Reading Score (0 - 100)", min_value=0, max_value=100, value=70, step=1)
-            writing_score = st.slider("Writing Score (0 - 100)", min_value=0, max_value=100, value=68, step=1)
+            reading_score = st.slider("Reading Score (0 - 100)", min_value=0, max_value=100, value=72, step=1)
+            writing_score = st.slider("Writing Score (0 - 100)", min_value=0, max_value=100, value=70, step=1)
             
             st.write("")
             st.write("")
-            submit_btn = st.form_submit_button("⚡ Predict Student Math Score", use_container_width=True, type="primary")
+            submit_btn = st.form_submit_button("⚡ Run Real-Time ML Prediction", use_container_width=True, type="primary")
 
     if submit_btn:
         if preprocessor is None or active_model is None:
-            st.error("Model artifacts not found! Please run Phase 3 & 4 first.")
+            st.error("Model artifacts not found! Please run the training pipeline first.")
         else:
             # Create DataFrame matching training format
             input_dict = {
@@ -224,12 +235,12 @@ with tab1:
             else:
                 grade, badge_color = "F (Needs Support)", "#991B1B"
             
-            # Display Prediction Card
+            # Display Prediction Box
             st.markdown(f"""
             <div class="result-box">
-                <div style="font-size: 1.1rem; color: #065F46; font-weight: 600;">Predicted Math Examination Score</div>
+                <div style="font-size: 1.1rem; color: #065F46; font-weight: 600;">Predicted Mathematics Score</div>
                 <div class="result-score">{predicted_math:.1f} <span style="font-size: 1.5rem; color: #047857;">/ 100</span></div>
-                <div style="font-size: 0.95rem; color: #047857;">Algorithm: <b>{selected_model_name}</b> | Expected Range: <b>{max(0, predicted_math - 6.0):.1f} – {min(100, predicted_math + 6.0):.1f}</b></div>
+                <div style="font-size: 0.95rem; color: #047857;">Algorithm: <b>{selected_model_name}</b> | Expected Range: <b>{max(0, predicted_math - 5.95):.1f} – {min(100, predicted_math + 5.95):.1f}</b></div>
             </div>
             """, unsafe_allow_html=True)
             
@@ -240,19 +251,19 @@ with tab1:
             with r_col2:
                 st.metric("3-Subject Average", f"{overall_avg:.1f} / 100")
             with r_col3:
-                st.metric("Predicted Grade", grade)
+                st.metric("Predicted Final Grade", grade)
                 
             # Personalized AI Insights
-            st.markdown("#### 💡 Diagnostic Feedback for Student")
+            st.markdown("#### 💡 Diagnostic Recommendations")
             tips = []
             if test_prep == "none":
-                tips.append("📌 **Test Prep Course:** Enrolling in the preparation course is statistically associated with a **+9.4 mark boost** in Mathematics.")
+                tips.append("📌 **Test Prep Course:** Enrolling in the test prep course statistically adds **+9.4 marks** in Mathematics.")
             if lunch == "free/reduced":
-                tips.append("📌 **Nutritional Support:** Standard lunch access correlates with an **+8.0 mark increase** in overall academic stamina.")
-            if writing_score < 60:
-                tips.append("📌 **Writing Skills:** Stronger writing practice directly reinforces analytical reasoning.")
+                tips.append("📌 **Nutrition:** Standard lunch access correlates with an **+8.0 mark boost** across all subjects.")
+            if reading_score < 60:
+                tips.append("📌 **Reading Focus:** Enhancing reading comprehension directly improves mathematical word problem solving.")
             if not tips:
-                tips.append("🌟 **Great Standing:** The student has positive indicators across all academic support factors.")
+                tips.append("🌟 **Optimal Academic Standing:** Student profile exhibits strong positive indicators across all subjects.")
                 
             for tip in tips:
                 st.info(tip)
@@ -260,7 +271,7 @@ with tab1:
 # ----------------- TAB 2: EDA & INSIGHTS -----------------
 with tab2:
     st.markdown("### 📊 Exploratory Data Analysis & Visual Insights")
-    st.markdown("Explore key trends and statistical correlations discovered during Phase 2 analysis.")
+    st.markdown("Visual analysis of 1,000 student records to understand performance drivers:")
     
     plots_dir = os.path.join(os.path.dirname(__file__), "plots")
     
@@ -269,28 +280,28 @@ with tab2:
         st.markdown("#### 1. Score Distributions")
         p1 = os.path.join(plots_dir, "01_score_distributions.png")
         if os.path.exists(p1):
-            st.image(p1, caption="Normal distributions of Math, Reading, and Writing scores.", use_container_width=True)
+            st.image(p1, caption="Normal distributions across Math, Reading, and Writing marks.", use_container_width=True)
             
-        st.markdown("#### 3. Test Preparation Impact")
+        st.markdown("#### 3. Test Preparation Boost (+9.4 Marks)")
         p3 = os.path.join(plots_dir, "03_test_prep_impact.png")
         if os.path.exists(p3):
-            st.image(p3, caption="Higher marks across all subjects for test prep completers.", use_container_width=True)
+            st.image(p3, caption="Statistically significant mark boost for students with completed test prep.", use_container_width=True)
             
     with col_b:
-        st.markdown("#### 2. Correlation Matrix")
+        st.markdown("#### 2. Cross-Subject Correlation Matrix")
         p2 = os.path.join(plots_dir, "02_correlation_heatmap.png")
         if os.path.exists(p2):
-            st.image(p2, caption="Strong positive Pearson correlations between all 3 subjects.", use_container_width=True)
+            st.image(p2, caption="Strong Pearson correlation (r = 0.80 - 0.95) between subjects.", use_container_width=True)
             
-        st.markdown("#### 4. Parental Education Level")
+        st.markdown("#### 4. Parental Education Influence")
         p4 = os.path.join(plots_dir, "04_parental_education_impact.png")
         if os.path.exists(p4):
-            st.image(p4, caption="Higher parental education level shifts median math performance upward.", use_container_width=True)
+            st.image(p4, caption="Higher parental education degree correlates with higher median student scores.", use_container_width=True)
 
 # ----------------- TAB 3: MODEL LEADERBOARD -----------------
 with tab3:
-    st.markdown("### 🏆 Machine Learning Model Comparison")
-    st.markdown("6 algorithms evaluated on 200 unseen test records during Phase 5:")
+    st.markdown("### 🏆 Comprehensive Model Evaluation Leaderboard")
+    st.markdown("Comparison of all 14 baseline, tuned, and ensemble machine learning models on 200 unseen test records:")
     
     metrics_path = os.path.join(os.path.dirname(__file__), "artifacts", "model_metrics.csv")
     if os.path.exists(metrics_path):
@@ -305,29 +316,51 @@ with tab3:
     with col_m1:
         p6 = os.path.join(plots_dir, "06_model_performance_comparison.png")
         if os.path.exists(p6):
-            st.image(p6, caption="R² Comparison across all 6 models.", use_container_width=True)
+            st.image(p6, caption="R² Accuracy comparison across all algorithms.", use_container_width=True)
     with col_m2:
         p7 = os.path.join(plots_dir, "07_actual_vs_predicted.png")
         if os.path.exists(p7):
-            st.image(p7, caption="Actual vs. Predicted scatter plot for Ridge Regression.", use_container_width=True)
+            st.image(p7, caption="Actual vs. Predicted scatter plot for the Champion Model.", use_container_width=True)
 
-# ----------------- TAB 4: PROJECT GUIDE -----------------
+# ----------------- TAB 4: HYPERPARAMETER TUNING -----------------
 with tab4:
-    st.markdown("### 📖 Step-by-Step Machine Learning Architecture")
-    st.markdown("""
-    This project follows the end-to-end Machine Learning Lifecycle:
+    st.markdown("### ⚙️ 5-Fold Cross-Validation Hyperparameter Optimization")
+    st.markdown("Detailed breakdown of optimal parameters discovered via **GridSearchCV**:")
     
-    1. **Phase 1: Dataset Setup & Definition**
-       - 1,000 student records with 8 core demographic and exam features.
-    2. **Phase 2: Exploratory Data Analysis (EDA)**
-       - Identified 0 null values, bell curve score distributions, and $+9.4$ test prep bonus.
-    3. **Phase 3: Data Preprocessing Pipeline**
-       - `StandardScaler()` for continuous scores and `OneHotEncoder(drop='first')` for categories.
-    4. **Phase 4: Model Training**
-       - Trained 6 algorithms: Linear Regression, Ridge, Lasso, KNN, Decision Trees, Random Forest.
-    5. **Phase 5: Evaluation & Metric Comparison**
-       - Ridge Regression achieved the highest generalization with $R^2 = 76.1\%$ and $MAE = 6.02$ marks.
-    6. **Phase 6: Web App Deployment**
-       - Streamlit interactive interface with real-time inference and personalized student feedback.
+    tuning_csv = os.path.join(os.path.dirname(__file__), "artifacts", "hyperparameter_tuning_results.csv")
+    if os.path.exists(tuning_csv):
+        t_df = pd.read_csv(tuning_csv)
+        st.dataframe(
+            t_df.drop(columns=["Filename"], errors="ignore"),
+            use_container_width=True,
+            hide_index=True
+        )
+        
+    st.info("""
+    **💡 Key Optimization Takeaways:**
+    1. **Voting Ensemble (Ridge + Gradient Boosting + Random Forest):** Combines linear stability with non-linear tree splits, achieving peak **76.44% test accuracy** and lowest error (**±5.95 marks**).
+    2. **Tuned Ridge Regression (alpha=10.0):** Reduced sensitivity to multicollinearity between Reading and Writing subjects.
+    3. **Tuned Random Forest (max_depth=6, min_samples_split=5):** Prevented overfitting and boosted test $R^2$ from $73.05\%$ to **$75.03\%$**.
     """)
 
+# ----------------- TAB 5: SYSTEM ARCHITECTURE -----------------
+with tab5:
+    st.markdown("### 📖 End-to-End System Architecture")
+    st.markdown("""
+    ```
+    1. Raw Data (1,000 Records)
+       └── 5 Demographic Features + 2 Sub-Exam Marks
+    
+    2. Preprocessing Pipeline (ColumnTransformer)
+       ├── Numerical: StandardScaler()
+       └── Categorical: OneHotEncoder(drop='first') -> 14 Encoded Features
+    
+    3. Model Training & 5-Fold CV Hyperparameter Tuning
+       ├── Linear / Regularized: Ridge, Lasso, ElasticNet
+       ├── Tree & Boosting: Decision Tree, Random Forest, Gradient Boosting, AdaBoost
+       └── Meta-Ensembles: Voting Regressor, Stacking Regressor
+    
+    4. Champion Selection & Streamlit Real-Time Inference
+       └── Voting Ensemble Regressor (76.44% Accuracy, ±5.95 MAE)
+    ```
+    """)
