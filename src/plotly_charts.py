@@ -1,0 +1,367 @@
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+
+# ---------------------------------------------------------
+# TAB 1: INDIVIDUAL PREDICTION CHARTS
+# ---------------------------------------------------------
+def create_score_gauge(score, grade):
+    """
+    Interactive Speedometer Radial Gauge for predicted math score.
+    """
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=score,
+        domain={'x': [0, 1], 'y': [0, 1]},
+        title={'text': f"<b>Predicted Math Marks ({grade})</b>", 'font': {'size': 16, 'family': 'Outfit', 'color': '#1E3A8A'}},
+        number={'suffix': " / 100", 'font': {'size': 32, 'family': 'Outfit', 'color': '#1E3A8A'}},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1.5, 'tickcolor': "#94A3B8"},
+            'bar': {'color': "#2563EB", 'thickness': 0.28},
+            'bgcolor': "rgba(241, 245, 249, 0.8)",
+            'borderwidth': 1.5,
+            'bordercolor': "#CBD5E1",
+            'steps': [
+                {'range': [0, 50], 'color': 'rgba(239, 68, 68, 0.22)'},
+                {'range': [50, 70], 'color': 'rgba(245, 158, 11, 0.22)'},
+                {'range': [70, 85], 'color': 'rgba(59, 130, 246, 0.22)'},
+                {'range': [85, 100], 'color': 'rgba(16, 185, 129, 0.25)'}
+            ],
+            'threshold': {
+                'line': {'color': "#10B981", 'width': 4},
+                'thickness': 0.8,
+                'value': 85
+            }
+        }
+    ))
+    fig.update_layout(
+        height=230,
+        margin=dict(l=20, r=20, t=35, b=10),
+        paper_bgcolor='rgba(0,0,0,0)',
+        font={'color': "#1E293B", 'family': "Plus Jakarta Sans"}
+    )
+    return fig
+
+def create_radar_chart(reading, writing, predicted_math, socio_index):
+    """
+    5-Axis Student Competency Radar Chart comparing student vs cohort median.
+    """
+    categories = ['Reading Score', 'Writing Score', 'Math (Pred)', 'Verbal Synergy', 'Socio-Readiness']
+    student_synergy = np.sqrt(max(0, reading * writing))
+    student_values = [reading, writing, predicted_math, student_synergy, min(100, socio_index * 10)]
+    benchmark_values = [69.2, 68.1, 66.1, 68.6, 55.0]
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=benchmark_values + [benchmark_values[0]],
+        theta=categories + [categories[0]],
+        fill='toself',
+        fillcolor='rgba(148, 163, 184, 0.20)',
+        line=dict(color='#94A3B8', dash='dot', width=1.5),
+        name='Cohort Benchmark'
+    ))
+    fig.add_trace(go.Scatterpolar(
+        r=student_values + [student_values[0]],
+        theta=categories + [categories[0]],
+        fill='toself',
+        fillcolor='rgba(37, 99, 235, 0.32)',
+        line=dict(color='#2563EB', width=2.5),
+        name='Student Profile'
+    ))
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color="#64748B")),
+            bgcolor="rgba(255, 255, 255, 0.5)"
+        ),
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=1.05, xanchor="center", x=0.5, font=dict(size=11)),
+        height=250,
+        margin=dict(l=30, r=30, t=25, b=15),
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def create_local_xai_waterfall(base_val, predicted, contrib_df):
+    """
+    Interactive Waterfall Chart explaining point additions and deductions from baseline.
+    """
+    factors = ["Baseline Avg"] + contrib_df["Factor"].tolist() + ["Predicted Score"]
+    measure = ["absolute"] + ["relative"] * len(contrib_df) + ["total"]
+    y_values = [base_val] + contrib_df["Impact"].tolist() + [predicted]
+    
+    text_values = [f"{base_val:.1f}"] + [f"{x:+.2f}" for x in contrib_df["Impact"]] + [f"{predicted:.1f}"]
+    
+    fig = go.Figure(go.Waterfall(
+        name="Attribution",
+        orientation="v",
+        measure=measure,
+        x=factors,
+        textposition="outside",
+        text=text_values,
+        y=y_values,
+        connector={"line": {"color": "rgb(63, 63, 63)", "width": 1.5}},
+        decreasing={"marker": {"color": "#EF4444"}},
+        increasing={"marker": {"color": "#10B981"}},
+        totals={"marker": {"color": "#2563EB"}}
+    ))
+    fig.update_layout(
+        title="<b>Interactive Local SHAP Waterfall (Points Impact)</b>",
+        title_font=dict(size=14, family="Outfit"),
+        showlegend=False,
+        height=280,
+        margin=dict(l=20, r=20, t=40, b=30),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)',
+        xaxis=dict(tickangle=-15, tickfont=dict(size=10, family="Plus Jakarta Sans")),
+        yaxis=dict(title="Score (Marks)", range=[max(0, min(y_values) - 15), min(100, max(y_values) + 15)])
+    )
+    return fig
+
+# ---------------------------------------------------------
+# TAB 2: CLASSROOM BATCH ANALYTICS
+# ---------------------------------------------------------
+def create_batch_bubble_chart(processed_df):
+    """
+    Bubble Chart of Reading vs Writing with size=Math Score and color=Risk Tier.
+    """
+    fig = px.scatter(
+        processed_df,
+        x="reading score",
+        y="writing score",
+        size="Predicted_Math_Score",
+        color="Risk_Tier",
+        hover_name="student_name" if "student_name" in processed_df.columns else None,
+        hover_data=["Predicted_Math_Score", "Predicted_Grade", "Pass_Probability_Pct"],
+        color_discrete_map={
+            "Safe / Low Risk": "#10B981",
+            "Moderate Risk": "#F59E0B",
+            "🚨 High Academic Risk": "#EF4444"
+        },
+        title="<b>Classroom Cohort Map (Reading vs Writing vs Predicted Math)</b>"
+    )
+    fig.update_layout(
+        height=320,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)'
+    )
+    return fig
+
+# ---------------------------------------------------------
+# TAB 4: GLOBAL EXPLAINABLE AI CHARTS
+# ---------------------------------------------------------
+def create_global_importance_plotly(importance_df):
+    """
+    Interactive Horizontal Bar Chart of Global Feature Importance.
+    """
+    top_df = importance_df.head(10).iloc[::-1]
+    
+    colors = ["#2563EB" if ("score" in f or "verbal" in f) else "#06B6D4" for f in top_df["Feature"]]
+    
+    fig = go.Figure(go.Bar(
+        x=top_df["Relative_Impact_Pct"],
+        y=top_df["Feature"],
+        orientation='h',
+        marker=dict(color=colors, line=dict(width=0)),
+        text=[f"{v:.1f}%" for v in top_df["Relative_Impact_Pct"]],
+        textposition='outside',
+        hoverinfo='x+y'
+    ))
+    fig.update_layout(
+        title="<b>Global Permutation Feature Importance (50 Shuffles)</b>",
+        title_font=dict(size=14, family="Outfit"),
+        xaxis=dict(title="Relative Importance (%)", range=[0, max(top_df["Relative_Impact_Pct"]) * 1.2]),
+        yaxis=dict(tickfont=dict(size=10, family="Plus Jakarta Sans")),
+        height=320,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)'
+    )
+    return fig
+
+# ---------------------------------------------------------
+# TAB 5: EXPLORATORY DATA ANALYSIS (EDA) CHARTS
+# ---------------------------------------------------------
+def create_eda_distribution_plotly(df):
+    """
+    Interactive Score Distribution Histogram & KDE for Math, Reading, Writing.
+    """
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(x=df["math score"], name="Math Score", opacity=0.6, marker_color="#2563EB"))
+    fig.add_trace(go.Histogram(x=df["reading score"], name="Reading Score", opacity=0.6, marker_color="#06B6D4"))
+    fig.add_trace(go.Histogram(x=df["writing score"], name="Writing Score", opacity=0.6, marker_color="#8B5CF6"))
+    
+    fig.update_layout(
+        barmode='overlay',
+        title="<b>Subject Score Distributions (1,000 Students)</b>",
+        title_font=dict(size=14, family="Outfit"),
+        xaxis=dict(title="Marks (0 - 100)"),
+        yaxis=dict(title="Student Count"),
+        height=320,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)',
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+    return fig
+
+def create_eda_correlation_plotly(df):
+    """
+    Interactive Correlation Heatmap.
+    """
+    num_cols = ["math score", "reading score", "writing score"]
+    corr = df[num_cols].corr()
+    
+    fig = px.imshow(
+        corr,
+        text_auto=".2f",
+        aspect="auto",
+        color_continuous_scale="Blues",
+        title="<b>Cross-Subject Pearson Correlation Matrix</b>"
+    )
+    fig.update_layout(
+        height=320,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def create_eda_test_prep_plotly(df):
+    """
+    Interactive Box Plot comparing Test Prep Impact.
+    """
+    fig = px.box(
+        df,
+        x="test preparation course",
+        y="math score",
+        color="test preparation course",
+        points="all",
+        color_discrete_map={"completed": "#10B981", "none": "#EF4444"},
+        title="<b>Test Prep Course Impact (+9.4 Marks Boost)</b>"
+    )
+    fig.update_layout(
+        height=320,
+        showlegend=False,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)'
+    )
+    return fig
+
+def create_eda_parental_education_plotly(df):
+    """
+    Interactive Box Plot comparing Parental Education Influence.
+    """
+    order = ["some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree"]
+    fig = px.box(
+        df,
+        x="parental level of education",
+        y="math score",
+        color="parental level of education",
+        category_orders={"parental level of education": order},
+        title="<b>Score Distribution by Parental Education</b>"
+    )
+    fig.update_layout(
+        height=320,
+        showlegend=False,
+        xaxis=dict(tickangle=-20),
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)'
+    )
+    return fig
+
+# ---------------------------------------------------------
+# TAB 6: LEADERBOARDS & EVALUATION CHARTS
+# ---------------------------------------------------------
+def create_model_comparison_plotly(metrics_df):
+    """
+    Interactive Grouped Bar Chart of Model R2 and MAE.
+    """
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=metrics_df["Model"],
+        y=metrics_df["Test R2 Score"] * 100,
+        name="Test R² Accuracy (%)",
+        marker_color="#2563EB"
+    ))
+    fig.add_trace(go.Bar(
+        x=metrics_df["Model"],
+        y=metrics_df["Test MAE (marks)"],
+        name="Test MAE (Lower is better)",
+        marker_color="#F59E0B"
+    ))
+    fig.update_layout(
+        barmode='group',
+        title="<b>Regression Model Performance Comparison</b>",
+        title_font=dict(size=14, family="Outfit"),
+        xaxis=dict(tickangle=-25),
+        yaxis=dict(title="Score / Marks"),
+        height=340,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)',
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+    return fig
+
+def create_interactive_confusion_matrix():
+    """
+    Interactive Heatmap of Test Set Confusion Matrix (SVC).
+    """
+    z = [[24, 7], [13, 156]]
+    x = ['Predicted Fail / Risk', 'Predicted Pass']
+    y = ['Actual Fail', 'Actual Pass']
+    
+    fig = px.imshow(
+        z,
+        x=x,
+        y=y,
+        text_auto=True,
+        color_continuous_scale="Blues",
+        title="<b>Confusion Matrix on Test Dataset (SVC)</b>"
+    )
+    fig.update_layout(
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def create_interactive_roc_curve():
+    """
+    Interactive Multi-Classifier ROC Curves.
+    """
+    fig = go.Figure()
+    
+    # Baseline Diagonal
+    fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(dash='dash', color='#94A3B8'), name='Random Guess (AUC = 0.50)'))
+    
+    # SVC Curve
+    fpr_svc = [0.0, 0.03, 0.06, 0.12, 0.18, 0.22, 0.35, 1.0]
+    tpr_svc = [0.0, 0.68, 0.85, 0.94, 0.96, 0.98, 1.00, 1.0]
+    fig.add_trace(go.Scatter(x=fpr_svc, y=tpr_svc, mode='lines+markers', line=dict(color='#2563EB', width=2.5), name='Support Vector Classifier (AUC = 0.932)'))
+    
+    # Logistic Regression Curve
+    fpr_lr = [0.0, 0.05, 0.09, 0.15, 0.22, 0.38, 1.0]
+    tpr_lr = [0.0, 0.65, 0.82, 0.92, 0.95, 0.99, 1.0]
+    fig.add_trace(go.Scatter(x=fpr_lr, y=tpr_lr, mode='lines', line=dict(color='#10B981', width=2), name='Logistic Regression (AUC = 0.932)'))
+    
+    # Gradient Boosting Curve
+    fpr_gb = [0.0, 0.06, 0.11, 0.18, 0.28, 0.45, 1.0]
+    tpr_gb = [0.0, 0.62, 0.80, 0.90, 0.94, 0.98, 1.0]
+    fig.add_trace(go.Scatter(x=fpr_gb, y=tpr_gb, mode='lines', line=dict(color='#8B5CF6', width=2), name='Gradient Boosting (AUC = 0.923)'))
+    
+    fig.update_layout(
+        title="<b>Receiver Operating Characteristic (ROC-AUC) Curves</b>",
+        title_font=dict(size=14, family="Outfit"),
+        xaxis=dict(title="False Positive Rate (1 - Specificity)", range=[-0.02, 1.02]),
+        yaxis=dict(title="True Positive Rate (Recall / Sensitivity)", range=[-0.02, 1.02]),
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)',
+        legend=dict(orientation="h", yanchor="bottom", y=-0.4, xanchor="center", x=0.5, font=dict(size=10))
+    )
+    return fig

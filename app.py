@@ -14,6 +14,20 @@ from src.explainability import explain_single_student
 from src.goal_simulator import simulate_academic_goal
 from src.batch_predictor import process_batch_predictions, generate_sample_csv_template
 from src.advanced_feature_engineering import engineer_features
+from src.plotly_charts import (
+    create_score_gauge,
+    create_radar_chart,
+    create_local_xai_waterfall,
+    create_batch_bubble_chart,
+    create_global_importance_plotly,
+    create_eda_distribution_plotly,
+    create_eda_correlation_plotly,
+    create_eda_test_prep_plotly,
+    create_eda_parental_education_plotly,
+    create_model_comparison_plotly,
+    create_interactive_confusion_matrix,
+    create_interactive_roc_curve
+)
 
 # ---------------------------------------------------------
 # PAGE CONFIGURATION
@@ -301,7 +315,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# LOAD MODEL ARTIFACTS
+# LOAD ARTIFACTS & RAW DATA
 # ---------------------------------------------------------
 @st.cache_resource
 def load_artifacts():
@@ -325,80 +339,15 @@ def load_artifacts():
                 
     return preprocessor, best_model, best_clf, all_models
 
+@st.cache_data
+def load_raw_dataset():
+    data_path = os.path.join(os.path.dirname(__file__), "data", "StudentsPerformance.csv")
+    if os.path.exists(data_path):
+        return pd.read_csv(data_path)
+    return pd.DataFrame()
+
 preprocessor, best_model, best_clf, all_models = load_artifacts()
-
-# ---------------------------------------------------------
-# PLOTLY INTERACTIVE GAUGE & RADAR CHARTS
-# ---------------------------------------------------------
-def create_score_gauge(score, grade):
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=score,
-        domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': f"<b>Predicted Math Marks ({grade})</b>", 'font': {'size': 15, 'family': 'Outfit', 'color': '#1E3A8A'}},
-        number={'suffix': " / 100", 'font': {'size': 28, 'family': 'Outfit', 'color': '#1E3A8A'}},
-        gauge={
-            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#94A3B8"},
-            'bar': {'color': "#2563EB", 'thickness': 0.28},
-            'bgcolor': "rgba(241, 245, 249, 0.8)",
-            'borderwidth': 1,
-            'bordercolor': "#CBD5E1",
-            'steps': [
-                {'range': [0, 50], 'color': 'rgba(239, 68, 68, 0.18)'},
-                {'range': [50, 70], 'color': 'rgba(245, 158, 11, 0.18)'},
-                {'range': [70, 85], 'color': 'rgba(59, 130, 246, 0.18)'},
-                {'range': [85, 100], 'color': 'rgba(16, 185, 129, 0.22)'}
-            ],
-            'threshold': {
-                'line': {'color': "#10B981", 'width': 4},
-                'thickness': 0.75,
-                'value': 85
-            }
-        }
-    ))
-    fig.update_layout(
-        height=210,
-        margin=dict(l=20, r=20, t=35, b=10),
-        paper_bgcolor='rgba(0,0,0,0)',
-        font={'color': "#1E293B", 'family': "Plus Jakarta Sans"}
-    )
-    return fig
-
-def create_radar_chart(reading, writing, predicted_math, socio_index):
-    categories = ['Reading', 'Writing', 'Math (Pred)', 'Verbal Synergy', 'Socio-Readiness']
-    student_synergy = np.sqrt(max(0, reading * writing))
-    student_values = [reading, writing, predicted_math, student_synergy, min(100, socio_index * 10)]
-    benchmark_values = [69.2, 68.1, 66.1, 68.6, 55.0]
-    
-    fig = go.Figure()
-    fig.add_trace(go.Scatterpolar(
-        r=benchmark_values + [benchmark_values[0]],
-        theta=categories + [categories[0]],
-        fill='toself',
-        fillcolor='rgba(148, 163, 184, 0.18)',
-        line=dict(color='#94A3B8', dash='dot', width=1.5),
-        name='Cohort Benchmark'
-    ))
-    fig.add_trace(go.Scatterpolar(
-        r=student_values + [student_values[0]],
-        theta=categories + [categories[0]],
-        fill='toself',
-        fillcolor='rgba(37, 99, 235, 0.28)',
-        line=dict(color='#2563EB', width=2.5),
-        name='Student Profile'
-    ))
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=9, color="#64748B")),
-            bgcolor="rgba(255, 255, 255, 0.5)"
-        ),
-        showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=1.05, xanchor="center", x=0.5, font=dict(size=11)),
-        height=240,
-        margin=dict(l=30, r=30, t=25, b=15),
-        paper_bgcolor='rgba(0,0,0,0)'
-    )
-    return fig
+raw_df = load_raw_dataset()
 
 # ---------------------------------------------------------
 # SIDEBAR
@@ -722,22 +671,24 @@ with tab1:
             with r_col4:
                 st.metric("Predicted Grade", grade)
                 
-            # 3. Local Explainable AI (SHAP Breakdown)
+            # 3. Local Explainable AI (SHAP Waterfall Breakdown)
             st.markdown("---")
-            st.markdown("### 🔍 Why did the AI predict this score? (Feature Attribution Breakdown)")
-            st.markdown("This breakdown explains how each characteristic contributed points relative to the population baseline average of **67.95 marks**:")
+            st.markdown("### 🔍 Why did the AI predict this score? (Interactive Waterfall Breakdown)")
+            st.markdown("This interactive breakdown details how each characteristic added or deducted marks from the **67.95 baseline population mark**:")
             
             base_val, pred_val, contrib_df = explain_single_student(input_df, preprocessor, active_model, None)
             
-            xai_c1, xai_c2 = st.columns([1.2, 1])
+            xai_c1, xai_c2 = st.columns([1.3, 1])
             with xai_c1:
-                st.markdown("#### 📊 Individual Factor Impact on Score:")
+                fig_waterfall = create_local_xai_waterfall(base_val, predicted_math, contrib_df)
+                st.plotly_chart(fig_waterfall, use_container_width=True)
+            with xai_c2:
+                st.markdown("#### 📋 Factor Attribution Summary:")
                 for _, row in contrib_df.iterrows():
                     impact = row["Impact"]
                     sign = "+" if impact >= 0 else ""
                     color = "#059669" if impact >= 0 else "#DC2626"
                     st.markdown(f"- **{row['Factor']}** (`{row['Value']}`): <span style='color:{color}; font-weight:bold;'>{sign}{impact:.2f} marks</span>", unsafe_allow_html=True)
-            with xai_c2:
                 st.dataframe(
                     contrib_df.style.format({"Impact": "{:+.2f} marks"}),
                     use_container_width=True,
@@ -851,7 +802,7 @@ with tab2:
                 st.write("")
                 
                 # Visual Analytics for Classroom
-                st.markdown("#### 📈 Cohort Grade & Risk Distribution:")
+                st.markdown("#### 📈 Cohort Visual Analytics (Interactive Plotly):")
                 chart_col1, chart_col2 = st.columns(2)
                 
                 with chart_col1:
@@ -887,6 +838,10 @@ with tab2:
                     )
                     fig_risk.update_layout(height=280, margin=dict(l=20, r=20, t=40, b=20), paper_bgcolor='rgba(0,0,0,0)', showlegend=False)
                     st.plotly_chart(fig_risk, use_container_width=True)
+                    
+                # Classroom Cohort Multi-Dimensional Bubble Scatter
+                fig_bubble = create_batch_bubble_chart(processed_batch)
+                st.plotly_chart(fig_bubble, use_container_width=True)
                     
                 # Processed Data Table
                 st.markdown("#### 📋 Processed Classroom Predictions Table:")
@@ -999,60 +954,59 @@ with tab4:
     st.markdown("### 🔍 Explainable AI (XAI) & Feature Importance Analysis")
     plots_dir = os.path.join(os.path.dirname(__file__), "plots")
     
-    col_x1, col_x2 = st.columns(2)
-    with col_x1:
-        st.markdown("#### 1. Global Feature Importance (Permutation Impact)")
-        p10 = os.path.join(plots_dir, "10_global_feature_importance.png")
-        if os.path.exists(p10):
-            st.image(p10, caption="Global Permutation Importance across 24 engineered features.", use_container_width=True)
-            
-    with col_x2:
-        st.markdown("#### 2. Directional Feature Attribution (Point Adjustments)")
-        p11 = os.path.join(plots_dir, "11_shap_directional_impact.png")
-        if os.path.exists(p11):
-            st.image(p11, caption="Positive drivers (Green) vs Negative penalties (Red) on marks.", use_container_width=True)
-            
-    st.markdown("#### 📋 Full Feature Importance Impact Table:")
     feat_csv = os.path.join(os.path.dirname(__file__), "artifacts", "feature_importance.csv")
     if os.path.exists(feat_csv):
         f_df = pd.read_csv(feat_csv)
+        
+        col_x1, col_x2 = st.columns(2)
+        with col_x1:
+            fig_imp = create_global_importance_plotly(f_df)
+            st.plotly_chart(fig_imp, use_container_width=True)
+                
+        with col_x2:
+            st.markdown("#### 2. Directional Feature Attribution (Point Adjustments)")
+            p11 = os.path.join(plots_dir, "11_shap_directional_impact.png")
+            if os.path.exists(p11):
+                st.image(p11, caption="Positive drivers (Green) vs Negative penalties (Red) on marks.", use_container_width=True)
+                
+        st.markdown("#### 📋 Full 24-Feature Importance Impact Table:")
         st.dataframe(f_df, use_container_width=True, hide_index=True)
 
 # ----------------- TAB 5: EDA & INSIGHTS -----------------
 with tab5:
-    st.markdown("### 📊 Exploratory Data Analysis & Visual Insights")
+    st.markdown("### 📊 Exploratory Data Analysis & Interactive Visual Insights")
     
-    col_a, col_b = st.columns(2)
-    with col_a:
-        st.markdown("#### 1. Score Distributions")
-        p1 = os.path.join(plots_dir, "01_score_distributions.png")
-        if os.path.exists(p1):
-            st.image(p1, caption="Normal distributions across Math, Reading, and Writing marks.", use_container_width=True)
-            
-        st.markdown("#### 3. Test Preparation Boost (+9.4 Marks)")
-        p3 = os.path.join(plots_dir, "03_test_prep_impact.png")
-        if os.path.exists(p3):
-            st.image(p3, caption="Statistically significant mark boost for students with completed test prep.", use_container_width=True)
-            
-    with col_b:
-        st.markdown("#### 2. Cross-Subject Correlation Matrix")
-        p2 = os.path.join(plots_dir, "02_correlation_heatmap.png")
-        if os.path.exists(p2):
-            st.image(p2, caption="Strong Pearson correlation (r = 0.80 - 0.95) between subjects.", use_container_width=True)
-            
-        st.markdown("#### 4. Parental Education Influence")
-        p4 = os.path.join(plots_dir, "04_parental_education_impact.png")
-        if os.path.exists(p4):
-            st.image(p4, caption="Higher parental education degree correlates with higher median student scores.", use_container_width=True)
+    if not raw_df.empty:
+        col_a, col_b = st.columns(2)
+        with col_a:
+            fig_dist = create_eda_distribution_plotly(raw_df)
+            st.plotly_chart(fig_dist, use_container_width=True)
+                
+            fig_box_prep = create_eda_test_prep_plotly(raw_df)
+            st.plotly_chart(fig_box_prep, use_container_width=True)
+                
+        with col_b:
+            fig_corr = create_eda_correlation_plotly(raw_df)
+            st.plotly_chart(fig_corr, use_container_width=True)
+                
+            fig_box_edu = create_eda_parental_education_plotly(raw_df)
+            st.plotly_chart(fig_box_edu, use_container_width=True)
+    else:
+        st.info("Raw dataset not loaded.")
 
 # ----------------- TAB 6: DUAL MODEL LEADERBOARD -----------------
 with tab6:
-    st.markdown("### 🏆 Dual-Task Evaluation Leaderboards")
+    st.markdown("### 🏆 Dual-Task Evaluation Leaderboards & Model Comparison")
     
-    st.markdown("#### A. Regression Leaderboard (Continuous Score Prediction)")
     metrics_path = os.path.join(os.path.dirname(__file__), "artifacts", "model_metrics.csv")
     if os.path.exists(metrics_path):
         m_df = pd.read_csv(metrics_path)
+        
+        # Interactive Model Comparison Bar Chart
+        fig_model_comp = create_model_comparison_plotly(m_df)
+        st.plotly_chart(fig_model_comp, use_container_width=True)
+        
+        st.markdown("#### A. Regression Leaderboard (Continuous Score Prediction)")
         st.dataframe(m_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
         
     st.markdown("#### B. Classification Leaderboard (Pass / Fail & Dropout Risk)")
@@ -1061,15 +1015,14 @@ with tab6:
         c_df = pd.read_csv(clf_path)
         st.dataframe(c_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
     
+    st.markdown("#### 📈 Interactive Model Diagnostic Curves:")
     col_v1, col_v2 = st.columns(2)
     with col_v1:
-        p8 = os.path.join(plots_dir, "08_confusion_matrix.png")
-        if os.path.exists(p8):
-            st.image(p8, caption="Confusion Matrix on Test Data.", use_container_width=True)
+        fig_cm = create_interactive_confusion_matrix()
+        st.plotly_chart(fig_cm, use_container_width=True)
     with col_v2:
-        p9 = os.path.join(plots_dir, "09_roc_auc_curve.png")
-        if os.path.exists(p9):
-            st.image(p9, caption="ROC-AUC Curves for all classifiers.", use_container_width=True)
+        fig_roc = create_interactive_roc_curve()
+        st.plotly_chart(fig_roc, use_container_width=True)
 
 # ----------------- TAB 7: HYPERPARAMETER TUNING -----------------
 with tab7:
@@ -1090,14 +1043,14 @@ with tab8:
     2. Multi-Engine Architecture:
        ├── Regression Engine: Super-Stacking & Optimized ElasticNet (R² 76.31%, MAE ±5.96)
        ├── Classification Engine: Support Vector Classifier (Accuracy 90.0%, ROC-AUC 0.932)
-       ├── Classroom Batch Engine: Scale Predictions + Interactive Grade & Risk Donut Charts
+       ├── Classroom Batch Engine: Interactive Plotly Bubble Cohort + Grade/Risk Donut Charts
        ├── 'What-If' Simulator: Milestone Roadmapping & Score Gap Solver
-       └── Explainable AI (XAI): Permutation Importance & Directional Attributions
+       └── Explainable AI (XAI): Interactive Waterfall Attributions & 50-Shuffle Permutation Importance
     
     3. Outputs & Deliverables:
        ├── Exact Predicted Marks & Grade (A+ to F)
        ├── Pass Probability & Early Dropout Risk Tier
-       ├── 5-Axis Student Competency Radar Chart
+       ├── 5-Axis Student Competency Radar Chart & Speedometer Gauge
        ├── Cohort-Level Analytics & Downloadable Enriched CSV
        └── Verified PDF Performance Certificate v5.0
     ```
