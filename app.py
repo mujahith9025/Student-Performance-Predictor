@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+from src.pdf_generator import generate_student_pdf_report
 
 # Set Page Config
 st.set_page_config(
@@ -116,7 +117,7 @@ with st.sidebar:
     st.markdown("- **Peak Accuracy ($R^2$):** **76.44%**")
     st.markdown("- **Avg Error (MAE):** **$\pm 5.95$ marks**")
     st.markdown("- **Cross-Validation:** 5-Fold GridSearch")
-    st.markdown("- **Algorithms Evaluated:** 14 Models")
+    st.markdown("- **Report Generation:** PDF Export Enabled")
     
     st.markdown("---")
     st.caption("Student Performance Predictor • Advanced ML")
@@ -134,13 +135,13 @@ with c2:
 with c3:
     st.markdown('<div class="metric-card"><div class="metric-val">14</div><div class="metric-lbl">Models & Ensembles</div></div>', unsafe_allow_html=True)
 with c4:
-    st.markdown('<div class="metric-card"><div class="metric-val">Voting</div><div class="metric-lbl">Champion Ensemble</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">PDF</div><div class="metric-lbl">Report Export</div></div>', unsafe_allow_html=True)
 
 st.write("")
 
 # Navigation Tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "🚀 Score Predictor", 
+    "🚀 Score Predictor & PDF Report", 
     "📈 Exploratory Data Analysis", 
     "🏆 Model Leaderboard", 
     "⚙️ Hyperparameter Tuning",
@@ -150,9 +151,18 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 # ----------------- TAB 1: PREDICTOR -----------------
 with tab1:
     st.markdown("### 📝 Enter Student Profile & Exam Marks")
-    st.markdown("Provide student demographics and existing subject scores to calculate predicted **Math Score**.")
+    st.markdown("Provide student demographics and existing subject scores to calculate predicted **Math Score** and generate an official PDF Report Card.")
     
     with st.form("prediction_form"):
+        # Student Info Header
+        st.markdown("#### 🆔 Student Identification")
+        id_col1, id_col2 = st.columns(2)
+        with id_col1:
+            student_name = st.text_input("Student Full Name", value="Alex Johnson", placeholder="e.g. Alex Johnson")
+        with id_col2:
+            student_id = st.text_input("Student ID / Roll Number", value="STU-2026-101", placeholder="e.g. STU-2026-101")
+            
+        st.write("")
         col_left, col_right = st.columns(2)
         
         with col_left:
@@ -190,8 +200,8 @@ with tab1:
             st.markdown("#### 📚 Existing Examination Marks")
             st.markdown("Scores earned by the student in other subjects (out of 100):")
             
-            reading_score = st.slider("Reading Score (0 - 100)", min_value=0, max_value=100, value=72, step=1)
-            writing_score = st.slider("Writing Score (0 - 100)", min_value=0, max_value=100, value=70, step=1)
+            reading_score = st.slider("Reading Score (0 - 100)", min_value=0, max_value=100, value=75, step=1)
+            writing_score = st.slider("Writing Score (0 - 100)", min_value=0, max_value=100, value=72, step=1)
             
             st.write("")
             st.write("")
@@ -253,7 +263,7 @@ with tab1:
             with r_col3:
                 st.metric("Predicted Final Grade", grade)
                 
-            # Personalized AI Insights
+            # Personalized AI Diagnostic Feedback
             st.markdown("#### 💡 Diagnostic Recommendations")
             tips = []
             if test_prep == "none":
@@ -261,12 +271,45 @@ with tab1:
             if lunch == "free/reduced":
                 tips.append("📌 **Nutrition:** Standard lunch access correlates with an **+8.0 mark boost** across all subjects.")
             if reading_score < 60:
-                tips.append("📌 **Reading Focus:** Enhancing reading comprehension directly improves mathematical word problem solving.")
+                tips.append("📌 **Reading Focus:** Enhancing reading comprehension directly reinforces mathematical problem solving.")
             if not tips:
                 tips.append("🌟 **Optimal Academic Standing:** Student profile exhibits strong positive indicators across all subjects.")
                 
             for tip in tips:
                 st.info(tip)
+
+            # Generate PDF Report Card
+            st.markdown("---")
+            st.markdown("#### 📄 Export Official Report Card")
+            st.markdown("Download a verified PDF performance certificate and counselor evaluation report:")
+            
+            pdf_bytes = generate_student_pdf_report(
+                student_name=student_name if student_name.strip() else "Student",
+                student_id=student_id if student_id.strip() else "STU-UNASSIGNED",
+                gender=gender,
+                race_ethnicity=race_ethnicity,
+                parental_education=parental_education,
+                lunch=lunch,
+                test_prep=test_prep,
+                reading_score=reading_score,
+                writing_score=writing_score,
+                predicted_math=predicted_math,
+                overall_avg=overall_avg,
+                grade=grade,
+                model_name=selected_model_name,
+                tips=tips
+            )
+            
+            clean_filename = f"Performance_Report_{student_id.replace('/', '_')}.pdf"
+            
+            st.download_button(
+                label=f"📥 Download Official PDF Report ({clean_filename})",
+                data=pdf_bytes,
+                file_name=clean_filename,
+                mime="application/pdf",
+                type="primary",
+                use_container_width=True
+            )
 
 # ----------------- TAB 2: EDA & INSIGHTS -----------------
 with tab2:
@@ -360,7 +403,7 @@ with tab5:
        ├── Tree & Boosting: Decision Tree, Random Forest, Gradient Boosting, AdaBoost
        └── Meta-Ensembles: Voting Regressor, Stacking Regressor
     
-    4. Champion Selection & Streamlit Real-Time Inference
-       └── Voting Ensemble Regressor (76.44% Accuracy, ±5.95 MAE)
+    4. Champion Selection & PDF Report Card Generation
+       └── Voting Ensemble Regressor (76.44% Accuracy, ±5.95 MAE) + ReportLab PDF Exporter
     ```
     """)
