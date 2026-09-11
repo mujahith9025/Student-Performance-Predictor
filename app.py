@@ -9,7 +9,7 @@ import seaborn as sns
 import plotly.graph_objects as go
 import plotly.express as px
 
-from src.pdf_generator import generate_student_pdf_report
+from src.pdf_generator import generate_student_pdf_report, generate_classroom_pdf_report
 from src.explainability import explain_single_student
 from src.goal_simulator import simulate_academic_goal
 from src.batch_predictor import process_batch_predictions, generate_sample_csv_template
@@ -767,10 +767,27 @@ with tab1:
                 else:
                     st.success(tip)
 
-            # Generate PDF Report Card
+            # Generate PDF Report Card with Counselor Notes
             st.markdown("---")
-            st.markdown("#### 📄 Export Official Report Card")
-            st.markdown("Download a verified PDF performance certificate and counselor evaluation report:")
+            st.markdown("#### 📄 Official Counselor Evaluation & PDF Report Card")
+            
+            counselor_note = st.text_area(
+                "✍️ Academic Counselor / Teacher Remarks (Optional):",
+                value="Student exhibits strong conceptual grasp in language components. Recommended enrollment in mathematics peer tutoring and weekly practice modules to consolidate exam performance.",
+                placeholder="Type personalized counselor remarks to appear on the official certificate...",
+                height=80
+            )
+            
+            # Live In-App Certificate Preview Badge
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(241, 245, 249, 0.85) 100%); border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 1.1rem 1.3rem; margin: 0.8rem 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #1E3A8A;">🎓 EduPredict AI Certified Report Card</span>
+                    <span style="background: #ECFDF5; color: #047857; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 9999px; border: 1px solid #A7F3D0;">✔ Verified Dual ML Engine</span>
+                </div>
+                <span style="font-size: 0.9rem; color: #334155;"><b>Candidate:</b> {student_name if student_name.strip() else 'Student'} (`{student_id if student_id.strip() else 'STU-101'}`) • <b>Predicted Marks:</b> {predicted_math:.1f}/100 • <b>Grade:</b> {grade.split()[0]} • <b>Risk Tier:</b> {risk_level}</span>
+            </div>
+            """, unsafe_allow_html=True)
             
             pdf_bytes = generate_student_pdf_report(
                 student_name=student_name if student_name.strip() else "Student",
@@ -788,13 +805,14 @@ with tab1:
                 model_name=selected_model_name,
                 tips=tips,
                 pass_prob=pass_prob,
-                risk_level=risk_level
+                risk_level=risk_level,
+                custom_counselor_note=counselor_note
             )
             
-            clean_filename = f"Performance_Risk_Report_{student_id.replace('/', '_')}.pdf"
+            clean_filename = f"Official_Academic_Report_{student_id.replace('/', '_')}.pdf"
             
             st.download_button(
-                label=f"📥 Download Verified PDF Report ({clean_filename})",
+                label=f"📥 Download Verified PDF Academic Certificate ({clean_filename})",
                 data=pdf_bytes,
                 file_name=clean_filename,
                 mime="application/pdf",
@@ -978,18 +996,46 @@ with tab2:
                 st.markdown(f"**Showing {len(filtered_df)} of {len(processed_batch)} students:**")
                 st.dataframe(filtered_df, use_container_width=True, hide_index=True)
                 
-                # Download Enriched CSV
-                enriched_csv_buffer = io.StringIO()
-                filtered_df.to_csv(enriched_csv_buffer, index=False)
+                # 6. Executive Export Suite (CSV + Official PDF Report)
+                st.markdown("---")
+                st.markdown("#### 📄 Classroom Executive Export Suite:")
                 
-                st.download_button(
-                    label=f"📥 Download Processed Report ({len(filtered_df)} Students) (.CSV)",
-                    data=enriched_csv_buffer.getvalue(),
-                    file_name=f"Processed_Report_Classroom.csv",
-                    mime="text/csv",
-                    type="primary",
-                    use_container_width=True
+                class_counselor_notes = st.text_area(
+                    "✍️ Cohort Counselor Observations & Executive Action Plan:",
+                    value="Classroom demonstrated high overall subject proficiency. Immediate remedial intervention scheduled for at-risk candidates, focusing on preparatory algebra and reading comprehension support.",
+                    height=70,
+                    key="class_notes_input"
                 )
+                
+                export_c1, export_c2 = st.columns(2)
+                
+                with export_c1:
+                    enriched_csv_buffer = io.StringIO()
+                    filtered_df.to_csv(enriched_csv_buffer, index=False)
+                    st.download_button(
+                        label=f"📥 Download Processed CSV ({len(filtered_df)} Records)",
+                        data=enriched_csv_buffer.getvalue(),
+                        file_name="Processed_Classroom_Report.csv",
+                        mime="text/csv",
+                        type="primary",
+                        use_container_width=True
+                    )
+                    
+                with export_c2:
+                    class_pdf_bytes = generate_classroom_pdf_report(
+                        classroom_df=filtered_df,
+                        summary=summary,
+                        cohort_name=batch_source_name,
+                        custom_counselor_notes=class_counselor_notes
+                    )
+                    st.download_button(
+                        label="📄 Download Classroom Executive PDF Report",
+                        data=class_pdf_bytes,
+                        file_name="Classroom_Executive_Summary_Report.pdf",
+                        mime="application/pdf",
+                        type="primary",
+                        use_container_width=True
+                    )
         except Exception as e:
             st.error(f"Error processing CSV: {str(e)}")
 
