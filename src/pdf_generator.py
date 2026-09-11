@@ -22,19 +22,21 @@ def generate_student_pdf_report(
     tips,
     pass_prob=None,
     risk_level="Safe",
-    custom_counselor_note=None
+    custom_counselor_note=None,
+    prescriptive_solution=None
 ):
     """
-    Generates a verified, executive-styled Single Student Performance & Risk Evaluation PDF Report.
+    Generates a verified, executive-styled Single Student Performance & Risk Evaluation PDF Report,
+    including prescriptive intervention solutions and milestone roadmaps.
     """
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
         pagesize=letter,
-        rightMargin=40,
-        leftMargin=40,
-        topMargin=40,
-        bottomMargin=40
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=36,
+        bottomMargin=36
     )
     
     story = []
@@ -52,8 +54,8 @@ def generate_student_pdf_report(
         "ReportTitle",
         parent=styles["Heading1"],
         fontName="Helvetica-Bold",
-        fontSize=18,
-        leading=22,
+        fontSize=16,
+        leading=20,
         textColor=primary_color,
         alignment=1
     )
@@ -62,8 +64,8 @@ def generate_student_pdf_report(
         "ReportSubtitle",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=9.5,
-        leading=13,
+        fontSize=9,
+        leading=12,
         textColor=colors.HexColor("#475569"),
         alignment=1
     )
@@ -72,19 +74,19 @@ def generate_student_pdf_report(
         "SectionHeading",
         parent=styles["Heading2"],
         fontName="Helvetica-Bold",
-        fontSize=11,
-        leading=15,
+        fontSize=10.5,
+        leading=14,
         textColor=primary_color,
-        spaceBefore=8,
-        spaceAfter=5
+        spaceBefore=6,
+        spaceAfter=4
     )
 
     body_style = ParagraphStyle(
         "Body",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=8.5,
-        leading=12,
+        fontSize=8,
+        leading=11,
         textColor=colors.HexColor("#1E293B")
     )
 
@@ -96,9 +98,9 @@ def generate_student_pdf_report(
 
     # 1. Header Banner
     story.append(Paragraph("EDUPREDICT AI • OFFICIAL ACADEMIC REPORT CARD", title_style))
-    story.append(Paragraph("Machine Learning Diagnostic Forecast & Dropout Risk Assessment", subtitle_style))
-    story.append(Spacer(1, 8))
-    story.append(HRFlowable(width="100%", thickness=2, color=secondary_color, spaceAfter=10))
+    story.append(Paragraph("Machine Learning Diagnostic Forecast & Prescriptive Solution Action Plan", subtitle_style))
+    story.append(Spacer(1, 6))
+    story.append(HRFlowable(width="100%", thickness=2, color=secondary_color, spaceAfter=8))
 
     # 2. Student Metadata Table
     current_date = datetime.now().strftime("%B %d, %Y")
@@ -113,18 +115,18 @@ def generate_student_pdf_report(
             Paragraph("<b>Academic Risk Status:</b> " + prob_text, body_style)
         ]
     ]
-    meta_table = Table(metadata_data, colWidths=[260, 270])
+    meta_table = Table(metadata_data, colWidths=[270, 270])
     meta_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), light_bg),
         ('BOX', (0, 0), (-1, -1), 1, border_color),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-        ('LEFTPADDING', (0, 0), (-1, -1), 10),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
     ]))
     story.append(meta_table)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
 
     # 3. Subject Examination & Prediction Breakdown Table
     story.append(Paragraph("1. Subject Competency & Predicted Marks", section_heading))
@@ -162,7 +164,7 @@ def generate_student_pdf_report(
         ]
     ]
 
-    score_table = Table(score_data, colWidths=[160, 130, 140, 100])
+    score_table = Table(score_data, colWidths=[160, 130, 140, 110])
     score_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), primary_color),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -171,75 +173,85 @@ def generate_student_pdf_report(
         ('GRID', (0, 0), (-1, -1), 0.5, border_color),
         ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor("#ECFDF5")),
         ('BACKGROUND', (0, 4), (-1, 4), colors.HexColor("#E2E8F0")),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
     ]))
     for i in range(4):
         score_data[0][i].style.textColor = colors.white
 
     story.append(score_table)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
 
-    # 4. Demographic & Environmental Factors
-    story.append(Paragraph("2. Academic Environment & Background Profile", section_heading))
-    
-    factors_data = [
-        [
-            Paragraph("<b>Factor</b>", bold_body),
-            Paragraph("<b>Student Status</b>", bold_body),
-            Paragraph("<b>Empirical Dataset Influence</b>", bold_body)
-        ],
-        [
-            Paragraph("Test Preparation Course", body_style),
-            Paragraph(test_prep.capitalize(), body_style),
-            Paragraph("+9.4 marks statistical gain for course completers", body_style)
-        ],
-        [
-            Paragraph("Nutritional Lunch Plan", body_style),
-            Paragraph(lunch.capitalize(), body_style),
-            Paragraph("+8.0 marks correlation with standard nutrition", body_style)
-        ],
-        [
-            Paragraph("Parental Education Level", body_style),
-            Paragraph(parental_education.title(), body_style),
-            Paragraph("Positive correlation with higher degree attainment", body_style)
-        ],
-        [
-            Paragraph("Demographic Group / Gender", body_style),
-            Paragraph(f"{gender.capitalize()} • {race_ethnicity.title()}", body_style),
-            Paragraph("Standardized benchmark control baseline", body_style)
+    # 4. Prescriptive Solutions & Action Plan (If provided)
+    if prescriptive_solution:
+        story.append(Paragraph("2. AI Prescriptive Solutions & Projected Uplift", section_heading))
+        
+        proj_score = prescriptive_solution.get("projected_score", predicted_math)
+        proj_grade = prescriptive_solution.get("projected_grade", grade)
+        uplift_pts = prescriptive_solution.get("total_uplift", 0.0)
+        
+        rx_header = [
+            [
+                Paragraph(f"<b>Prescribed Weekly Study Plan:</b> {prescriptive_solution.get('total_study_hours', 12):.0f} hrs/week", body_style),
+                Paragraph(f"<b>Projected Outcome:</b> <font color='#059669'><b>{proj_score:.1f}/100 ({proj_grade})</b></font> (+{uplift_pts:.1f} pts)", body_style)
+            ]
         ]
-    ]
-
-    factors_table = Table(factors_data, colWidths=[150, 140, 240])
-    factors_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#334155")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('GRID', (0, 0), (-1, -1), 0.5, border_color),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-        ('LEFTPADDING', (0, 0), (-1, -1), 8),
-    ]))
-    for i in range(3):
-        factors_data[0][i].style.textColor = colors.white
-
-    story.append(factors_table)
-    story.append(Spacer(1, 10))
+        rx_meta_table = Table(rx_header, colWidths=[270, 270])
+        rx_meta_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#F0FDF4")),
+            ('BOX', (0, 0), (-1, -1), 1, colors.HexColor("#86EFAC")),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        story.append(rx_meta_table)
+        story.append(Spacer(1, 4))
+        
+        # Interventions List
+        interv_rows = [
+            [
+                Paragraph("<b>Priority Intervention</b>", bold_body),
+                Paragraph("<b>Timeline</b>", bold_body),
+                Paragraph("<b>Uplift</b>", bold_body),
+                Paragraph("<b>Action Required</b>", bold_body)
+            ]
+        ]
+        for itm in prescriptive_solution.get("interventions", [])[:3]:
+            interv_rows.append([
+                Paragraph(itm["title"], bold_body),
+                Paragraph(itm["timeline"], body_style),
+                Paragraph(f"<font color='#059669'><b>{itm['est_uplift']}</b></font>", body_style),
+                Paragraph(itm["action"], body_style)
+            ])
+            
+        interv_table = Table(interv_rows, colWidths=[140, 85, 65, 250])
+        interv_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#0F766E")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('GRID', (0, 0), (-1, -1), 0.5, border_color),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        for i in range(4):
+            interv_rows[0][i].style.textColor = colors.white
+        story.append(interv_table)
+        story.append(Spacer(1, 6))
 
     # 5. Diagnostic Advice & Custom Counselor Remarks
-    story.append(Paragraph("3. Actionable Academic Recommendations & Counselor Notes", section_heading))
-    for tip in tips:
+    story.append(Paragraph("3. Counselor Observations & Advisory Guidance", section_heading))
+    for tip in tips[:2]:
         clean_tip = tip.replace("📌", "•").replace("🌟", "•").replace("⚠️", "•").replace("**", "")
         story.append(Paragraph(clean_tip, body_style))
         story.append(Spacer(1, 2))
 
     if custom_counselor_note and custom_counselor_note.strip():
-        story.append(Spacer(1, 4))
-        story.append(Paragraph(f"<b>Counselor Personalized Remarks:</b> <i>{custom_counselor_note.strip()}</i>", body_style))
+        story.append(Spacer(1, 2))
+        story.append(Paragraph(f"<b>Counselor Notes:</b> <i>{custom_counselor_note.strip()}</i>", body_style))
 
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 8))
 
     # 6. Verification Footer
     footer_data = [
@@ -249,7 +261,7 @@ def generate_student_pdf_report(
             Paragraph("____________________________<br/>Academic Counselor Signature", body_style)
         ]
     ]
-    footer_table = Table(footer_data, colWidths=[170, 190, 170])
+    footer_table = Table(footer_data, colWidths=[180, 180, 180])
     footer_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('LEFTPADDING', (0, 0), (-1, -1), 0),
@@ -267,19 +279,20 @@ def generate_classroom_pdf_report(
     classroom_df,
     summary,
     cohort_name="Classroom Cohort",
-    custom_counselor_notes=None
+    custom_counselor_notes=None,
+    intervention_matrix=None
 ):
     """
-    Generates a verified Classroom Cohort Executive Summary PDF Report.
+    Generates a verified Classroom Cohort Executive Summary PDF Report with Prescriptive Intervention Matrix.
     """
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
         pagesize=letter,
-        rightMargin=40,
-        leftMargin=40,
-        topMargin=40,
-        bottomMargin=40
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=36,
+        bottomMargin=36
     )
     
     story = []
@@ -294,8 +307,8 @@ def generate_classroom_pdf_report(
         "ClassTitle",
         parent=styles["Heading1"],
         fontName="Helvetica-Bold",
-        fontSize=18,
-        leading=22,
+        fontSize=16,
+        leading=20,
         textColor=primary_color,
         alignment=1
     )
@@ -304,8 +317,8 @@ def generate_classroom_pdf_report(
         "ClassSubtitle",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=9.5,
-        leading=13,
+        fontSize=9,
+        leading=12,
         textColor=colors.HexColor("#475569"),
         alignment=1
     )
@@ -314,19 +327,19 @@ def generate_classroom_pdf_report(
         "SectionHeading",
         parent=styles["Heading2"],
         fontName="Helvetica-Bold",
-        fontSize=11,
-        leading=15,
+        fontSize=10.5,
+        leading=14,
         textColor=primary_color,
-        spaceBefore=8,
-        spaceAfter=5
+        spaceBefore=6,
+        spaceAfter=4
     )
 
     body_style = ParagraphStyle(
         "Body",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=8.5,
-        leading=12,
+        fontSize=8,
+        leading=11,
         textColor=colors.HexColor("#1E293B")
     )
 
@@ -338,12 +351,11 @@ def generate_classroom_pdf_report(
 
     # Header
     story.append(Paragraph("EDUPREDICT AI • CLASSROOM COHORT EXECUTIVE SUMMARY", title_style))
-    story.append(Paragraph(f"Academic Performance & Dropout Risk Diagnostic Report • {cohort_name}", subtitle_style))
-    story.append(Spacer(1, 8))
-    story.append(HRFlowable(width="100%", thickness=2, color=secondary_color, spaceAfter=10))
+    story.append(Paragraph(f"Academic Diagnostics & Prescriptive Intervention Report • {cohort_name}", subtitle_style))
+    story.append(Spacer(1, 6))
+    story.append(HRFlowable(width="100%", thickness=2, color=secondary_color, spaceAfter=8))
 
     # Cohort Overview Table
-    current_date = datetime.now().strftime("%B %d, %Y")
     overview_data = [
         [
             Paragraph(f"<b>Cohort Name:</b> {cohort_name}", body_style),
@@ -358,20 +370,20 @@ def generate_classroom_pdf_report(
             Paragraph(f"<b>🚨 At-Risk Student Count:</b> {summary['at_risk_count']}", body_style)
         ]
     ]
-    overview_table = Table(overview_data, colWidths=[260, 270])
+    overview_table = Table(overview_data, colWidths=[270, 270])
     overview_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), light_bg),
         ('BOX', (0, 0), (-1, -1), 1, border_color),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
     ]))
     story.append(overview_table)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
 
-    # Student Roster Table (Top 12 students or all)
-    story.append(Paragraph("1. Classroom Student Predictions Roster", section_heading))
+    # Student Roster Table (Top 12 students)
+    story.append(Paragraph("1. Classroom Student Predictions & Prescribed Interventions", section_heading))
     
     roster_rows = [
         [
@@ -381,50 +393,99 @@ def generate_classroom_pdf_report(
             Paragraph("<b>Writing</b>", bold_body),
             Paragraph("<b>Math (Pred)</b>", bold_body),
             Paragraph("<b>Grade</b>", bold_body),
-            Paragraph("<b>Risk Tier</b>", bold_body)
+            Paragraph("<b>Prescribed Action</b>", bold_body)
         ]
     ]
 
-    for _, row in classroom_df.head(15).iterrows():
+    for _, row in classroom_df.head(12).iterrows():
         s_id = str(row.get("student_id", "N/A"))
         s_name = str(row.get("student_name", "Student"))
         r_score = f"{row.get('reading score', 0)}"
         w_score = f"{row.get('writing score', 0)}"
         m_pred = f"{row.get('Predicted_Math_Score', 0):.1f}"
         p_grade = str(row.get("Predicted_Grade", "N/A")).split()[0]
-        r_tier = "At-Risk" if "High" in str(row.get("Risk_Tier", "")) else "Safe"
+        presc_act = str(row.get("Prescribed_Intervention", "Standard Study"))
         
         roster_rows.append([
             Paragraph(s_id, body_style),
-            Paragraph(s_name[:16], body_style),
+            Paragraph(s_name[:15], body_style),
             Paragraph(r_score, body_style),
             Paragraph(w_score, body_style),
             Paragraph(f"<b>{m_pred}</b>", bold_body),
             Paragraph(p_grade, body_style),
-            Paragraph(f"<font color='red'>{r_tier}</font>" if r_tier == "At-Risk" else "<font color='green'>Safe</font>", body_style)
+            Paragraph(f"<font size='7'>{presc_act}</font>", body_style)
         ])
 
-    roster_table = Table(roster_rows, colWidths=[80, 110, 60, 60, 80, 60, 80])
+    roster_table = Table(roster_rows, colWidths=[70, 95, 45, 45, 65, 50, 170])
     roster_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), primary_color),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('GRID', (0, 0), (-1, -1), 0.5, border_color),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 3.5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3.5),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
     ]))
     for i in range(7):
         roster_rows[0][i].style.textColor = colors.white
 
     story.append(roster_table)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
+
+    # Classroom Prescriptive Intervention Matrix
+    if intervention_matrix:
+        story.append(Paragraph("2. Targeted Classroom Intervention Cohorts", section_heading))
+        summary_m = intervention_matrix.get("summary", {})
+        action_plans = intervention_matrix.get("action_plans", {})
+        
+        cohort_data = [
+            [
+                Paragraph("<b>Intervention Cohort</b>", bold_body),
+                Paragraph("<b>Count</b>", bold_body),
+                Paragraph("<b>Recommended Institutional Action Plan</b>", bold_body)
+            ],
+            [
+                Paragraph("🚨 Intensive Remedial", bold_body),
+                Paragraph(f"<b>{summary_m.get('high_risk_count', 0)} students</b>", body_style),
+                Paragraph(action_plans.get("Intensive Remedial (High Risk)", ""), body_style)
+            ],
+            [
+                Paragraph("🎯 Test Prep Bootcamp", bold_body),
+                Paragraph(f"<b>{summary_m.get('test_prep_needed_count', 0)} students</b>", body_style),
+                Paragraph(action_plans.get("Test Prep Bootcamp (Moderate Gap)", ""), body_style)
+            ],
+            [
+                Paragraph("📚 Verbal & Reading", bold_body),
+                Paragraph(f"<b>{summary_m.get('verbal_support_count', 0)} students</b>", body_style),
+                Paragraph(action_plans.get("Verbal / Reading Support", ""), body_style)
+            ],
+            [
+                Paragraph("🏆 Honors & Distinction", bold_body),
+                Paragraph(f"<b>{summary_m.get('honors_count', 0)} students</b>", body_style),
+                Paragraph(action_plans.get("Honors / Distinction Mentorship", ""), body_style)
+            ]
+        ]
+        
+        cohort_table = Table(cohort_data, colWidths=[130, 70, 340])
+        cohort_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#0F766E")),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('GRID', (0, 0), (-1, -1), 0.5, border_color),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 3.5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3.5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        for i in range(3):
+            cohort_data[0][i].style.textColor = colors.white
+        story.append(cohort_table)
+        story.append(Spacer(1, 6))
 
     # Counselor / Administrator Observations
     if custom_counselor_notes and custom_counselor_notes.strip():
-        story.append(Paragraph("2. Academic Counselor Observations & Remedial Action Plan", section_heading))
+        story.append(Paragraph("3. Instructor & Counselor Observations", section_heading))
         story.append(Paragraph(custom_counselor_notes.strip(), body_style))
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 6))
 
     # Verification Footer
     footer_data = [
@@ -434,7 +495,7 @@ def generate_classroom_pdf_report(
             Paragraph("____________________________<br/>Principal / Dean Approval", body_style)
         ]
     ]
-    footer_table = Table(footer_data, colWidths=[180, 170, 180])
+    footer_table = Table(footer_data, colWidths=[180, 180, 180])
     footer_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('LEFTPADDING', (0, 0), (-1, -1), 0),

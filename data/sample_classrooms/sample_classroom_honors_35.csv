@@ -1,0 +1,36 @@
+student_id,student_name,gender,race/ethnicity,parental level of education,lunch,test preparation course,reading score,writing score
+STU-2026-1001,Leo Harris,female,group B,some college,standard,completed,100,100
+STU-2026-1002,Gabriel King,male,group C,master's degree,standard,completed,100,100
+STU-2026-1003,Leah Nguyen,female,group E,associate's degree,standard,completed,100,100
+STU-2026-1004,Alexander Robinson,male,group D,associate's degree,free/reduced,completed,66,68
+STU-2026-1005,Mason Walker,female,group A,bachelor's degree,standard,completed,100,100
+STU-2026-1006,Aubrey Garcia,female,group E,bachelor's degree,free/reduced,completed,86,83
+STU-2026-1007,Daniel Rivera,female,group D,bachelor's degree,free/reduced,completed,92,89
+STU-2026-1008,Emily Williams,female,group B,bachelor's degree,standard,completed,99,100
+STU-2026-1009,Mason Martinez,female,group A,associate's degree,standard,completed,93,92
+STU-2026-1010,Lucas Green,female,group B,associate's degree,standard,completed,99,100
+STU-2026-1011,Eleanor Brown,female,group E,bachelor's degree,standard,completed,97,100
+STU-2026-1012,Zoey Davis,female,group B,some college,standard,none,93,94
+STU-2026-1013,Elizabeth Scott,female,group C,some college,standard,completed,82,77
+STU-2026-1014,Layla Lopez,male,group C,some high school,standard,completed,100,96
+STU-2026-1015,Victoria Sanchez,female,group D,associate's degree,standard,completed,100,100
+STU-2026-1016,Sebastian Williams,male,group D,associate's degree,standard,completed,94,93
+STU-2026-1017,Camila Adams,male,group B,bachelor's degree,standard,completed,100,100
+STU-2026-1018,Jackson Harris,female,group D,high school,standard,completed,96,98
+STU-2026-1019,Sofia Jones,female,group E,master's degree,standard,completed,98,100
+STU-2026-1020,Sofia Ramirez,male,group C,bachelor's degree,standard,completed,100,100
+STU-2026-1021,Eli Flores,male,group C,associate's degree,free/reduced,completed,80,76
+STU-2026-1022,Anthony Hall,female,group D,master's degree,standard,completed,100,100
+STU-2026-1023,David Nelson,female,group D,bachelor's degree,standard,completed,100,97
+STU-2026-1024,Leo Smith,female,group C,some high school,standard,completed,86,85
+STU-2026-1025,Henry Allen,male,group C,some college,standard,completed,79,80
+STU-2026-1026,Joshua Scott,male,group D,bachelor's degree,standard,completed,100,100
+STU-2026-1027,Benjamin Mitchell,female,group B,associate's degree,standard,completed,87,84
+STU-2026-1028,Isaac Martin,female,group C,master's degree,standard,completed,100,100
+STU-2026-1029,Charlotte Sanchez,female,group B,associate's degree,standard,none,65,65
+STU-2026-1030,Julian Hall,male,group C,master's degree,standard,completed,100,100
+STU-2026-1031,Joseph Robinson,male,group E,associate's degree,standard,completed,100,99
+STU-2026-1032,Christopher Torres,male,group E,associate's degree,standard,none,84,86
+STU-2026-1033,Luna Robinson,male,group B,bachelor's degree,standard,completed,100,100
+STU-2026-1034,Emma Torres,male,group B,some high school,standard,completed,93,97
+STU-2026-1035,Aiden Nguyen,male,group C,high school,standard,completed,92,93

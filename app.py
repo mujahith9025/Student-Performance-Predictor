@@ -12,7 +12,13 @@ import plotly.express as px
 from src.pdf_generator import generate_student_pdf_report, generate_classroom_pdf_report
 from src.explainability import explain_single_student
 from src.goal_simulator import simulate_academic_goal
-from src.batch_predictor import process_batch_predictions, generate_sample_csv_template
+from src.batch_predictor import process_batch_predictions, generate_sample_csv_template, load_or_create_sample_cohort
+from src.sample_generator import generate_synthetic_classroom
+from src.prescriptive_solutions import (
+    diagnose_student_weaknesses,
+    generate_prescriptive_solution,
+    generate_classroom_intervention_matrix
+)
 from src.advanced_feature_engineering import engineer_features
 from src.plotly_charts import (
     create_score_gauge,
@@ -27,7 +33,10 @@ from src.plotly_charts import (
     create_eda_parental_education_plotly,
     create_model_comparison_plotly,
     create_interactive_confusion_matrix,
-    create_interactive_roc_curve
+    create_interactive_roc_curve,
+    create_prescriptive_study_hours_chart,
+    create_intervention_uplift_chart,
+    create_classroom_intervention_cluster_chart
 )
 
 # ---------------------------------------------------------
@@ -745,9 +754,80 @@ with tab1:
                     hide_index=True
                 )
 
-            # Diagnostic Feedback
+            # 4. AI Prescriptive Solution & Intervention Engine
             st.markdown("---")
-            st.markdown("#### 💡 Diagnostic Recommendations & Intervention Plan")
+            st.markdown("### 💡 AI Prescriptive Solution & Targeted Intervention Plan")
+            st.markdown("EduPredict AI's clinical diagnostic algorithm has generated the following personalized academic prescriptions, weekly study schedule, and projected score uplift roadmap:")
+            
+            prescriptive_sol = generate_prescriptive_solution(
+                input_df.iloc[0].to_dict(),
+                predicted_math=predicted_math,
+                pass_prob=pass_prob,
+                grade=grade
+            )
+            
+            # Root Cause Diagnostic Bottlenecks
+            st.markdown("#### 🔍 Root-Cause Diagnostic Bottlenecks:")
+            bn_cols = st.columns(len(prescriptive_sol["bottlenecks"])) if prescriptive_sol["bottlenecks"] else [st.container()]
+            if prescriptive_sol["bottlenecks"]:
+                for idx, bn in enumerate(prescriptive_sol["bottlenecks"]):
+                    with bn_cols[idx]:
+                        sev_color = "#DC2626" if bn["severity"] == "High" else ("#D97706" if bn["severity"] == "Medium" else "#2563EB")
+                        bg_color = "rgba(254, 242, 242, 0.9)" if bn["severity"] == "High" else ("rgba(254, 243, 199, 0.9)" if bn["severity"] == "Medium" else "rgba(239, 246, 255, 0.9)")
+                        st.markdown(f"""
+                        <div style="background: {bg_color}; border-left: 4px solid {sev_color}; border-radius: 8px; padding: 0.8rem; height: 100%;">
+                            <div style="font-size: 0.95rem; font-weight: 700; color: {sev_color};">{bn['icon']} {bn['category']}</div>
+                            <div style="font-size: 0.75rem; font-weight: 700; color: {sev_color}; text-transform: uppercase; margin-bottom: 0.3rem;">Severity: {bn['severity']}</div>
+                            <div style="font-size: 0.82rem; color: #334155; line-height: 1.35;">{bn['detail']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+            else:
+                st.success("🌟 **Zero Critical Bottlenecks Identified:** Student maintains balanced, optimal performance across all academic pillars.")
+                
+            st.write("")
+            
+            # Prescriptive Action Items & Score Uplift Stages
+            st.markdown("#### 🎯 Prioritized Interventions & Quantitative Uplift:")
+            for idx, item in enumerate(prescriptive_sol["interventions"]):
+                with st.expander(f"📌 **{item['priority']}: {item['title']}** (Timeline: `{item['timeline']}`) — Uplift: **{item['est_uplift']}**", expanded=(idx==0)):
+                    st.markdown(f"**Action Required:** {item['action']}")
+                    st.markdown(f"**Recommended Resource:** `{item['resource']}`")
+                    st.markdown(f"**Projected Score Contribution:** <span style='color:#059669; font-weight:bold;'>{item['est_uplift']}</span>", unsafe_allow_html=True)
+                    
+            st.write("")
+            
+            # Interactive Visual Charts: Study Plan + Score Uplift Waterfall
+            rx_col1, rx_col2 = st.columns(2)
+            with rx_col1:
+                fig_study = create_prescriptive_study_hours_chart(prescriptive_sol["study_hours"])
+                st.plotly_chart(fig_study, use_container_width=True)
+            with rx_col2:
+                fig_uplift = create_intervention_uplift_chart(predicted_math, prescriptive_sol["projected_score"], prescriptive_sol["interventions"])
+                st.plotly_chart(fig_uplift, use_container_width=True)
+                
+            # 12-Week Step-by-Step Action Roadmap
+            st.markdown("#### 🗺️ 12-Week Academic Recovery & Growth Roadmap:")
+            ms_cols = st.columns(4)
+            for m_idx, ms in enumerate(prescriptive_sol["milestones"]):
+                with ms_cols[m_idx]:
+                    st.markdown(f"""
+                    <div style="background: rgba(248, 250, 252, 0.95); border: 1.5px solid #CBD5E1; border-top: 3px solid #2563EB; border-radius: 8px; padding: 0.8rem; height: 100%;">
+                        <div style="font-size: 0.85rem; font-weight: 800; color: #1E3A8A; margin-bottom: 0.2rem;">{ms['week']}</div>
+                        <div style="font-size: 0.78rem; font-weight: 700; color: #059669; margin-bottom: 0.4rem;">🎯 {ms['target']}</div>
+                        <div style="font-size: 0.8rem; color: #475569; line-height: 1.3;">{ms['milestone']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+            st.write("")
+            
+            # Educator & Counselor Action Checklist
+            with st.expander("👨‍🏫 Counselor & Educator Direct Action Checklist"):
+                for g_item in prescriptive_sol["teacher_guidance"]:
+                    st.markdown(f"- ✔️ {g_item}")
+
+            # 5. Diagnostic Feedback Badges
+            st.markdown("---")
+            st.markdown("#### 💬 Clinical Diagnostic Advice & Summary Notes")
             tips = []
             if pass_prob < 50:
                 tips.append("🚨 **High Risk Alert:** Student is performing below benchmark in Mathematics. Immediate remedial sessions recommended.")
@@ -768,7 +848,7 @@ with tab1:
                 else:
                     st.success(tip)
 
-            # Generate PDF Report Card with Counselor Notes
+            # 6. Generate Official PDF Certificate with Prescriptive Solutions
             st.markdown("---")
             st.markdown("#### 📄 Official Counselor Evaluation & PDF Report Card")
             
@@ -786,7 +866,7 @@ with tab1:
                     <span style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #1E3A8A;">🎓 EduPredict AI Certified Report Card</span>
                     <span style="background: #ECFDF5; color: #047857; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 9999px; border: 1px solid #A7F3D0;">✔ Verified Dual ML Engine</span>
                 </div>
-                <span style="font-size: 0.9rem; color: #334155;"><b>Candidate:</b> {student_name if student_name.strip() else 'Student'} (`{student_id if student_id.strip() else 'STU-101'}`) • <b>Predicted Marks:</b> {predicted_math:.1f}/100 • <b>Grade:</b> {grade.split()[0]} • <b>Risk Tier:</b> {risk_level}</span>
+                <span style="font-size: 0.9rem; color: #334155;"><b>Candidate:</b> {student_name if student_name.strip() else 'Student'} (`{student_id if student_id.strip() else 'STU-101'}`) • <b>Predicted Marks:</b> {predicted_math:.1f}/100 • <b>Grade:</b> {grade.split()[0]} • <b>Risk Tier:</b> {risk_level} • <b>Projected Post-Intervention:</b> {prescriptive_sol['projected_score']:.1f}/100 ({prescriptive_sol['projected_grade']})</span>
             </div>
             """, unsafe_allow_html=True)
             
@@ -807,13 +887,14 @@ with tab1:
                 tips=tips,
                 pass_prob=pass_prob,
                 risk_level=risk_level,
-                custom_counselor_note=counselor_note
+                custom_counselor_note=counselor_note,
+                prescriptive_solution=prescriptive_sol
             )
             
             clean_filename = f"Official_Academic_Report_{student_id.replace('/', '_')}.pdf"
             
             st.download_button(
-                label=f"📥 Download Verified PDF Academic Certificate ({clean_filename})",
+                label=f"📥 Download Verified PDF Academic Certificate with Prescriptions ({clean_filename})",
                 data=pdf_bytes,
                 file_name=clean_filename,
                 mime="application/pdf",
@@ -823,35 +904,155 @@ with tab1:
 
 # ----------------- TAB 2: CLASSROOM BATCH PREDICTOR -----------------
 with tab2:
-    st.markdown("### 📂 Classroom Batch Prediction (Bulk CSV Upload)")
-    st.markdown("Upload a CSV file containing an entire classroom or student cohort to generate predictions, grade distribution analysis, and risk diagnostics at scale.")
+    st.markdown("### 📂 Classroom Batch Prediction & Cohort Risk Analytics")
+    st.markdown("Upload a CSV dataset or generate realistic synthetic cohorts (10 to 500 students) to evaluate grade distributions, early dropout risk, and prescriptive classroom intervention clusters at scale.")
     
-    # 1-Click Instant Sample Loader & Download header
-    col_t1, col_t2 = st.columns([1.2, 1])
-    with col_t1:
-        load_sample_btn = st.button("⚡ 1-Click Load 10-Student Sample Classroom Directly", use_container_width=True, type="primary")
-    with col_t2:
-        sample_csv_data = generate_sample_csv_template()
-        st.download_button(
-            label="📄 Download CSV Template (.CSV)",
-            data=sample_csv_data,
-            file_name="classroom_sample_template.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
-        
+    # ---------------------------------------------------------
+    # 1. BULK CLASSROOM SAMPLE HUB & DYNAMIC GENERATOR
+    # ---------------------------------------------------------
+    st.markdown("""
+    <div class="preset-chip-box">
+        <span style="font-size: 0.85rem; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">⚡ Instant 1-Click Pre-Built Cohort Loaders:</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    samp_c1, samp_c2, samp_c3, samp_c4, samp_c5 = st.columns(5)
+    
+    with samp_c1:
+        if st.button("🌟 Balanced 50 Class", use_container_width=True, type="secondary"):
+            st.session_state["cached_batch"] = load_or_create_sample_cohort("balanced_50")
+            st.session_state["cached_batch_name"] = "Balanced Classroom Cohort (50 Students)"
+            st.rerun()
+            
+    with samp_c2:
+        if st.button("🏫 Grade 100 Cohort", use_container_width=True, type="secondary"):
+            st.session_state["cached_batch"] = load_or_create_sample_cohort("large_100")
+            st.session_state["cached_batch_name"] = "Grade-Wide Cohort (100 Students)"
+            st.rerun()
+            
+    with samp_c3:
+        if st.button("🚨 At-Risk Focus 40", use_container_width=True, type="secondary"):
+            st.session_state["cached_batch"] = load_or_create_sample_cohort("at_risk_40")
+            st.session_state["cached_batch_name"] = "High-Risk Intervention Focus (40 Students)"
+            st.rerun()
+            
+    with samp_c4:
+        if st.button("🏆 Honors 35 Cohort", use_container_width=True, type="secondary"):
+            st.session_state["cached_batch"] = load_or_create_sample_cohort("honors_35")
+            st.session_state["cached_batch_name"] = "Honors / AP Distinction Cohort (35 Students)"
+            st.rerun()
+            
+    with samp_c5:
+        if st.button("🌐 Diverse 200 Class", use_container_width=True, type="secondary"):
+            st.session_state["cached_batch"] = load_or_create_sample_cohort("mixed_200")
+            st.session_state["cached_batch_name"] = "Diverse Multi-Section Cohort (200 Students)"
+            st.rerun()
+            
     st.write("")
-    uploaded_file = st.file_uploader("📤 Or Upload Custom Classroom Student CSV File", type=["csv"])
+    
+    # Expandable Hub for CSV Downloads & Dynamic Synthetic Generator
+    hub_exp1, hub_exp2 = st.columns(2)
+    
+    with hub_exp1:
+        with st.expander("📥 Download Pre-Built Bulk Classroom CSV Files", expanded=False):
+            st.markdown("Download realistic benchmark CSV files for offline evaluation, reporting, or stress testing:")
+            
+            d_col1, d_col2 = st.columns(2)
+            with d_col1:
+                df_b50 = load_or_create_sample_cohort("balanced_50")
+                buf_b50 = io.StringIO()
+                df_b50.to_csv(buf_b50, index=False)
+                st.download_button(
+                    "📄 Balanced 50 CSV",
+                    data=buf_b50.getvalue(),
+                    file_name="sample_classroom_balanced_50.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+                
+                df_risk40 = load_or_create_sample_cohort("at_risk_40")
+                buf_risk40 = io.StringIO()
+                df_risk40.to_csv(buf_risk40, index=False)
+                st.download_button(
+                    "🚨 At-Risk Focus 40 CSV",
+                    data=buf_risk40.getvalue(),
+                    file_name="sample_classroom_at_risk_focus_40.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+                
+            with d_col2:
+                df_l100 = load_or_create_sample_cohort("large_100")
+                buf_l100 = io.StringIO()
+                df_l100.to_csv(buf_l100, index=False)
+                st.download_button(
+                    "🏫 Grade 100 CSV",
+                    data=buf_l100.getvalue(),
+                    file_name="sample_classroom_large_100.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+                
+                df_honors = load_or_create_sample_cohort("honors_35")
+                buf_honors = io.StringIO()
+                df_honors.to_csv(buf_honors, index=False)
+                st.download_button(
+                    "🏆 Honors 35 CSV",
+                    data=buf_honors.getvalue(),
+                    file_name="sample_classroom_honors_35.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+                
+            template_data = generate_sample_csv_template()
+            st.download_button(
+                "📋 10-Student Starter Template CSV",
+                data=template_data,
+                file_name="starter_classroom_template.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+            
+    with hub_exp2:
+        with st.expander("⚙️ Dynamic Synthetic Cohort Generator (Custom Size)", expanded=False):
+            st.markdown("Generate custom synthetic classrooms with adjustable student volume & demographic distribution:")
+            gen_size = st.slider("Classroom Size (Number of Students):", min_value=10, max_value=500, value=75, step=5)
+            gen_dist = st.selectbox(
+                "Performance Distribution Profile:",
+                options=[
+                    ("balanced", "Balanced Mixed Classroom (Bell Curve)"),
+                    ("at_risk_focus", "High Academic Risk & Remedial Focus"),
+                    ("honors_advanced", "AP / Honors Distinction Cohort")
+                ],
+                format_func=lambda x: x[1]
+            )[0]
+            
+            gen_c1, gen_c2 = st.columns(2)
+            with gen_c1:
+                if st.button("⚡ Generate & Assess Cohort", use_container_width=True, type="primary"):
+                    gen_df = generate_synthetic_classroom(n_students=gen_size, cohort_type=gen_dist, seed=np.random.randint(1, 9999))
+                    st.session_state["cached_batch"] = gen_df
+                    st.session_state["cached_batch_name"] = f"Custom Synthetic Cohort ({gen_size} Students • {gen_dist.replace('_', ' ').title()})"
+                    st.rerun()
+            with gen_c2:
+                custom_df = generate_synthetic_classroom(n_students=gen_size, cohort_type=gen_dist, seed=42)
+                custom_buf = io.StringIO()
+                custom_df.to_csv(custom_buf, index=False)
+                st.download_button(
+                    "💾 Download Synthetic CSV",
+                    data=custom_buf.getvalue(),
+                    file_name=f"custom_cohort_{gen_size}_students.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+                
+    st.write("")
+    uploaded_file = st.file_uploader("📤 Or Upload Custom CSV File (Drag & Drop):", type=["csv"])
     
     batch_to_process = None
     batch_source_name = ""
     
-    if load_sample_btn:
-        batch_to_process = pd.read_csv(io.StringIO(sample_csv_data))
-        batch_source_name = "Built-in 10-Student Sample Classroom"
-        st.session_state["cached_batch"] = batch_to_process
-        st.session_state["cached_batch_name"] = batch_source_name
-    elif uploaded_file is not None:
+    if uploaded_file is not None:
         batch_to_process = pd.read_csv(uploaded_file)
         batch_source_name = uploaded_file.name
         st.session_state["cached_batch"] = batch_to_process
@@ -885,7 +1086,47 @@ with tab2:
                     
                 st.write("")
                 
-                # 2. Priority Intervention & Honor Roll Highlights
+                # 2. Classroom Prescriptive Intervention Matrix
+                matrix = generate_classroom_intervention_matrix(processed_batch)
+                
+                st.markdown("#### 📋 Classroom Prescriptive Intervention Matrix (AI Clustered Cohorts):")
+                m_col1, m_col2 = st.columns([1.1, 1.4])
+                
+                with m_col1:
+                    fig_clusters = create_classroom_intervention_cluster_chart(matrix["summary"])
+                    st.plotly_chart(fig_clusters, use_container_width=True)
+                    
+                with m_col2:
+                    st.markdown("""
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #1E3A8A; margin-bottom: 0.5rem;">Targeted Institutional Action Strategies:</div>
+                    """, unsafe_allow_html=True)
+                    
+                    # 4 Intervention Cluster Cards
+                    st.markdown(f"""
+                    <div style="background: rgba(254, 242, 242, 0.9); border-left: 4px solid #EF4444; border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.45rem;">
+                        <span style="font-weight: 800; color: #DC2626;">🚨 Intensive Remedial Cohort ({matrix['summary']['high_risk_count']} students):</span><br/>
+                        <span style="font-size: 0.82rem; color: #334155;">{matrix['action_plans']['Intensive Remedial (High Risk)']}</span>
+                    </div>
+                    
+                    <div style="background: rgba(254, 243, 199, 0.9); border-left: 4px solid #F59E0B; border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.45rem;">
+                        <span style="font-weight: 800; color: #D97706;">🎯 Test Prep Bootcamp Cohort ({matrix['summary']['test_prep_needed_count']} students):</span><br/>
+                        <span style="font-size: 0.82rem; color: #334155;">{matrix['action_plans']['Test Prep Bootcamp (Moderate Gap)']}</span>
+                    </div>
+                    
+                    <div style="background: rgba(239, 246, 255, 0.9); border-left: 4px solid #3B82F6; border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.45rem;">
+                        <span style="font-weight: 800; color: #2563EB;">📚 Verbal & Reading Support ({matrix['summary']['verbal_support_count']} students):</span><br/>
+                        <span style="font-size: 0.82rem; color: #334155;">{matrix['action_plans']['Verbal / Reading Support']}</span>
+                    </div>
+                    
+                    <div style="background: rgba(236, 253, 245, 0.9); border-left: 4px solid #10B981; border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.45rem;">
+                        <span style="font-weight: 800; color: #059669;">🏆 Honors & Distinction Mentorship ({matrix['summary']['honors_count']} students):</span><br/>
+                        <span style="font-size: 0.82rem; color: #334155;">{matrix['action_plans']['Honors / Distinction Mentorship']}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                st.write("")
+                
+                # 3. Priority Watchlist & Distinction Honor Roll
                 high_risk_df = processed_batch[processed_batch["Risk_Tier"].str.contains("High", na=False)]
                 honors_df = processed_batch[processed_batch["Cumulative_3Subject_Avg"] >= 85.0]
                 
@@ -893,41 +1134,44 @@ with tab2:
                 with c_alert1:
                     if not high_risk_df.empty:
                         st.markdown(f"#### 🚨 Priority At-Risk Intervention Watchlist ({len(high_risk_df)} Students)")
-                        for _, s_row in high_risk_df.iterrows():
+                        for _, s_row in high_risk_df.head(6).iterrows():
                             s_name = s_row.get("student_name", s_row.get("student_id", "Student"))
                             s_id = s_row.get("student_id", "N/A")
                             st.markdown(f"""
-                            <div style="background: rgba(254, 242, 242, 0.85); border-left: 4px solid #EF4444; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 0.6rem;">
+                            <div style="background: rgba(254, 242, 242, 0.85); border-left: 4px solid #EF4444; border-radius: 8px; padding: 0.7rem 0.9rem; margin-bottom: 0.5rem;">
                                 <b>{s_name}</b> (`{s_id}`) • Predicted Math: <span style="color:#DC2626; font-weight:bold;">{s_row['Predicted_Math_Score']}</span> | Pass Prob: <span style="color:#DC2626; font-weight:bold;">{s_row['Pass_Probability_Pct']}%</span><br/>
-                                <span style="font-size: 0.85rem; color: #475569;">Action: Urgent math remedial tutoring + enroll in test preparation course.</span>
+                                <span style="font-size: 0.82rem; color: #475569;"><b>Prescription:</b> {s_row.get('Prescribed_Intervention', 'Intensive Tutoring')}</span>
                             </div>
                             """, unsafe_allow_html=True)
+                        if len(high_risk_df) > 6:
+                            st.caption(f"... and {len(high_risk_df) - 6} more at-risk students in full roster below.")
                     else:
                         st.success("🎉 No high-risk students identified in this classroom cohort!")
                         
                 with c_alert2:
                     if not honors_df.empty:
                         st.markdown(f"#### 🌟 Distinction Honor Roll ({len(honors_df)} Students)")
-                        for _, h_row in honors_df.iterrows():
+                        for _, h_row in honors_df.head(6).iterrows():
                             h_name = h_row.get("student_name", h_row.get("student_id", "Student"))
                             h_id = h_row.get("student_id", "N/A")
                             st.markdown(f"""
-                            <div style="background: rgba(236, 253, 245, 0.85); border-left: 4px solid #10B981; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 0.6rem;">
+                            <div style="background: rgba(236, 253, 245, 0.85); border-left: 4px solid #10B981; border-radius: 8px; padding: 0.7rem 0.9rem; margin-bottom: 0.5rem;">
                                 <b>{h_name}</b> (`{h_id}`) • Overall Avg: <span style="color:#059669; font-weight:bold;">{h_row['Cumulative_3Subject_Avg']} / 100</span> • Grade: <span style="color:#059669; font-weight:bold;">{h_row['Predicted_Grade']}</span><br/>
-                                <span style="font-size: 0.85rem; color: #475569;">Standing: Optimal across all prerequisite examination metrics.</span>
+                                <span style="font-size: 0.82rem; color: #475569;"><b>Standing:</b> Distinction Honor Candidate • AP/Olympiad Ready</span>
                             </div>
                             """, unsafe_allow_html=True)
+                        if len(honors_df) > 6:
+                            st.caption(f"... and {len(honors_df) - 6} more distinction students in full roster below.")
                     else:
                         st.info("ℹ️ No distinction earners (85+ marks) in this cohort.")
                         
                 st.write("")
                 
-                # 3. Visual Analytics for Classroom
+                # 4. Visual Analytics for Classroom
                 st.markdown("#### 📈 Cohort Visual Analytics (Interactive Plotly):")
                 chart_col1, chart_col2 = st.columns(2)
                 
                 with chart_col1:
-                    # Grade Distribution Plotly Donut
                     grade_counts = processed_batch["Predicted_Grade"].value_counts().reset_index()
                     grade_counts.columns = ["Grade", "Count"]
                     fig_grade = px.pie(
@@ -942,7 +1186,6 @@ with tab2:
                     st.plotly_chart(fig_grade, use_container_width=True)
                     
                 with chart_col2:
-                    # Risk Tier Distribution Plotly Bar
                     risk_counts = processed_batch["Risk_Tier"].value_counts().reset_index()
                     risk_counts.columns = ["Risk Tier", "Count"]
                     fig_risk = px.bar(
@@ -960,17 +1203,9 @@ with tab2:
                     fig_risk.update_layout(height=280, margin=dict(l=20, r=20, t=40, b=20), paper_bgcolor='rgba(0,0,0,0)', showlegend=False)
                     st.plotly_chart(fig_risk, use_container_width=True)
                     
-                # Classroom Cohort Multi-Dimensional Bubble Scatter
+                # Multi-Dimensional Bubble Scatter
                 fig_bubble = create_batch_bubble_chart(processed_batch)
                 st.plotly_chart(fig_bubble, use_container_width=True)
-                
-                # 4. Cohort Test Prep Impact Breakdown Widget
-                prep_comp = processed_batch.groupby("test preparation course")["Predicted_Math_Score"].mean().to_dict()
-                if "completed" in prep_comp and "none" in prep_comp:
-                    prep_diff = round(prep_comp["completed"] - prep_comp["none"], 1)
-                    st.info(f"💡 **Classroom Insight:** Students who completed the Test Preparation Course in this cohort scored an average of **+{prep_diff} marks higher** in predicted mathematics ({prep_comp['completed']:.1f} vs. {prep_comp['none']:.1f} marks).")
-                    
-                st.write("")
                 
                 # 5. Interactive Cohort Search & Filters
                 st.markdown("#### 🔍 Filter & Search Classroom Roster:")
@@ -1003,7 +1238,7 @@ with tab2:
                 
                 class_counselor_notes = st.text_area(
                     "✍️ Cohort Counselor Observations & Executive Action Plan:",
-                    value="Classroom demonstrated high overall subject proficiency. Immediate remedial intervention scheduled for at-risk candidates, focusing on preparatory algebra and reading comprehension support.",
+                    value="Classroom evaluated with dual ML forecasting. Prescriptive intervention clusters generated for remedial tutoring, test prep bootcamps, and distinction mentorship.",
                     height=70,
                     key="class_notes_input"
                 )
@@ -1014,7 +1249,7 @@ with tab2:
                     enriched_csv_buffer = io.StringIO()
                     filtered_df.to_csv(enriched_csv_buffer, index=False)
                     st.download_button(
-                        label=f"📥 Download Processed CSV ({len(filtered_df)} Records)",
+                        label=f"📥 Download Processed CSV with Prescriptions ({len(filtered_df)} Records)",
                         data=enriched_csv_buffer.getvalue(),
                         file_name="Processed_Classroom_Report.csv",
                         mime="text/csv",
@@ -1027,10 +1262,11 @@ with tab2:
                         classroom_df=filtered_df,
                         summary=summary,
                         cohort_name=batch_source_name,
-                        custom_counselor_notes=class_counselor_notes
+                        custom_counselor_notes=class_counselor_notes,
+                        intervention_matrix=matrix
                     )
                     st.download_button(
-                        label="📄 Download Classroom Executive PDF Report",
+                        label="📄 Download Classroom Executive PDF Report (With Solutions)",
                         data=class_pdf_bytes,
                         file_name="Classroom_Executive_Summary_Report.pdf",
                         mime="application/pdf",

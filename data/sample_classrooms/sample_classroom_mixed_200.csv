@@ -1,0 +1,201 @@
+student_id,student_name,gender,race/ethnicity,parental level of education,lunch,test preparation course,reading score,writing score
+STU-2026-1001,Isabella Moore,female,group C,some high school,free/reduced,none,50,50
+STU-2026-1002,Aubrey Scott,female,group D,some high school,standard,none,47,53
+STU-2026-1003,Jackson Hernandez,female,group C,some high school,standard,none,36,41
+STU-2026-1004,Scarlett Campbell,female,group E,some high school,standard,completed,63,64
+STU-2026-1005,Olivia Jackson,male,group C,high school,free/reduced,completed,79,79
+STU-2026-1006,Carter King,male,group B,some college,standard,completed,81,83
+STU-2026-1007,Scarlett Smith,female,group D,some college,free/reduced,completed,85,87
+STU-2026-1008,Zoe Young,male,group C,some college,free/reduced,completed,80,85
+STU-2026-1009,Ava Young,male,group B,high school,standard,none,46,50
+STU-2026-1010,Lily Harris,male,group C,high school,standard,completed,56,53
+STU-2026-1011,Liam Thompson,male,group C,some college,free/reduced,none,40,39
+STU-2026-1012,Mila Young,male,group D,high school,standard,none,61,58
+STU-2026-1013,Aubrey Lewis,female,group C,some high school,standard,none,71,67
+STU-2026-1014,Anthony Baker,female,group C,some college,standard,none,71,68
+STU-2026-1015,Anthony Rivera,female,group C,some high school,standard,none,66,66
+STU-2026-1016,Leo Johnson,male,group B,some college,free/reduced,none,69,66
+STU-2026-1017,Chloe Johnson,male,group E,bachelor's degree,standard,completed,100,93
+STU-2026-1018,Evelyn White,male,group D,associate's degree,standard,completed,74,68
+STU-2026-1019,Gabriel Wright,female,group E,associate's degree,standard,completed,88,89
+STU-2026-1020,Dylan Rodriguez,male,group C,some high school,standard,completed,100,100
+STU-2026-1021,Andrew Brown,male,group C,some high school,standard,completed,66,65
+STU-2026-1022,Julian Martin,female,group D,some high school,standard,none,59,59
+STU-2026-1023,Christian Rodriguez,female,group B,associate's degree,standard,completed,82,79
+STU-2026-1024,Mason Moore,male,group B,bachelor's degree,standard,none,76,72
+STU-2026-1025,Lillian Garcia,male,group C,associate's degree,free/reduced,none,68,63
+STU-2026-1026,Avery Torres,female,group D,some high school,standard,none,78,79
+STU-2026-1027,Aubrey Rodriguez,male,group C,associate's degree,free/reduced,none,41,47
+STU-2026-1028,Jaxon Young,female,group E,bachelor's degree,free/reduced,completed,77,77
+STU-2026-1029,Emma Hill,male,group C,associate's degree,standard,none,59,58
+STU-2026-1030,Lily White,male,group D,high school,standard,none,60,57
+STU-2026-1031,Ella Lopez,female,group D,bachelor's degree,standard,none,84,87
+STU-2026-1032,Emily Scott,female,group A,high school,free/reduced,none,73,77
+STU-2026-1033,Eli Lee,female,group C,some college,standard,none,52,56
+STU-2026-1034,Luke Thomas,male,group B,some college,standard,none,65,58
+STU-2026-1035,Lily Allen,male,group E,high school,standard,none,86,81
+STU-2026-1036,Nora Nelson,female,group B,some college,standard,none,73,67
+STU-2026-1037,Luke White,male,group B,bachelor's degree,standard,completed,78,79
+STU-2026-1038,Zoe Roberts,male,group D,bachelor's degree,standard,completed,92,94
+STU-2026-1039,Matthew Hall,male,group E,high school,free/reduced,none,69,64
+STU-2026-1040,James Hill,female,group D,high school,standard,none,75,66
+STU-2026-1041,Ryan Gonzalez,female,group E,some college,standard,none,65,67
+STU-2026-1042,Riley Flores,male,group B,high school,free/reduced,none,73,69
+STU-2026-1043,Grace Clark,male,group C,some high school,standard,completed,84,84
+STU-2026-1044,Addison Thompson,female,group B,bachelor's degree,free/reduced,completed,65,64
+STU-2026-1045,Jackson Wilson,female,group E,some high school,free/reduced,none,51,53
+STU-2026-1046,James Thomas,male,group E,some college,standard,none,68,74
+STU-2026-1047,Amelia Jackson,male,group D,high school,standard,none,81,79
+STU-2026-1048,Alexander Robinson,female,group B,associate's degree,standard,completed,90,89
+STU-2026-1049,Gabriel Jones,male,group C,some high school,standard,completed,77,78
+STU-2026-1050,Oliver Rodriguez,female,group E,high school,standard,none,87,88
+STU-2026-1051,Anthony Jackson,female,group C,some high school,standard,completed,81,77
+STU-2026-1052,Charlotte Nguyen,male,group D,associate's degree,standard,none,41,43
+STU-2026-1053,Isaac Rodriguez,male,group B,bachelor's degree,standard,completed,84,89
+STU-2026-1054,Penelope Williams,female,group B,some college,standard,none,70,70
+STU-2026-1055,Lucas Martinez,female,group D,some high school,standard,none,73,74
+STU-2026-1056,Elizabeth Thomas,female,group C,associate's degree,standard,none,70,65
+STU-2026-1057,Luke Nelson,female,group D,associate's degree,standard,none,73,71
+STU-2026-1058,Jackson Jackson,female,group C,some high school,free/reduced,completed,63,65
+STU-2026-1059,Adrian Taylor,male,group E,some college,standard,none,79,77
+STU-2026-1060,Isaac Williams,male,group C,associate's degree,standard,none,59,60
+STU-2026-1061,Emma Adams,female,group C,high school,standard,completed,87,89
+STU-2026-1062,Zoe Mitchell,male,group C,associate's degree,standard,completed,70,63
+STU-2026-1063,Nora Roberts,female,group D,some college,standard,none,60,61
+STU-2026-1064,David Campbell,female,group E,associate's degree,standard,none,79,79
+STU-2026-1065,Sebastian Miller,female,group D,some high school,standard,completed,78,79
+STU-2026-1066,Layla Brown,male,group C,high school,standard,none,24,24
+STU-2026-1067,Ellie Davis,male,group B,bachelor's degree,standard,completed,75,77
+STU-2026-1068,John Lewis,male,group A,bachelor's degree,standard,completed,84,82
+STU-2026-1069,Riley Harris,male,group E,high school,free/reduced,completed,63,63
+STU-2026-1070,Harper Harris,female,group B,bachelor's degree,free/reduced,none,56,57
+STU-2026-1071,Ava Lopez,male,group C,associate's degree,standard,none,78,76
+STU-2026-1072,Noah Davis,male,group C,some college,standard,none,46,52
+STU-2026-1073,Ella Martin,female,group C,associate's degree,free/reduced,completed,86,83
+STU-2026-1074,John Jackson,male,group B,high school,standard,none,58,58
+STU-2026-1075,Alexander Hernandez,male,group C,bachelor's degree,standard,completed,76,79
+STU-2026-1076,Ella Sanchez,male,group D,some college,standard,none,45,42
+STU-2026-1077,Daniel Garcia,female,group E,bachelor's degree,free/reduced,none,53,48
+STU-2026-1078,Sophia Martinez,male,group C,master's degree,standard,none,82,82
+STU-2026-1079,Eleanor Flores,female,group D,associate's degree,standard,none,75,79
+STU-2026-1080,Oliver Garcia,female,group B,associate's degree,standard,completed,83,82
+STU-2026-1081,Natalie Martin,female,group C,high school,standard,none,74,75
+STU-2026-1082,Ryan Nelson,male,group B,bachelor's degree,standard,completed,71,69
+STU-2026-1083,Evelyn King,male,group E,some college,standard,completed,72,71
+STU-2026-1084,Ellie Walker,female,group C,associate's degree,standard,completed,96,96
+STU-2026-1085,Aubrey Carter,male,group C,associate's degree,standard,none,52,57
+STU-2026-1086,Dylan Brown,male,group C,high school,standard,none,66,65
+STU-2026-1087,Oliver Nelson,male,group B,some college,standard,completed,91,85
+STU-2026-1088,Charlotte Carter,male,group E,associate's degree,free/reduced,completed,66,64
+STU-2026-1089,Nathan Perez,female,group D,bachelor's degree,free/reduced,completed,87,90
+STU-2026-1090,Avery Perez,male,group B,some high school,free/reduced,none,63,62
+STU-2026-1091,Addison Rivera,male,group C,some high school,standard,completed,50,56
+STU-2026-1092,Leo Mitchell,male,group D,bachelor's degree,standard,completed,67,67
+STU-2026-1093,Hannah Allen,male,group C,high school,free/reduced,none,64,63
+STU-2026-1094,Riley Anderson,female,group D,bachelor's degree,standard,none,62,61
+STU-2026-1095,Nora Clark,male,group E,some college,standard,none,46,45
+STU-2026-1096,Anthony White,female,group B,associate's degree,free/reduced,completed,57,64
+STU-2026-1097,Eleanor Campbell,male,group C,high school,standard,none,50,46
+STU-2026-1098,Julian Gonzalez,male,group D,some college,free/reduced,none,70,65
+STU-2026-1099,Harper Moore,male,group C,high school,standard,none,45,49
+STU-2026-1100,Isabella Davis,male,group E,some high school,standard,none,68,70
+STU-2026-1101,Nathan Jones,male,group B,high school,free/reduced,completed,70,69
+STU-2026-1102,Amelia Sanchez,female,group C,high school,standard,none,76,81
+STU-2026-1103,Elijah White,female,group A,some high school,free/reduced,completed,63,63
+STU-2026-1104,Julian Campbell,female,group C,some high school,standard,completed,81,81
+STU-2026-1105,Lillian Sanchez,female,group D,high school,standard,none,61,64
+STU-2026-1106,Sebastian Davis,female,group C,high school,free/reduced,completed,67,66
+STU-2026-1107,Scarlett Hall,female,group C,some college,standard,completed,84,81
+STU-2026-1108,Sophia Flores,female,group B,high school,free/reduced,completed,51,48
+STU-2026-1109,John Roberts,female,group C,associate's degree,standard,none,78,74
+STU-2026-1110,Avery Ramirez,male,group C,associate's degree,free/reduced,completed,63,64
+STU-2026-1111,Leah Lee,female,group C,some college,standard,none,79,75
+STU-2026-1112,Isaac Allen,female,group D,some college,free/reduced,none,61,61
+STU-2026-1113,Addison Thomas,male,group C,associate's degree,standard,none,73,76
+STU-2026-1114,Mia White,female,group D,some high school,standard,completed,55,55
+STU-2026-1115,Harper Rodriguez,male,group D,some college,standard,none,76,71
+STU-2026-1116,Matthew Flores,male,group C,some college,standard,completed,76,76
+STU-2026-1117,Ella Flores,female,group B,associate's degree,standard,completed,79,75
+STU-2026-1118,Luke Williams,female,group A,high school,standard,none,63,62
+STU-2026-1119,Emily Miller,male,group C,some college,standard,none,50,47
+STU-2026-1120,Alexander Thomas,male,group B,associate's degree,standard,completed,93,92
+STU-2026-1121,Olivia Flores,female,group C,associate's degree,standard,completed,81,79
+STU-2026-1122,Ella Anderson,female,group D,some college,standard,completed,84,86
+STU-2026-1123,Benjamin Hernandez,male,group B,bachelor's degree,standard,none,88,90
+STU-2026-1124,Emily Hall,female,group D,associate's degree,free/reduced,none,56,58
+STU-2026-1125,Andrew Rivera,male,group A,high school,standard,none,79,75
+STU-2026-1126,Alexander Flores,female,group B,associate's degree,free/reduced,none,70,72
+STU-2026-1127,Aria Young,female,group C,some college,standard,none,70,75
+STU-2026-1128,Julian Green,female,group B,some high school,free/reduced,completed,49,49
+STU-2026-1129,Aria Davis,male,group C,high school,free/reduced,none,52,49
+STU-2026-1130,Anthony Hall,female,group C,some high school,standard,completed,87,85
+STU-2026-1131,Dylan Lewis,female,group B,high school,standard,none,86,84
+STU-2026-1132,Julian Carter,female,group D,some college,free/reduced,none,51,53
+STU-2026-1133,Victoria Hernandez,female,group C,bachelor's degree,free/reduced,none,65,64
+STU-2026-1134,Andrew Baker,male,group D,high school,standard,completed,84,79
+STU-2026-1135,Matthew Martinez,male,group C,associate's degree,standard,completed,65,67
+STU-2026-1136,Joshua Perez,female,group D,high school,standard,completed,81,83
+STU-2026-1137,Sebastian Young,female,group D,bachelor's degree,standard,none,81,81
+STU-2026-1138,Joseph Sanchez,male,group A,some college,standard,completed,78,80
+STU-2026-1139,Luke Rodriguez,female,group D,some college,standard,completed,84,90
+STU-2026-1140,Layla Hernandez,male,group B,associate's degree,standard,none,65,58
+STU-2026-1141,James Brown,female,group C,some college,standard,none,63,58
+STU-2026-1142,Landon Flores,male,group C,bachelor's degree,free/reduced,none,47,45
+STU-2026-1143,Mia Jones,male,group C,some college,standard,completed,85,80
+STU-2026-1144,Ella Lee,male,group D,associate's degree,standard,none,65,71
+STU-2026-1145,Ella Williams,male,group C,high school,free/reduced,none,52,56
+STU-2026-1146,Eleanor Jackson,female,group D,high school,standard,none,85,80
+STU-2026-1147,Dylan Green,female,group C,associate's degree,free/reduced,completed,96,99
+STU-2026-1148,Olivia White,male,group D,some high school,standard,completed,63,64
+STU-2026-1149,Carter Adams,female,group D,associate's degree,free/reduced,completed,88,84
+STU-2026-1150,Zoey Thomas,female,group D,high school,standard,completed,90,88
+STU-2026-1151,Natalie Hall,male,group B,associate's degree,standard,completed,73,71
+STU-2026-1152,Abigail Robinson,female,group A,some high school,standard,completed,67,68
+STU-2026-1153,Layla Sanchez,male,group D,high school,standard,completed,84,81
+STU-2026-1154,Henry Flores,female,group B,some high school,standard,none,80,85
+STU-2026-1155,Ella Smith,female,group E,some college,free/reduced,completed,46,50
+STU-2026-1156,Abigail Thomas,female,group C,high school,free/reduced,none,63,63
+STU-2026-1157,Mia Wright,male,group D,some college,free/reduced,none,72,73
+STU-2026-1158,Jaxon Ramirez,female,group B,some college,standard,completed,100,100
+STU-2026-1159,Sebastian Carter,female,group C,some college,free/reduced,none,60,59
+STU-2026-1160,Nathan Johnson,male,group D,some college,standard,completed,72,72
+STU-2026-1161,Harper Perez,male,group E,high school,free/reduced,none,43,35
+STU-2026-1162,Sophia Jones,female,group C,some college,free/reduced,completed,90,95
+STU-2026-1163,Nathan Mitchell,female,group E,associate's degree,standard,none,91,96
+STU-2026-1164,Mia Nelson,male,group D,associate's degree,standard,completed,63,65
+STU-2026-1165,Natalie Wright,female,group C,high school,standard,none,58,56
+STU-2026-1166,Avery Roberts,male,group B,high school,free/reduced,none,65,64
+STU-2026-1167,Layla Davis,female,group E,some high school,standard,completed,80,83
+STU-2026-1168,Joseph Garcia,male,group D,associate's degree,standard,none,68,71
+STU-2026-1169,Penelope Robinson,male,group B,some college,standard,completed,97,91
+STU-2026-1170,Lucas Miller,female,group C,high school,free/reduced,none,46,48
+STU-2026-1171,Liam Scott,male,group B,high school,free/reduced,none,60,66
+STU-2026-1172,Stella Hernandez,male,group C,associate's degree,free/reduced,none,49,52
+STU-2026-1173,Julian Johnson,male,group B,some college,standard,completed,80,80
+STU-2026-1174,Elijah Rodriguez,female,group B,master's degree,standard,none,72,74
+STU-2026-1175,Zoe Flores,female,group D,bachelor's degree,free/reduced,completed,68,68
+STU-2026-1176,Jaxon Jackson,female,group D,associate's degree,standard,none,81,77
+STU-2026-1177,Eleanor Thomas,female,group B,some college,standard,completed,92,93
+STU-2026-1178,Aubrey Rivera,male,group D,some college,standard,none,52,51
+STU-2026-1179,Ryan Miller,female,group B,some college,standard,completed,100,100
+STU-2026-1180,Joshua Campbell,male,group E,high school,free/reduced,none,57,58
+STU-2026-1181,Leah Nguyen,male,group C,high school,free/reduced,none,35,36
+STU-2026-1182,Jackson Torres,male,group E,some college,standard,completed,88,93
+STU-2026-1183,Sophia Taylor,male,group B,some college,standard,none,25,27
+STU-2026-1184,Elizabeth Wilson,male,group B,bachelor's degree,standard,none,82,81
+STU-2026-1185,Mila Garcia,female,group D,some college,free/reduced,none,52,59
+STU-2026-1186,Abigail Smith,female,group D,bachelor's degree,standard,none,74,72
+STU-2026-1187,Samuel Martin,female,group E,some high school,free/reduced,completed,82,81
+STU-2026-1188,Emma Williams,female,group D,some high school,free/reduced,completed,63,66
+STU-2026-1189,Jaxon Jones,female,group C,some high school,free/reduced,none,86,81
+STU-2026-1190,Evelyn Lopez,male,group C,some college,standard,none,74,76
+STU-2026-1191,Lucas Garcia,female,group E,associate's degree,free/reduced,completed,73,78
+STU-2026-1192,Ryan Allen,female,group D,bachelor's degree,standard,completed,94,95
+STU-2026-1193,Eli Taylor,female,group D,some college,standard,none,67,73
+STU-2026-1194,Olivia Wright,female,group B,high school,standard,none,68,66
+STU-2026-1195,Aiden Lee,male,group D,bachelor's degree,standard,none,84,81
+STU-2026-1196,Evelyn Davis,male,group D,some college,standard,none,75,70
+STU-2026-1197,Elizabeth White,male,group A,high school,free/reduced,completed,78,83
+STU-2026-1198,Sophia Carter,male,group D,bachelor's degree,free/reduced,completed,73,77
+STU-2026-1199,Christopher Robinson,female,group D,some high school,standard,none,71,69
+STU-2026-1200,Oliver Adams,female,group A,some college,free/reduced,completed,59,54

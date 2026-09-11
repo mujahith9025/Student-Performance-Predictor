@@ -15,10 +15,11 @@ An end-to-end Machine Learning system optimized with **24-Feature Domain Synergy
 
 1. **Task A (Continuous Score Regression):** Predicts exact mathematical marks ($0 - 100$) using **Super-Stacking Meta-Ensembles** & **Optimized ElasticNet** (**$76.31\%$ $R^2$ accuracy**, $\pm 5.96$ marks MAE).
 2. **Task B (Classification & Risk Alert):** Forecasts **Pass / Fail & Early Dropout Risk** using **Support Vector Classifiers** (**$90.00\%$ Accuracy, $0.9320$ ROC-AUC score**).
-3. **Task C (Classroom Batch CSV Processing):** Upload cohort CSV files (50–500+ students) with instant pass rate statistics, grade distributions, and downloadable enriched CSVs.
-4. **Task D ('What-If' Goal Simulator):** Reverse-engineers the minimum required reading and writing milestone scores and study interventions to achieve any target grade.
-5. **Task E (Explainable AI):** Provides **Global Permutation Feature Importance (50 Shuffles)** and **Local Real-Time SHAP Attributions** explaining exact points added or deducted.
-6. **Task F (Verified Reporting):** Generates and downloads verified, styled **PDF Academic Performance Reports** in one click.
+3. **Task C (AI Prescriptive Solution & Intervention Engine):** Clinical diagnostic algorithm predicting personalized study plans, weekly subject study hour allocations, milestone timelines, and projected score uplifts.
+4. **Task D (Classroom Batch CSV Hub & Synthetic Generator):** 5 pre-built benchmark classroom CSV files + dynamic generator for custom cohort sizes (10 to 500 students) with AI clustered intervention cohorts.
+5. **Task E ('What-If' Goal Simulator):** Reverse-engineers the minimum required reading and writing milestone scores and study interventions to achieve any target grade.
+6. **Task F (Explainable AI):** Provides **Global Permutation Feature Importance (50 Shuffles)** and **Local Real-Time SHAP Attributions** explaining exact points added or deducted.
+7. **Task G (Verified Reporting):** Generates and downloads verified, styled **PDF Academic Performance Reports** (Single Student & Whole Classroom Executive Summaries).
 
 ---
 
@@ -40,18 +41,33 @@ To maximize accuracy and minimize error, the pipeline expands the original 7 fea
 
 ---
 
-## 📂 3. Classroom Batch Prediction (Bulk CSV Upload)
+## 💡 3. AI Prescriptive Solution & Intervention Engine
+
+When a student profile is evaluated, EduPredict AI diagnoses root-cause bottlenecks and prescribes customized interventions:
+* **Root Bottleneck Diagnostic:** Identifies critical math deficits, reading fluency lags, writing synthesis gaps, and uncompleted test prep.
+* **Actionable Interventions:** Ranked list of high-impact strategies with projected mark uplifts (e.g. $+6.5$ pts for Test Prep completion, $+7.0$ pts for 1-on-1 tutoring).
+* **Prescribed Weekly Study Plan:** Custom time allocation breakdown across Mathematics, Reading Comprehension, Writing Drills, and Mock Exams.
+* **12-Week Recovery & Growth Roadmap:** Structured 4-phase milestone checkpoints with target score checkpoints.
+* **Counselor & Educator Checklist:** Actionable guidance for teachers and advisors.
+
+---
+
+## 📂 4. Classroom Batch Prediction & Dynamic Synthetic Hub
 
 Teachers and administrators can evaluate entire classrooms in one click:
-* **One-Click Template Download:** Download a pre-formatted 10-student CSV template.
-* **Bulk Upload & Inference:** Upload CSV rosters of any size.
-* **Classroom Overview Metrics:**
-  * Total Students Processed
-  * Class Average Math Score & Overall Average
-  * Class Pass Rate (%)
-  * Count of At-Risk / Remedial Students & Distinction Earners
-* **Cohort Visualizations:** Interactive letter grade distributions and risk tier breakdowns.
-* **One-Click Export:** Download the fully predicted and graded classroom spreadsheet (.CSV).
+* **Pre-Built Benchmark Cohort Loaders (1-Click):**
+  * 🌟 Balanced 50 Class (`sample_classroom_balanced_50.csv`)
+  * 🏫 Grade-Wide 100 Cohort (`sample_classroom_large_100.csv`)
+  * 🚨 At-Risk Focus 40 (`sample_classroom_at_risk_focus_40.csv`)
+  * 🏆 Honors Distinction 35 (`sample_classroom_honors_35.csv`)
+  * 🌐 Diverse 200 Multi-Section (`sample_classroom_mixed_200.csv`)
+* **Dynamic Synthetic Classroom Generator:** Generate custom cohorts of 10 to 500 students with selectable distribution profiles (Balanced, High-Risk Remedial, Honors AP).
+* **Prescriptive Classroom Intervention Matrix:** Automatically clusters students into 4 actionable institutional groups:
+  1. 🚨 *Intensive Remedial Cohort*
+  2. 🎯 *Test Prep Bootcamp Cohort*
+  3. 📚 *Verbal & Reading Support Cohort*
+  4. 🏆 *Honors & Distinction Mentorship Cohort*
+* **Executive PDF & CSV Export:** Download graded CSV reports and verified multi-page cohort summary PDFs.
 
 ---
 

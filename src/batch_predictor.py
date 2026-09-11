@@ -1,7 +1,9 @@
 import io
+import os
 import pandas as pd
 import numpy as np
 from src.advanced_feature_engineering import engineer_features
+from src.sample_generator import generate_synthetic_classroom
 
 REQUIRED_COLUMNS = [
     "gender",
@@ -15,7 +17,7 @@ REQUIRED_COLUMNS = [
 
 def generate_sample_csv_template():
     """
-    Generates a sample CSV template with 10 student records for teachers to test bulk predictions.
+    Generates a default sample CSV template with 10 student records for teachers to test bulk predictions.
     """
     sample_data = {
         "student_id": [f"STU-2026-{100+i}" for i in range(1, 11)],
@@ -39,9 +41,37 @@ def generate_sample_csv_template():
     df.to_csv(csv_buffer, index=False)
     return csv_buffer.getvalue()
 
+def load_or_create_sample_cohort(cohort_type="balanced", n_students=50, seed=42):
+    """
+    Loads pre-generated sample cohort from disk if available, or dynamically creates one.
+    """
+    file_map = {
+        "balanced_50": os.path.join("data", "sample_classrooms", "sample_classroom_balanced_50.csv"),
+        "large_100": os.path.join("data", "sample_classrooms", "sample_classroom_large_100.csv"),
+        "at_risk_40": os.path.join("data", "sample_classrooms", "sample_classroom_at_risk_focus_40.csv"),
+        "honors_35": os.path.join("data", "sample_classrooms", "sample_classroom_honors_35.csv"),
+        "mixed_200": os.path.join("data", "sample_classrooms", "sample_classroom_mixed_200.csv")
+    }
+    
+    if cohort_type in file_map and os.path.exists(file_map[cohort_type]):
+        df = pd.read_csv(file_map[cohort_type])
+        return df
+        
+    # Otherwise generate dynamically
+    cohort_map = {
+        "balanced_50": ("balanced", 50),
+        "large_100": ("large_cohort", 100),
+        "at_risk_40": ("at_risk_focus", 40),
+        "honors_35": ("honors_advanced", 35),
+        "mixed_200": ("balanced", 200)
+    }
+    c_type, count = cohort_map.get(cohort_type, (cohort_type, n_students))
+    df = generate_synthetic_classroom(n_students=count, cohort_type=c_type, seed=seed)
+    return df
+
 def process_batch_predictions(df, preprocessor, reg_model, clf_model):
     """
-    Processes an entire classroom DataFrame and returns the enriched DataFrame + summary analytics.
+    Processes an entire classroom DataFrame and returns the enriched DataFrame + summary analytics + prescriptive solution tags.
     """
     missing_cols = [c for c in REQUIRED_COLUMNS if c not in df.columns]
     if missing_cols:
@@ -94,7 +124,27 @@ def process_batch_predictions(df, preprocessor, reg_model, clf_model):
 
     processed_df["Risk_Tier"] = pd.Series(pass_probs).apply(assign_risk_tier)
 
-    # 5. Class-level Summary Analytics
+    # 5. Prescriptive Solution Tagging for Each Student
+    def assign_prescriptive_action(row):
+        math_s = row["Predicted_Math_Score"]
+        read_s = row["reading score"]
+        prep_s = row["test preparation course"]
+        prob = row["Pass_Probability_Pct"]
+        
+        if prob < 50 or math_s < 50:
+            return "🚨 Intensive 1-on-1 Tutoring & Math Clinic"
+        elif prep_s == "none" and math_s < 75:
+            return "🎯 4-Week Exam Prep Course Completion"
+        elif read_s < 60:
+            return "📚 SQ3R Reading & Vocabulary Drills"
+        elif math_s >= 80 and read_s >= 80:
+            return "🏆 Honors & Olympiad Advancement"
+        else:
+            return "📈 Weekly Guided Problem Solving"
+
+    processed_df["Prescribed_Intervention"] = processed_df.apply(assign_prescriptive_action, axis=1)
+
+    # 6. Class-level Summary Analytics
     total_students = len(processed_df)
     pass_count = int(np.sum(pass_flags == 1))
     at_risk_count = total_students - pass_count

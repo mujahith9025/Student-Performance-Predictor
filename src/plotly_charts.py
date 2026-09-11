@@ -406,3 +406,120 @@ def create_interactive_roc_curve():
         legend=dict(orientation="h", yanchor="bottom", y=-0.4, xanchor="center", x=0.5, font=dict(size=10))
     )
     return fig
+
+# ---------------------------------------------------------
+# PRESCRIPTIVE SOLUTION & INTERVENTION CHARTS
+# ---------------------------------------------------------
+def create_prescriptive_study_hours_chart(study_hours_dict):
+    """
+    Donut chart of weekly prescribed study hours across academic dimensions.
+    """
+    labels = list(study_hours_dict.keys())
+    values = list(study_hours_dict.values())
+    colors = ['#2563EB', '#0D9488', '#F59E0B', '#8B5CF6']
+    
+    fig = go.Figure(data=[go.Pie(
+        labels=labels,
+        values=values,
+        hole=0.55,
+        marker=dict(colors=colors, line=dict(color='#FFFFFF', width=2)),
+        textinfo='label+value',
+        texttemplate='<b>%{label}</b><br>%{value} hrs/wk',
+        hoverinfo='label+percent+value'
+    )])
+    
+    total_hours = sum(values)
+    fig.update_layout(
+        title=f"<b>Prescribed Weekly Study Plan (Total: {total_hours:.1f} hrs/wk)</b>",
+        title_font=dict(size=14, family="Outfit", color="#1E3A8A"),
+        height=260,
+        margin=dict(l=10, r=10, t=35, b=10),
+        paper_bgcolor='rgba(0,0,0,0)',
+        showlegend=False,
+        annotations=[dict(text=f"<b>{total_hours:.0f}h</b><br>Weekly", x=0.5, y=0.5, font_size=16, font_family="Outfit", showarrow=False)]
+    )
+    return fig
+
+def create_intervention_uplift_chart(current_score, projected_score, interventions):
+    """
+    Stepped bridge / waterfall chart showing score progression from baseline to projected goal.
+    """
+    labels = ["Current Baseline"]
+    y_vals = [current_score]
+    measures = ["absolute"]
+    
+    running = current_score
+    for item in interventions:
+        uplift_val = float(item["est_uplift"].replace("+", "").replace(" pts", "").strip())
+        labels.append(item["title"][:22] + "...")
+        y_vals.append(uplift_val)
+        measures.append("relative")
+        running += uplift_val
+        
+    labels.append("Projected Outcome")
+    y_vals.append(projected_score)
+    measures.append("total")
+    
+    fig = go.Figure(go.Waterfall(
+        name="Score Uplift",
+        orientation="v",
+        measure=measures,
+        x=labels,
+        textposition="outside",
+        text=[f"{v:.1f}" for v in y_vals],
+        y=y_vals,
+        connector={"line": {"color": "#94A3B8", "width": 1.5}},
+        increasing={"marker": {"color": "#10B981"}},
+        decreasing={"marker": {"color": "#EF4444"}},
+        totals={"marker": {"color": "#2563EB"}}
+    ))
+    
+    fig.update_layout(
+        title="<b>Projected Academic Uplift Roadmap (Points Added)</b>",
+        title_font=dict(size=14, family="Outfit", color="#1E3A8A"),
+        height=260,
+        margin=dict(l=20, r=20, t=35, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)',
+        yaxis=dict(title="Math Marks (/100)", range=[0, 105]),
+        font=dict(family="Plus Jakarta Sans", size=10)
+    )
+    return fig
+
+def create_classroom_intervention_cluster_chart(cluster_summary):
+    """
+    Donut chart of classroom intervention cohort breakdown.
+    """
+    labels = [
+        "Intensive Remedial (High Risk)",
+        "Test Prep Bootcamp",
+        "Verbal / Reading Support",
+        "Honors / Distinction"
+    ]
+    values = [
+        cluster_summary.get("high_risk_count", 0),
+        cluster_summary.get("test_prep_needed_count", 0),
+        cluster_summary.get("verbal_support_count", 0),
+        cluster_summary.get("honors_count", 0)
+    ]
+    colors = ['#EF4444', '#F59E0B', '#3B82F6', '#10B981']
+    
+    fig = go.Figure(data=[go.Pie(
+        labels=labels,
+        values=values,
+        hole=0.50,
+        marker=dict(colors=colors, line=dict(color='#FFFFFF', width=2)),
+        textinfo='label+percent',
+        hoverinfo='label+value+percent'
+    )])
+    
+    fig.update_layout(
+        title="<b>Classroom Prescriptive Cohort Clusters</b>",
+        title_font=dict(size=14, family="Outfit", color="#1E3A8A"),
+        height=280,
+        margin=dict(l=10, r=10, t=35, b=10),
+        paper_bgcolor='rgba(0,0,0,0)',
+        legend=dict(orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5, font=dict(size=10))
+    )
+    return fig
+
