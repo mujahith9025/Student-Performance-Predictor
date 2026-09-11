@@ -50,7 +50,7 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# MODERN STREAMLINED GLASSMORPHIC DESIGN SYSTEM
+# MODERN BENTO GRID DESIGN SYSTEM & CLEAN TYPOGRAPHY
 # ---------------------------------------------------------
 st.markdown("""
 <style>
@@ -73,15 +73,15 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
-    /* Streamlined Compact Header */
+    /* Streamlined Modern Header */
     .hero-container {
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 249, 255, 0.9) 50%, rgba(238, 242, 255, 0.95) 100%);
         backdrop-filter: blur(16px);
         border: 1px solid rgba(226, 232, 240, 0.85);
         border-radius: 16px;
-        padding: 1.2rem 1.6rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 4px 20px -4px rgba(30, 58, 138, 0.06);
+        padding: 1.1rem 1.5rem;
+        margin-bottom: 0.9rem;
+        box-shadow: 0 4px 20px -4px rgba(30, 58, 138, 0.05);
         position: relative;
         overflow: hidden;
     }
@@ -92,63 +92,62 @@ st.markdown("""
         top: 0;
         left: 0;
         right: 0;
-        height: 3.5px;
+        height: 3px;
         background: linear-gradient(90deg, #3B82F6 0%, #8B5CF6 50%, #06B6D4 100%);
     }
 
     .hero-title {
         font-family: var(--font-heading);
-        font-size: 1.85rem;
+        font-size: 1.75rem;
         font-weight: 800;
         background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #7C3AED 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.15rem;
         line-height: 1.2;
     }
 
     .hero-subtitle {
-        font-size: 0.92rem;
+        font-size: 0.9rem;
         color: #475569;
-        margin-bottom: 0.8rem;
-        line-height: 1.4;
+        margin-bottom: 0.6rem;
+        line-height: 1.35;
     }
 
-    /* Compact Badge Chips */
+    /* Compact Pill Badges */
     .badge-chip-group {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0.45rem;
     }
 
     .badge-chip {
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
-        padding: 0.25rem 0.75rem;
+        gap: 0.3rem;
+        padding: 0.22rem 0.65rem;
         border-radius: 9999px;
-        font-size: 0.76rem;
+        font-size: 0.75rem;
         font-weight: 600;
         font-family: var(--font-body);
-        backdrop-filter: blur(8px);
     }
 
     .badge-primary {
-        background: rgba(239, 246, 255, 0.9);
+        background: #EFF6FF;
         color: #1D4ED8;
-        border: 1px solid rgba(191, 219, 254, 0.9);
+        border: 1px solid #BFDBFE;
     }
 
     .badge-success {
-        background: rgba(236, 253, 245, 0.9);
+        background: #ECFDF5;
         color: #047857;
-        border: 1px solid rgba(167, 243, 208, 0.9);
+        border: 1px solid #A7F3D0;
     }
 
     .badge-purple {
-        background: rgba(245, 243, 255, 0.9);
+        background: #F5F3FF;
         color: #6D28D9;
-        border: 1px solid rgba(221, 214, 254, 0.9);
+        border: 1px solid #DDD6FE;
     }
 
     .pulse-dot {
@@ -166,26 +165,44 @@ st.markdown("""
         100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
-    /* Streamlined Outcome Cards */
-    .result-box-pass {
-        background: linear-gradient(135deg, rgba(236, 253, 245, 0.95) 0%, rgba(209, 250, 229, 0.85) 100%);
-        border: 1.5px solid #6EE7B7;
+    /* Bento Tile Card Styles */
+    .bento-tile {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
         border-radius: 14px;
-        padding: 1.1rem 1.4rem;
-        text-align: center;
-        box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.12);
+        padding: 1.15rem 1.25rem;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+        margin-bottom: 0.9rem;
+        height: 100%;
+        position: relative;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
-    .result-box-risk {
-        background: linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(254, 226, 226, 0.85) 100%);
-        border: 1.5px solid #FCA5A5;
-        border-radius: 14px;
-        padding: 1.1rem 1.4rem;
-        text-align: center;
-        box-shadow: 0 4px 16px -2px rgba(239, 68, 68, 0.12);
+    .bento-tile:hover {
+        box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.08);
+        border-color: #CBD5E1;
     }
 
-    .result-score-number {
+    .bento-tile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.6rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #F1F5F9;
+    }
+
+    .bento-tile-title {
+        font-family: var(--font-heading);
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: #1E3A8A;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .bento-score-hero {
         font-family: var(--font-heading);
         font-size: 2.8rem;
         font-weight: 900;
@@ -193,67 +210,57 @@ st.markdown("""
         margin: 0.2rem 0;
     }
 
-    /* Clean Card Containers */
-    .card-clean {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 1.2rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-    }
-
-    /* Roadmap Quest Cards */
+    /* Roadmap Action Item Cards */
     .roadmap-card {
         background: #FFFFFF;
-        border-left: 4px solid #2563EB;
+        border-left: 3.5px solid #2563EB;
         border-top: 1px solid #E2E8F0;
         border-right: 1px solid #E2E8F0;
         border-bottom: 1px solid #E2E8F0;
-        border-radius: 10px;
-        padding: 0.85rem 1rem;
-        margin-bottom: 0.6rem;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        border-radius: 9px;
+        padding: 0.75rem 0.9rem;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
     }
 
-    /* Preset Selection Container */
+    /* Preset Chip Box */
     .preset-chip-box {
         background: #F8FAFC;
         border: 1px solid #E2E8F0;
-        border-radius: 10px;
-        padding: 0.6rem 0.9rem;
-        margin-bottom: 0.8rem;
+        border-radius: 9px;
+        padding: 0.5rem 0.8rem;
+        margin-bottom: 0.7rem;
     }
 
-    /* Modern Tabs Redesign */
+    /* Streamlined Tabs */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 6px;
-        background-color: rgba(241, 245, 249, 0.8);
-        padding: 5px 6px;
-        border-radius: 12px;
+        gap: 5px;
+        background-color: rgba(241, 245, 249, 0.85);
+        padding: 4px 5px;
+        border-radius: 11px;
         border: 1px solid #E2E8F0;
     }
 
     .stTabs [data-baseweb="tab"] {
-        height: 38px;
-        border-radius: 8px;
+        height: 36px;
+        border-radius: 7px;
         color: #475569;
         font-family: var(--font-body);
         font-weight: 600;
-        font-size: 0.85rem;
-        padding: 0 14px;
+        font-size: 0.84rem;
+        padding: 0 13px;
         transition: all 0.2s ease;
     }
 
     .stTabs [data-baseweb="tab"]:hover {
-        background-color: rgba(255, 255, 255, 0.85);
+        background-color: rgba(255, 255, 255, 0.9);
         color: #1E3A8A;
     }
 
     .stTabs [aria-selected="true"] {
         background: #FFFFFF !important;
         color: #2563EB !important;
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12) !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12) !important;
         font-weight: 700 !important;
     }
 </style>
@@ -299,7 +306,7 @@ raw_df = load_raw_dataset()
 # ---------------------------------------------------------
 with st.sidebar:
     st.image("https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80", use_container_width=True)
-    st.title("⚙️ Engine Hub")
+    st.title("⚙️ AI Control Hub")
     
     if all_models:
         default_index = 0
@@ -310,26 +317,26 @@ with st.sidebar:
             default_index = model_names.index("Super Stacking Meta Regressor")
             
         selected_model_name = st.selectbox(
-            "Regression Algorithm:",
+            "AI Forecasting Algorithm:",
             options=model_names,
             index=default_index,
-            help="Select active regression model"
+            help="Select the machine learning algorithm used for score prediction"
         )
         active_model = all_models[selected_model_name]
     else:
         active_model = best_model
         selected_model_name = "Optimized Model (Default)"
         
-    st.info("🛡️ Classifier: **Support Vector Machine (97.0% Acc | 0.985 ROC-AUC)**")
+    st.info("🛡️ Pass Classifier: **Support Vector Machine (97.0% Accuracy)**")
     
     st.markdown("---")
-    st.markdown("### 📊 Production Benchmarks")
-    st.markdown("- **14 Core Input Features** (Academic + Lifestyle)")
-    st.markdown("- **38 Engineered Synergy Metrics**")
-    st.markdown("- **Regression $R^2$ Score:** **90.07%** ($\pm 3.47$ MAE)")
-    st.markdown("- **Classification Accuracy:** **97.00%**")
-    st.markdown("- **Classroom Bulk Batch:** **Active**")
-    st.markdown("- **PDF Generator:** **ReportLab 5.0 Certified**")
+    st.markdown("### 📊 Performance Benchmarks")
+    st.markdown("- **14 Student Input Dimensions** (Academic + Behavioral)")
+    st.markdown("- **38 Synergy Interaction Metrics**")
+    st.markdown("- **Model Accuracy ($R^2$):** **90.07%** ($\pm 3.47$ marks)")
+    st.markdown("- **Pass Classification Accuracy:** **97.00%**")
+    st.markdown("- **Classroom Batch Analytics:** **Active**")
+    st.markdown("- **Verified PDF Engine:** **Certified**")
     
     st.caption("EduPredict AI v3.0 • Production Ready")
 
@@ -340,12 +347,12 @@ st.markdown("""
 <div class="hero-container">
     <div class="hero-title">🎓 EduPredict AI • Student Intelligence Hub</div>
     <div class="hero-subtitle">
-        Dual-task AI forecasting with 14-feature multi-dimensional profiling, personalized prescriptive action plans, classroom batch risk analytics, and verified PDF reports.
+        Intelligent multi-dimensional academic forecasting, root-cause diagnostics, personalized study plans, classroom batch risk analytics, and verified PDF certificates.
     </div>
     <div class="badge-chip-group">
-        <span class="badge-chip badge-success"><span class="pulse-dot"></span> Active Engine</span>
-        <span class="badge-chip badge-primary">⚡ 14-Feature Multi-Dimensional Input</span>
-        <span class="badge-chip badge-purple">🎯 90.1% R² Precision (±3.47 MAE)</span>
+        <span class="badge-chip badge-success"><span class="pulse-dot"></span> AI Engine Online</span>
+        <span class="badge-chip badge-primary">⚡ 14-Dimension Profile</span>
+        <span class="badge-chip badge-purple">🎯 90.1% Score Precision</span>
         <span class="badge-chip badge-primary">🛡️ 97.0% Pass Classification</span>
         <span class="badge-chip badge-success">📄 Certified PDF Reports</span>
     </div>
@@ -353,21 +360,21 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# STREAMLINED 5-TAB NAVIGATION
+# 5 STREAMLINED WORKSPACE TABS
 # ---------------------------------------------------------
 tab_pred, tab_batch, tab_goal, tab_xai, tab_models = st.tabs([
     "🎯 Student Predictor", 
     "📂 Classroom Analytics",
     "🗺️ 'What-If' Simulator",
-    "🔍 AI Insights & EDA",
+    "🔍 AI Insights & Data",
     "⚙️ Models & Architecture"
 ])
 
 # =========================================================
-# TAB 1: INDIVIDUAL STUDENT PREDICTOR & ACTION PLAN
+# TAB 1: BENTO GRID STUDENT PREDICTOR & ACTION PLAN
 # =========================================================
 with tab_pred:
-    # Preset Selection Session State
+    # State Initialization
     if "p_name" not in st.session_state: st.session_state["p_name"] = "Alex Johnson"
     if "p_id" not in st.session_state: st.session_state["p_id"] = "STU-2026-101"
     if "p_gender" not in st.session_state: st.session_state["p_gender"] = "female"
@@ -385,10 +392,10 @@ with tab_pred:
     if "p_sleep" not in st.session_state: st.session_state["p_sleep"] = 7.5
     if "p_fails" not in st.session_state: st.session_state["p_fails"] = 0
 
-    # Sleek 1-Row Quick Presets
+    # 1-Row Quick Demo Personas
     st.markdown("""
     <div class="preset-chip-box">
-        <span style="font-size: 0.82rem; font-weight: 700; color: #334155; text-transform: uppercase;">⚡ Quick-Load Demo Student Presets:</span>
+        <span style="font-size: 0.8rem; font-weight: 700; color: #334155; text-transform: uppercase;">⚡ Quick-Load Demo Student Presets:</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -448,15 +455,15 @@ with tab_pred:
             })
             st.rerun()
 
-    # Streamlined Form with Progressive Disclosure
-    with st.form("prediction_form"):
+    # Input Form with Progressive Disclosure
+    with st.form("bento_prediction_form"):
         f_id1, f_id2 = st.columns(2)
         with f_id1:
             student_name = st.text_input("Student Name:", value=st.session_state["p_name"])
         with f_id2:
             student_id = st.text_input("Student Roll / ID:", value=st.session_state["p_id"])
 
-        st.markdown("#### ⚡ Core Academic & Behavioral Levers")
+        st.markdown("#### ⚡ Essential Academic & Habit Levers")
         c_in1, c_in2, c_in3, c_in4 = st.columns(4)
         with c_in1:
             reading_score = st.slider("Reading Score (0-100):", 0, 100, int(st.session_state["p_read"]), 1)
@@ -467,8 +474,7 @@ with tab_pred:
         with c_in4:
             attendance_rate = st.slider("Attendance Rate (%):", 50.0, 100.0, float(st.session_state["p_att"]), 0.5)
 
-        # Progressive Disclosure Expander for Advanced Lifestyle & Background Levers
-        with st.expander("⚙️ Advanced Lifestyle, Support & Background Levers (Optional)", expanded=False):
+        with st.expander("⚙️ Additional Lifestyle & Support Levers (Optional Details)", expanded=False):
             adv_c1, adv_c2, adv_c3 = st.columns(3)
             with adv_c1:
                 sleep_hours_per_day = st.slider("Sleep (Hours/Day):", 4.0, 10.0, float(st.session_state["p_sleep"]), 0.2)
@@ -491,12 +497,12 @@ with tab_pred:
                 gender = st.selectbox("Gender:", gen_opts, index=gen_opts.index(st.session_state["p_gender"]))
                 race_ethnicity = "group C"
 
-        submit_btn = st.form_submit_button("⚡ Run Multi-Dimensional ML Assessment", use_container_width=True, type="primary")
+        submit_btn = st.form_submit_button("⚡ Calculate Student Assessment & Roadmap", use_container_width=True, type="primary")
 
     if submit_btn or "last_pred" in st.session_state:
         if submit_btn:
             st.session_state["last_pred"] = True
-            
+
         if preprocessor is not None and active_model is not None:
             input_dict = {
                 "gender": [gender],
@@ -531,46 +537,24 @@ with tab_pred:
                 
             if pass_prob >= 80:
                 risk_level = "Safe / Low Risk"
+                risk_badge_bg = "#ECFDF5"
+                risk_badge_color = "#047857"
             elif pass_prob >= 50:
-                risk_level = "Moderate Risk (Needs Monitoring)"
+                risk_level = "Moderate (Monitor)"
+                risk_badge_bg = "#FEF3C7"
+                risk_badge_color = "#D97706"
             else:
-                risk_level = "🚨 High Academic / Dropout Risk"
+                risk_level = "🚨 High Academic Risk"
+                risk_badge_bg = "#FEF2F2"
+                risk_badge_color = "#DC2626"
                 
-            if overall_avg >= 90:
-                grade = "A+ (Outstanding)"
-            elif overall_avg >= 80:
-                grade = "A (Excellent)"
-            elif overall_avg >= 70:
-                grade = "B (Good)"
-            elif overall_avg >= 60:
-                grade = "C (Satisfactory)"
-            elif overall_avg >= 50:
-                grade = "D (Pass)"
-            else:
-                grade = "F (Needs Remedial)"
-            
-            box_class = "result-box-pass" if is_pass == 1 else "result-box-risk"
-            score_color = "#047857" if is_pass == 1 else "#B91C1C"
-            
-            st.markdown(f"""
-            <div class="{box_class}">
-                <div style="font-size: 0.95rem; color: {score_color}; font-weight: 700; text-transform: uppercase;">Predicted Mathematics Score & Risk Status</div>
-                <div class="result-score-number" style="color: {score_color};">{predicted_math:.1f} <span style="font-size: 1.4rem; opacity: 0.85;">/ 100</span></div>
-                <div style="font-size: 0.95rem; color: {score_color};">
-                    <b>Pass Probability: {pass_prob:.1f}%</b> • Status: <b>{'Passed' if is_pass==1 else 'At-Risk / Fail'}</b> • Risk Tier: <b>{risk_level}</b>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            st.write("")
-            
-            # Sub-Tabs for Result Organization
-            res_tab1, res_tab2, res_tab3 = st.tabs([
-                "📋 Executive Summary & PDF",
-                "🛠️ Prescriptive Action Plan",
-                "🔬 Deep AI Diagnostics & Radar"
-            ])
-            
+            if overall_avg >= 90: grade = "A+ (Outstanding)"
+            elif overall_avg >= 80: grade = "A (Excellent)"
+            elif overall_avg >= 70: grade = "B (Good)"
+            elif overall_avg >= 60: grade = "C (Satisfactory)"
+            elif overall_avg >= 50: grade = "D (Pass)"
+            else: grade = "F (Remedial)"
+
             prescriptive_sol = generate_prescriptive_solution(
                 input_df.iloc[0].to_dict(),
                 predicted_math=predicted_math,
@@ -578,38 +562,116 @@ with tab_pred:
                 grade=grade
             )
             
-            with res_tab1:
-                # Key KPI row + Gauge
-                kpi_c1, kpi_c2, kpi_c3, kpi_c4 = st.columns(4)
-                with kpi_c1: st.metric("Predicted Math", f"{predicted_math:.1f} / 100")
-                with kpi_c2: st.metric("3-Subject Average", f"{overall_avg:.1f} / 100")
-                with kpi_c3: st.metric("Pass Probability", f"{pass_prob:.1f}%")
-                with kpi_c4: st.metric("Predicted Grade", grade.split()[0])
+            base_val, pred_val, contrib_df = explain_single_student(input_df, preprocessor, active_model, None)
+
+            # =========================================================
+            # 🍱 4-BOX MODERN BENTO GRID DASHBOARD
+            # =========================================================
+            st.markdown("### 🍱 Student Academic Intelligence Dashboard")
+            
+            bento_row1_c1, bento_row1_c2 = st.columns([1.1, 1.1])
+            
+            # --- BENTO TILE 1: ACADEMIC STANDING & PREDICTED SCORE ---
+            with bento_row1_c1:
+                score_accent = "#059669" if is_pass == 1 else "#DC2626"
+                st.markdown(f"""
+                <div class="bento-tile">
+                    <div class="bento-tile-header">
+                        <span class="bento-tile-title">🎯 Predicted Math Score & Standing</span>
+                        <span style="background:{risk_badge_bg}; color:{risk_badge_color}; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">{risk_level}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div class="bento-score-hero" style="color:{score_accent};">{predicted_math:.1f} <span style="font-size:1.3rem; opacity:0.8;">/ 100</span></div>
+                            <div style="font-size:0.92rem; color:#334155; font-weight:600;">Grade: <b>{grade.split()[0]}</b> • 3-Subject Avg: <b>{overall_avg:.1f}</b></div>
+                            <div style="font-size:0.85rem; color:#64748B; margin-top:0.2rem;">Pass Probability: <b style="color:{score_accent};">{pass_prob:.1f}%</b> ({'Passed' if is_pass==1 else 'At-Risk'})</div>
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
                 
-                g_c1, g_c2 = st.columns([1, 1.2])
-                with g_c1:
-                    fig_gauge = create_score_gauge(predicted_math, grade)
-                    st.plotly_chart(fig_gauge, use_container_width=True)
-                with g_c2:
-                    st.markdown("#### 💬 Clinical Diagnostic Advice")
-                    tips = []
-                    if pass_prob < 50: tips.append("🚨 **High Risk Alert:** Student is performing below benchmark in Mathematics. Immediate remedial sessions recommended.")
-                    if test_prep == "none": tips.append("📌 **Test Prep Course:** Completing the preparation course provides a **+9.4 mark boost**.")
-                    if lunch == "free/reduced": tips.append("📌 **Nutrition:** Standard lunch plan correlates with an **+8.0 mark boost** across all exams.")
-                    if reading_score < 60: tips.append("📌 **Reading Focus:** Enhancing reading comprehension reinforces mathematical problem solving.")
-                    if not tips: tips.append("🌟 **Optimal Academic Standing:** Student profile exhibits strong positive indicators across all subjects.")
-                    for tip in tips:
-                        if "Alert" in tip: st.error(tip)
-                        elif "📌" in tip: st.warning(tip)
-                        else: st.success(tip)
-                        
-                st.markdown("#### 📄 Official Counselor Evaluation & PDF Report Card")
+                fig_gauge = create_score_gauge(predicted_math, grade)
+                st.plotly_chart(fig_gauge, use_container_width=True)
+
+            # --- BENTO TILE 2: WHY DID AI PREDICT THIS SCORE? ---
+            with bento_row1_c2:
+                st.markdown("""
+                <div class="bento-tile">
+                    <div class="bento-tile-header">
+                        <span class="bento-tile-title">🔍 Why Did AI Give This Score?</span>
+                        <span style="background:#EFF6FF; color:#1D4ED8; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">Top Factors</span>
+                    </div>
+                    <div style="font-size:0.84rem; color:#475569; margin-bottom:0.5rem;">Points added or deducted relative to classroom baseline:</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Show Top 4 Factors
+                for _, f_row in contrib_df.head(4).iterrows():
+                    imp = f_row["Impact"]
+                    s_sign = "+" if imp >= 0 else ""
+                    s_color = "#059669" if imp >= 0 else "#DC2626"
+                    f_name = f_row["Factor"].replace('_', ' ').title()
+                    st.markdown(f"""
+                    <div style="display:flex; justify-content:space-between; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:0.45rem 0.75rem; margin-bottom:0.35rem; font-size:0.84rem;">
+                        <span><b>{f_name}</b> <span style="color:#64748B;">({f_row['Value']})</span></span>
+                        <span style="color:{s_color}; font-weight:800;">{s_sign}{imp:.2f} marks</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                fig_waterfall = create_local_xai_waterfall(base_val, predicted_math, contrib_df)
+                st.plotly_chart(fig_waterfall, use_container_width=True)
+
+            bento_row2_c1, bento_row2_c2 = st.columns([1.1, 1.1])
+            
+            # --- BENTO TILE 3: ACTION PLAN & RECOMMENDED STUDY TIME ---
+            with bento_row2_c1:
+                st.markdown("""
+                <div class="bento-tile">
+                    <div class="bento-tile-header">
+                        <span class="bento-tile-title">🛠️ Top Action Plan & Study Schedule</span>
+                        <span style="background:#ECFDF5; color:#047857; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">Prescriptive</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                for a_idx, action_item in enumerate(prescriptive_sol["interventions"][:3]):
+                    st.markdown(f"""
+                    <div class="roadmap-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; font-size:0.86rem; color:#1E3A8A;">📌 {action_item['title']}</span>
+                            <span style="font-weight:800; font-size:0.8rem; color:#059669;">{action_item['est_uplift']}</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:#475569; margin-top:0.2rem;">{action_item['action']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                fig_study = create_prescriptive_study_hours_chart(prescriptive_sol["study_hours"])
+                st.plotly_chart(fig_study, use_container_width=True)
+
+            # --- BENTO TILE 4: CERTIFIED PDF REPORT CARD EXPORT ---
+            with bento_row2_c2:
+                st.markdown("""
+                <div class="bento-tile">
+                    <div class="bento-tile-header">
+                        <span class="bento-tile-title">📄 Certified Counselor Report Card</span>
+                        <span style="background:#F5F3FF; color:#6D28D9; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">Verified</span>
+                    </div>
+                    <div style="font-size:0.84rem; color:#475569; margin-bottom:0.4rem;">Official downloadable PDF report with clinical AI prescriptions:</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
                 counselor_note = st.text_area(
-                    "✍️ Counselor Remarks (Included on Certificate):",
+                    "✍️ Counselor Observations (Appears on Certificate):",
                     value="Student exhibits strong conceptual grasp in language components. Recommended enrollment in mathematics peer tutoring and weekly practice modules.",
-                    height=70
+                    height=75
                 )
                 
+                tips = []
+                if pass_prob < 50: tips.append("🚨 High Risk Alert: Immediate remedial sessions recommended in Mathematics.")
+                if test_prep == "none": tips.append("📌 Test Prep Course: Statistically provides a +9.4 mark boost.")
+                if reading_score < 60: tips.append("📌 Reading Focus: Enhancing reading comprehension reinforces mathematical problem solving.")
+                if not tips: tips.append("🌟 Optimal Academic Standing across all subjects.")
+
                 pdf_bytes = generate_student_pdf_report(
                     student_name=student_name if student_name.strip() else "Student",
                     student_id=student_id if student_id.strip() else "STU-UNASSIGNED",
@@ -637,65 +699,26 @@ with tab_pred:
                     internet_access=internet_access
                 )
                 clean_filename = f"Official_Academic_Report_{student_id.replace('/', '_')}.pdf"
+                
                 st.download_button(
-                    label=f"📥 Download Verified PDF Report Card ({clean_filename})",
+                    label=f"📥 Download Certified PDF Report Card",
                     data=pdf_bytes,
                     file_name=clean_filename,
                     mime="application/pdf",
                     type="primary",
                     use_container_width=True
                 )
+                
+                fig_uplift = create_intervention_uplift_chart(predicted_math, prescriptive_sol["projected_score"], prescriptive_sol["interventions"])
+                st.plotly_chart(fig_uplift, use_container_width=True)
 
-            with res_tab2:
-                # Diagnostic Bottlenecks
-                st.markdown("#### 🔍 Root-Cause Diagnostic Bottlenecks:")
-                if prescriptive_sol["bottlenecks"]:
-                    bn_cols = st.columns(len(prescriptive_sol["bottlenecks"]))
-                    for idx, bn in enumerate(prescriptive_sol["bottlenecks"]):
-                        with bn_cols[idx]:
-                            sev_color = "#DC2626" if bn["severity"] == "High" else ("#D97706" if bn["severity"] == "Medium" else "#2563EB")
-                            bg_color = "rgba(254, 242, 242, 0.9)" if bn["severity"] == "High" else ("rgba(254, 243, 199, 0.9)" if bn["severity"] == "Medium" else "rgba(239, 246, 255, 0.9)")
-                            st.markdown(f"""
-                            <div style="background: {bg_color}; border-left: 4px solid {sev_color}; border-radius: 8px; padding: 0.75rem; height: 100%;">
-                                <div style="font-size: 0.9rem; font-weight: 700; color: {sev_color};">{bn['icon']} {bn['category']}</div>
-                                <div style="font-size: 0.72rem; font-weight: 700; color: {sev_color}; text-transform: uppercase;">Severity: {bn['severity']}</div>
-                                <div style="font-size: 0.8rem; color: #334155; margin-top: 0.2rem;">{bn['detail']}</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                else:
-                    st.success("🌟 **Zero Critical Bottlenecks:** Student maintains optimal balance across all academic dimensions.")
-
-                st.write("")
-                st.markdown("#### 🎯 Prioritized Interventions & Score Uplift:")
-                for idx, item in enumerate(prescriptive_sol["interventions"]):
-                    with st.expander(f"📌 **{item['priority']}: {item['title']}** (Timeline: `{item['timeline']}`) — Uplift: **{item['est_uplift']}**", expanded=(idx==0)):
-                        st.markdown(f"**Action:** {item['action']}")
-                        st.markdown(f"**Resource:** `{item['resource']}`")
-                        st.markdown(f"**Projected Score Contribution:** <span style='color:#059669; font-weight:bold;'>{item['est_uplift']}</span>", unsafe_allow_html=True)
-
-                rx_c1, rx_c2 = st.columns(2)
-                with rx_c1:
-                    fig_study = create_prescriptive_study_hours_chart(prescriptive_sol["study_hours"])
-                    st.plotly_chart(fig_study, use_container_width=True)
-                with rx_c2:
-                    fig_uplift = create_intervention_uplift_chart(predicted_math, prescriptive_sol["projected_score"], prescriptive_sol["interventions"])
-                    st.plotly_chart(fig_uplift, use_container_width=True)
-
-                st.markdown("#### 🗺️ 12-Week Growth Roadmap:")
-                ms_cols = st.columns(4)
-                for m_idx, ms in enumerate(prescriptive_sol["milestones"]):
-                    with ms_cols[m_idx]:
-                        st.markdown(f"""
-                        <div style="background: rgba(248, 250, 252, 0.95); border: 1px solid #CBD5E1; border-top: 3px solid #2563EB; border-radius: 8px; padding: 0.75rem; height: 100%;">
-                            <div style="font-size: 0.82rem; font-weight: 800; color: #1E3A8A;">{ms['week']}</div>
-                            <div style="font-size: 0.76rem; font-weight: 700; color: #059669;">🎯 {ms['target']}</div>
-                            <div style="font-size: 0.78rem; color: #475569; margin-top: 0.2rem;">{ms['milestone']}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-
-            with res_tab3:
-                r_c1, r_c2 = st.columns([1, 1.2])
-                with r_c1:
+            # =========================================================
+            # 🔬 DEEP-DIVE EXPANDER: RADAR, DIAGNOSTICS & 12-WEEK ROADMAP
+            # =========================================================
+            with st.expander("🔬 Deep-Dive AI Diagnostics, Radar & 12-Week Roadmap", expanded=False):
+                dd_col1, dd_col2 = st.columns(2)
+                with dd_col1:
+                    st.markdown("#### 🌐 8-Axis Competency Radar Profile")
                     socio_index = input_df_eng["socio_readiness_index"].iloc[0]
                     fig_radar = create_radar_chart(
                         reading=reading_score,
@@ -708,11 +731,19 @@ with tab_pred:
                         prep_status=test_prep
                     )
                     st.plotly_chart(fig_radar, use_container_width=True)
-                with r_c2:
-                    st.markdown("#### 🔍 SHAP Local Feature Attributions")
-                    base_val, pred_val, contrib_df = explain_single_student(input_df, preprocessor, active_model, None)
-                    fig_waterfall = create_local_xai_waterfall(base_val, predicted_math, contrib_df)
-                    st.plotly_chart(fig_waterfall, use_container_width=True)
+                    
+                with dd_col2:
+                    st.markdown("#### 🗺️ 12-Week Academic Growth Milestones")
+                    for ms in prescriptive_sol["milestones"]:
+                        st.markdown(f"""
+                        <div style="background:#F8FAFC; border-left:3px solid #2563EB; border-radius:6px; padding:0.55rem 0.8rem; margin-bottom:0.4rem;">
+                            <b>{ms['week']}</b> (Target: <span style="color:#059669; font-weight:700;">{ms['target']}</span>): {ms['milestone']}
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                    st.markdown("#### 👨‍🏫 Counselor Guidance Checklist")
+                    for g_item in prescriptive_sol["teacher_guidance"][:3]:
+                        st.markdown(f"- ✔️ {g_item}")
 
 # =========================================================
 # TAB 2: CLASSROOM BATCH ANALYTICS & INTERVENTIONS
@@ -724,7 +755,7 @@ with tab_batch:
     # 1-Click Pre-Built Cohorts
     st.markdown("""
     <div class="preset-chip-box">
-        <span style="font-size: 0.82rem; font-weight: 700; color: #334155; text-transform: uppercase;">⚡ Quick-Load Benchmark Classrooms:</span>
+        <span style="font-size: 0.8rem; font-weight: 700; color: #334155; text-transform: uppercase;">⚡ Quick-Load Benchmark Classrooms:</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -755,7 +786,6 @@ with tab_batch:
             st.session_state["cached_batch_name"] = "Diverse Multi-Section Cohort (200 Students)"
             st.rerun()
 
-    # Expandable Generator & CSV Download Hub
     with st.expander("📥 Download CSV Templates & Custom Synthetic Generator", expanded=False):
         exp_c1, exp_c2 = st.columns(2)
         with exp_c1:
@@ -807,7 +837,6 @@ with tab_batch:
                     batch_to_process, preprocessor, active_model, best_clf
                 )
                 
-                # Metric Strip
                 b1, b2, b3, b4, b5 = st.columns(5)
                 with b1: st.metric("Total Students", summary["total_students"])
                 with b2: st.metric("Class Avg Math", f"{summary['class_avg_math']:.1f} / 100")
@@ -817,10 +846,9 @@ with tab_batch:
                 
                 st.write("")
                 
-                # Tabbed Batch Views
                 bt_tab1, bt_tab2, bt_tab3, bt_tab4 = st.tabs([
                     "📊 Grade & Risk Visuals",
-                    "📋 Prescriptive Intervention Clusters",
+                    "📋 Targeted Student Action Groups",
                     "🚨 Student Roster & Filters",
                     "📄 Executive PDF Export"
                 ])
@@ -1020,7 +1048,6 @@ with tab_goal:
             
             q_col1, q_col2 = st.columns(2)
             with q_col1:
-                # Quest 1
                 if sim_prep == "none" or sim_tutoring == "none":
                     st.markdown(f"""
                     <div class="roadmap-card">
@@ -1037,7 +1064,6 @@ with tab_goal:
                     </div>
                     """, unsafe_allow_html=True)
                     
-                # Quest 2
                 study_diff = sim_res['required_study_hours'] - sim_study_hours
                 att_diff = sim_res['required_attendance'] - sim_attendance
                 st.markdown(f"""
@@ -1049,7 +1075,6 @@ with tab_goal:
                 """, unsafe_allow_html=True)
 
             with q_col2:
-                # Quest 3
                 st.markdown(f"""
                 <div class="roadmap-card">
                     <b>📖 Quest 3: Prerequisite Exams</b><br/>
@@ -1058,7 +1083,6 @@ with tab_goal:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Quest 4
                 st.markdown(f"""
                 <div class="roadmap-card">
                     <b>🏆 Quest 4: Final Victory</b><br/>
@@ -1067,11 +1091,11 @@ with tab_goal:
                 """, unsafe_allow_html=True)
 
 # =========================================================
-# TAB 4: EXPLAINABLE AI & EXPLORATORY DATA ANALYSIS (EDA)
+# TAB 4: AI INSIGHTS & EXPLORATORY DATA ANALYSIS (EDA)
 # =========================================================
 with tab_xai:
     xai_sub1, xai_sub2 = st.tabs([
-        "🧠 SHAP & Feature Importance",
+        "🧠 AI Decision Factor Breakdown",
         "📈 Exploratory Data Analysis (EDA)"
     ])
     
@@ -1086,7 +1110,7 @@ with tab_xai:
                 fig_imp = create_global_importance_plotly(f_df)
                 st.plotly_chart(fig_imp, use_container_width=True)
             with col_x2:
-                st.markdown("#### 2. Directional Feature Attribution")
+                st.markdown("#### 2. Directional Factor Attribution")
                 p11 = os.path.join(plots_dir, "11_shap_directional_impact.png")
                 if os.path.exists(p11):
                     st.image(p11, caption="Positive drivers (Green) vs Penalties (Red)", use_container_width=True)
@@ -1113,7 +1137,7 @@ with tab_xai:
 with tab_models:
     mod_sub1, mod_sub2, mod_sub3 = st.tabs([
         "🏆 Model Leaderboards & ROC",
-        "⚙️ Hyperparameter Tuning",
+        "⚙️ Model Tuning Benchmarks",
         "📖 System Architecture"
     ])
     
@@ -1142,7 +1166,7 @@ with tab_models:
             st.plotly_chart(fig_roc, use_container_width=True)
 
     with mod_sub2:
-        st.markdown("### ⚙️ 5-Fold Cross-Validation Hyperparameter Optimization")
+        st.markdown("### ⚙️ 5-Fold Cross-Validation Optimization Results")
         tuning_csv = os.path.join(os.path.dirname(__file__), "artifacts", "hyperparameter_tuning_results.csv")
         if os.path.exists(tuning_csv):
             t_df = pd.read_csv(tuning_csv)
