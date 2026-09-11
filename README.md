@@ -1,4 +1,4 @@
-# 🎓 Student Performance & Dropout Risk Predictor (Dual-Engine ML + XAI + Goal Simulator)
+# 🎓 Student Performance & Dropout Risk Predictor (Dual-Engine ML + XAI + Batch Processing)
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.3+-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
@@ -7,23 +7,37 @@
 [![XAI](https://img.shields.io/badge/Explainable_AI-SHAP_Attributions-purple)](https://github.com/slundberg/shap)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-An end-to-end Machine Learning system designed to predict student examination marks, classify **Academic Pass / Fail & Dropout Risk**, generate **Verified PDF Report Cards**, explain every prediction using **Explainable AI (XAI)**, and reverse-engineer academic target pathways using a **"What-If" Academic Goal Simulator**.
+An end-to-end Machine Learning system designed to predict student examination marks, classify **Academic Pass / Fail & Dropout Risk**, process **Entire Classroom Batches via Bulk CSV Upload**, generate **Verified PDF Report Cards**, explain predictions via **Explainable AI (XAI)**, and reverse-engineer academic target pathways via a **"What-If" Academic Goal Simulator**.
 
 ---
 
-## 📌 1. Project Overview & Capabilities
-Understanding academic trajectory early allows educational institutions to deploy targeted interventions before exams take place.
+## 📌 1. Multi-Engine Capabilities Summary
 
-This project implements a multi-capability Machine Learning pipeline:
 1. **Task A (Regression):** Predicts exact mathematical marks ($0 - 100$) using a **Voting Meta-Ensemble** (**$76.44\%$ $R^2$ accuracy**, $\pm 5.95$ marks average error).
 2. **Task B (Classification):** Forecasts **Pass / Fail & Dropout Risk Probability** using **Support Vector Machines** (**$89.5\%$ accuracy, $0.933$ ROC-AUC score**).
-3. **Task C ('What-If' Goal Simulator):** Reverse-engineers the minimum required reading and writing milestone scores and study interventions to achieve any target grade.
-4. **Task D (Explainable AI):** Provides **Global Permutation Feature Importance** and **Local Real-Time SHAP Attributions** explaining exact points added or deducted.
-5. **Task E (Verified Reporting):** Generates and downloads verified, styled **PDF Academic Performance Reports** in one click.
+3. **Task C (Classroom Batch CSV Processing):** Upload cohort CSV files (50–500+ students) with instant pass rate statistics, grade distributions, and downloadable enriched CSVs.
+4. **Task D ('What-If' Goal Simulator):** Reverse-engineers the minimum required reading and writing milestone scores and study interventions to achieve any target grade.
+5. **Task E (Explainable AI):** Provides **Global Permutation Feature Importance** and **Local Real-Time SHAP Attributions** explaining exact points added or deducted.
+6. **Task F (Verified Reporting):** Generates and downloads verified, styled **PDF Academic Performance Reports** in one click.
 
 ---
 
-## 🎯 2. 'What-If' Academic Goal Simulator
+## 📂 2. Classroom Batch Prediction (Bulk CSV Upload)
+
+Teachers and administrators can evaluate entire classrooms in one click:
+* **One-Click Template Download:** Download a pre-formatted 10-student CSV template.
+* **Bulk Upload & Inference:** Upload CSV rosters of any size.
+* **Classroom Overview Metrics:**
+  * Total Students Processed
+  * Class Average Math Score & Overall Average
+  * Class Pass Rate (%)
+  * Count of At-Risk / Remedial Students & Distinction Earners
+* **Cohort Visualizations:** Interactive letter grade distributions and risk tier breakdowns.
+* **One-Click Export:** Download the fully predicted and graded classroom spreadsheet (.CSV).
+
+---
+
+## 🎯 3. 'What-If' Academic Goal Simulator
 
 The **Goal Simulator** solves the reverse optimization problem:
 * **Student Target Input:** Desired Math Score (e.g. $85$ marks) or Target Grade (Grade A/A+).
@@ -36,7 +50,7 @@ The **Goal Simulator** solves the reverse optimization problem:
 
 ---
 
-## 🔍 3. Explainable AI (XAI) & Global Importance Rankings
+## 🔍 4. Explainable AI (XAI) & Global Importance Rankings
 
 | Rank | Feature | Relative Impact | Key Finding |
 | :---: | :--- | :---: | :--- |
@@ -45,39 +59,6 @@ The **Goal Simulator** solves the reverse optimization problem:
 | 🥉 | **Gender Baseline** | **21.46%** | Historical variance baseline across subject domains. |
 | 4 | **Test Prep Course** | **0.65%** | Completing the course adds **$+9.4$ marks** average boost. |
 | 5 | **Lunch Nutrition Plan** | **0.03%** | Standard nutritional support adds **$+8.0$ marks** average boost. |
-
----
-
-## 🏗️ 4. Multi-Engine Architecture & Workflow
-
-```
-┌────────────────────────────────────────────────────────┐
-│               1. Raw Student Profile Data              │
-│    (Demographics + Environment + Reading/Writing Marks)│
-└───────────────────────────┬────────────────────────────┘
-                            │
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│     2. ColumnTransformer Preprocessing Pipeline        │
-│   (StandardScaler for Scores + OneHotEncoder for Cats) │
-└───────────────────────────┬────────────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│ A. Regressor    │ │ B. Classifier   │ │ C. Simulator    │
-│ Voting Ensemble │ │ Support Vector  │ │ 'What-If' Target│
-│ Peak R²: 76.44% │ │ ROC-AUC: 0.9326 │ │ Milestone Solver│
-│ MAE: ±5.95 marks│ │ Accuracy: 89.5% │ │ Gap Roadmapping │
-└────────────┬────┘ └────────┬────────┘ └────────┬────────┘
-             │               │                   │
-             └───────────────┼───────────────────┘
-                             ▼
-┌────────────────────────────────────────────────────────┐
-│   4. Streamlit Dashboard & Verified PDF Generator      │
-│  (Live Prediction + Risk Tiers + Roadmap + PDF Export) │
-└────────────────────────────────────────────────────────┘
-```
 
 ---
 
@@ -146,13 +127,14 @@ student-performance-predictor/
 │   ├── train_models.py            # Baseline model training
 │   ├── hyperparameter_tuning.py   # 5-Fold CV GridSearchCV & Ensemble builder
 │   ├── train_classifier.py        # Classification & Risk model suite
+│   ├── batch_predictor.py         # Classroom Batch CSV processing engine
 │   ├── goal_simulator.py          # 'What-If' Academic Goal Simulator
 │   ├── explainability.py          # Explainable AI (XAI) & SHAP attributions
 │   ├── evaluate_models.py         # Testing, metric computation & leaderboard
 │   ├── pdf_generator.py           # ReportLab PDF Report Card generator
 │   └── test_inference.py          # End-to-end dual inference verification
 │
-├── app.py                         # Interactive Multi-Tab Streamlit Application
+├── app.py                         # Interactive 8-Tab Streamlit Web Application
 ├── run_app.bat                    # 1-click Windows launcher
 ├── requirements.txt               # Dependencies
 └── README.md                      # Project Documentation

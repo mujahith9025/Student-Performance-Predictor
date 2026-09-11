@@ -1,11 +1,15 @@
 import os
+import io
 import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
 from src.pdf_generator import generate_student_pdf_report
 from src.explainability import explain_single_student
 from src.goal_simulator import simulate_academic_goal
+from src.batch_predictor import process_batch_predictions, generate_sample_csv_template
 
 # Set Page Config
 st.set_page_config(
@@ -131,6 +135,7 @@ with st.sidebar:
     st.markdown("### 📊 System Benchmarks")
     st.markdown("- **Regression $R^2$:** **76.44%** ($\pm 5.95$ marks)")
     st.markdown("- **Pass/Fail Accuracy:** **89.5%**")
+    st.markdown("- **Batch CSV Processing:** Enabled")
     st.markdown("- **Goal Simulator:** Active")
     st.markdown("- **Explainable AI (XAI):** Enabled")
     st.markdown("- **PDF Generator:** ReportLab 5.0")
@@ -139,7 +144,7 @@ with st.sidebar:
 
 # Main Header
 st.markdown('<div class="main-header">🎓 Student Performance & Dropout Risk Predictor</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Dual-task machine learning system with What-If Academic Goal Simulation, Explainable AI (SHAP), and verified PDF reports.</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Dual-task machine learning system with Classroom Batch Processing, Goal Simulation, Explainable AI, and verified PDF reports.</div>', unsafe_allow_html=True)
 
 # Overview Metric Cards
 c1, c2, c3, c4 = st.columns(4)
@@ -148,15 +153,16 @@ with c1:
 with c2:
     st.markdown('<div class="metric-card"><div class="metric-val">0.933</div><div class="metric-lbl">Classifier ROC-AUC</div></div>', unsafe_allow_html=True)
 with c3:
-    st.markdown('<div class="metric-card"><div class="metric-val">🎯 What-If</div><div class="metric-lbl">Goal Simulator</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">📂 Batch</div><div class="metric-lbl">Classroom CSV</div></div>', unsafe_allow_html=True)
 with c4:
     st.markdown('<div class="metric-card"><div class="metric-val">PDF</div><div class="metric-lbl">Verified Export</div></div>', unsafe_allow_html=True)
 
 st.write("")
 
 # Navigation Tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "🚀 Score & Risk Predictor", 
+    "📂 Classroom Batch Predictor",
     "🎯 'What-If' Goal Simulator",
     "🔍 Explainable AI (XAI)",
     "📈 Exploratory Data Analysis", 
@@ -386,8 +392,104 @@ with tab1:
                 use_container_width=True
             )
 
-# ----------------- TAB 2: WHAT-IF GOAL SIMULATOR -----------------
+# ----------------- TAB 2: CLASSROOM BATCH PREDICTOR -----------------
 with tab2:
+    st.markdown("### 📂 Classroom Batch Prediction (Bulk CSV Upload)")
+    st.markdown("Upload a CSV file containing an entire classroom or student cohort to generate predictions, grade distribution analysis, and risk diagnostics at scale.")
+    
+    # Template download header
+    col_t1, col_t2 = st.columns([1.5, 1])
+    with col_t1:
+        st.markdown("**Need a sample file format?** Download our pre-formatted 10-student sample CSV:")
+    with col_t2:
+        sample_csv_data = generate_sample_csv_template()
+        st.download_button(
+            label="📄 Download Sample CSV Template",
+            data=sample_csv_data,
+            file_name="classroom_sample_template.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+        
+    st.write("")
+    uploaded_file = st.file_uploader("📤 Upload Classroom Student CSV File", type=["csv"])
+    
+    if uploaded_file is not None:
+        try:
+            input_batch_df = pd.read_csv(uploaded_file)
+            st.success(f"✅ Successfully loaded `{uploaded_file.name}` ({len(input_batch_df)} students found).")
+            
+            if preprocessor is not None and active_model is not None:
+                processed_batch, summary = process_batch_predictions(
+                    input_batch_df, preprocessor, active_model, best_clf
+                )
+                
+                # Summary Metric Cards
+                st.markdown("#### 📊 Classroom Overview Metrics:")
+                b1, b2, b3, b4, b5 = st.columns(5)
+                with b1:
+                    st.metric("Total Students", summary["total_students"])
+                with b2:
+                    st.metric("Class Avg Math Score", f"{summary['class_avg_math']:.1f}")
+                with b3:
+                    st.metric("Overall 3-Subject Avg", f"{summary['class_avg_overall']:.1f}")
+                with b4:
+                    st.metric("Pass Rate (%)", f"{summary['pass_rate']}%")
+                with b5:
+                    st.metric("🚨 At-Risk Students", summary["at_risk_count"])
+                    
+                st.write("")
+                
+                # Visual Analytics for Classroom
+                st.markdown("#### 📈 Cohort Grade & Risk Distribution:")
+                chart_col1, chart_col2 = st.columns(2)
+                
+                with chart_col1:
+                    # Grade Distribution
+                    fig_grade, ax_grade = plt.subplots(figsize=(7, 4))
+                    grade_counts = processed_batch["Predicted_Grade"].value_counts()
+                    sns.barplot(x=grade_counts.index, y=grade_counts.values, palette="crest", ax=ax_grade)
+                    ax_grade.set_title("Classroom Letter Grade Distribution", fontweight="bold")
+                    ax_grade.set_ylabel("Student Count")
+                    plt.xticks(rotation=25)
+                    plt.tight_layout()
+                    st.pyplot(fig_grade)
+                    plt.close()
+                    
+                with chart_col2:
+                    # Risk Tier Distribution
+                    fig_risk, ax_risk = plt.subplots(figsize=(7, 4))
+                    risk_counts = processed_batch["Risk_Tier"].value_counts()
+                    palette_colors = ["#059669" if "Safe" in k else "#D97706" if "Moderate" in k else "#DC2626" for k in risk_counts.index]
+                    sns.barplot(x=risk_counts.index, y=risk_counts.values, palette=palette_colors, ax=ax_risk)
+                    ax_risk.set_title("Academic Risk Tier Breakdown", fontweight="bold")
+                    ax_risk.set_ylabel("Student Count")
+                    plt.xticks(rotation=15)
+                    plt.tight_layout()
+                    st.pyplot(fig_risk)
+                    plt.close()
+                    
+                # Processed Data Table
+                st.markdown("#### 📋 Processed Classroom Predictions Table:")
+                st.dataframe(processed_batch, use_container_width=True, hide_index=True)
+                
+                # Download Enriched CSV
+                enriched_csv_buffer = io.StringIO()
+                processed_batch.to_csv(enriched_csv_buffer, index=False)
+                
+                st.download_button(
+                    label="📥 Download Complete Processed Classroom Report (.CSV)",
+                    data=enriched_csv_buffer.getvalue(),
+                    file_name=f"Processed_Report_{uploaded_file.name}",
+                    mime="text/csv",
+                    type="primary",
+                    use_container_width=True
+                )
+        except Exception as e:
+            st.error(f"Error processing CSV: {str(e)}")
+
+# ----------------- TAB 3: WHAT-IF GOAL SIMULATOR -----------------
+with tab3:
     st.markdown("### 🎯 'What-If' Academic Goal Simulator")
     st.markdown("Set a target mark and simulate the exact study roadmap, reading/writing score targets, and preparation milestones required to achieve it.")
     
@@ -473,8 +575,8 @@ with tab2:
             </div>
             """, unsafe_allow_html=True)
 
-# ----------------- TAB 3: EXPLAINABLE AI (XAI) -----------------
-with tab3:
+# ----------------- TAB 4: EXPLAINABLE AI (XAI) -----------------
+with tab4:
     st.markdown("### 🔍 Explainable AI (XAI) & Feature Importance Analysis")
     plots_dir = os.path.join(os.path.dirname(__file__), "plots")
     
@@ -497,8 +599,8 @@ with tab3:
         f_df = pd.read_csv(feat_csv)
         st.dataframe(f_df, use_container_width=True, hide_index=True)
 
-# ----------------- TAB 4: EDA & INSIGHTS -----------------
-with tab4:
+# ----------------- TAB 5: EDA & INSIGHTS -----------------
+with tab5:
     st.markdown("### 📊 Exploratory Data Analysis & Visual Insights")
     
     col_a, col_b = st.columns(2)
@@ -524,8 +626,8 @@ with tab4:
         if os.path.exists(p4):
             st.image(p4, caption="Higher parental education degree correlates with higher median student scores.", use_container_width=True)
 
-# ----------------- TAB 5: DUAL MODEL LEADERBOARD -----------------
-with tab5:
+# ----------------- TAB 6: DUAL MODEL LEADERBOARD -----------------
+with tab6:
     st.markdown("### 🏆 Dual-Task Evaluation Leaderboards")
     
     st.markdown("#### A. Regression Leaderboard (Continuous Score Prediction)")
@@ -550,32 +652,33 @@ with tab5:
         if os.path.exists(p9):
             st.image(p9, caption="ROC-AUC Curves for all classifiers.", use_container_width=True)
 
-# ----------------- TAB 6: HYPERPARAMETER TUNING -----------------
-with tab6:
+# ----------------- TAB 7: HYPERPARAMETER TUNING -----------------
+with tab7:
     st.markdown("### ⚙️ 5-Fold Cross-Validation Hyperparameter Optimization")
     tuning_csv = os.path.join(os.path.dirname(__file__), "artifacts", "hyperparameter_tuning_results.csv")
     if os.path.exists(tuning_csv):
         t_df = pd.read_csv(tuning_csv)
         st.dataframe(t_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
 
-# ----------------- TAB 7: SYSTEM ARCHITECTURE -----------------
-with tab7:
-    st.markdown("### 📖 Dual-Engine Machine Learning Architecture")
+# ----------------- TAB 8: SYSTEM ARCHITECTURE -----------------
+with tab8:
+    st.markdown("### 📖 Multi-Engine Machine Learning Architecture")
     st.markdown("""
     ```
-    1. Input Features (Demographics + Reading/Writing Marks)
+    1. Input Data Processing (Single Profile or Classroom Bulk CSV)
        └── Transformed via ColumnTransformer (StandardScaler + OneHotEncoder)
     
-    2. Multi-Capability AI Engines:
+    2. Multi-Engine Architecture:
        ├── Regression Engine: Voting Ensemble Regressor (R² 76.44%, MAE ±5.95)
        ├── Classification Engine: Support Vector Classifier (Accuracy 89.5%, ROC-AUC 0.933)
+       ├── Classroom Batch Engine: Scale Predictions + Grade/Risk Distribution Charts
        ├── 'What-If' Simulator: Milestone Roadmapping & Score Gap Solver
        └── Explainable AI (XAI): Permutation Importance & SHAP Directional Attributions
     
     3. Outputs & Deliverables:
        ├── Exact Predicted Marks & Grade (A+ to F)
        ├── Pass Probability & Early Dropout Risk Tier
-       ├── Milestone Action Roadmap to reach Target Grade
+       ├── Cohort-Level Analytics & Downloadable Enriched CSV
        └── Verified PDF Performance Certificate
     ```
     """)
