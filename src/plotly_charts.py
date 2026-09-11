@@ -676,4 +676,114 @@ def create_multi_subject_forecast_chart(math_pred, reading_score, writing_score,
     )
     return fig
 
+# ---------------------------------------------------------
+# SIDE-BY-SIDE & BEFORE/AFTER COMPARISON CHARTS
+# ---------------------------------------------------------
+def create_before_after_radar_chart(base_dict, post_dict, base_name="Current Baseline", post_name="Projected Post-Intervention"):
+    """
+    Overlapping 8-Axis Radar Chart comparing baseline vs post-intervention profile.
+    """
+    categories = [
+        'Reading', 'Writing', 'Math (Pred)',
+        'Attendance %', 'Study Effort', 'Sleep Rest',
+        'Socio-Readiness', 'Prep Active'
+    ]
+    
+    def get_values(d):
+        r = float(d.get("reading score", 65))
+        w = float(d.get("writing score", 65))
+        m = float(d.get("predicted_math", 65))
+        att = min(100.0, float(d.get("attendance_rate", 85)))
+        study = min(100.0, (float(d.get("weekly_study_hours", 12)) / 20.0) * 100.0)
+        sleep = min(100.0, (float(d.get("sleep_hours_per_day", 7.5)) / 8.0) * 100.0)
+        socio = min(100.0, float(d.get("socio_readiness_index", 5.0)) * 12.0)
+        prep = 95.0 if d.get("test preparation course", "none") == "completed" else 35.0
+        return [r, w, m, att, study, sleep, socio, prep]
+
+    base_vals = get_values(base_dict)
+    post_vals = get_values(post_dict)
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=base_vals + [base_vals[0]],
+        theta=categories + [categories[0]],
+        fill='toself',
+        fillcolor='rgba(239, 68, 68, 0.22)',
+        line=dict(color='#EF4444', width=2, dash='dash'),
+        name=f"🔴 {base_name}"
+    ))
+    fig.add_trace(go.Scatterpolar(
+        r=post_vals + [post_vals[0]],
+        theta=categories + [categories[0]],
+        fill='toself',
+        fillcolor='rgba(16, 185, 129, 0.35)',
+        line=dict(color='#10B981', width=3),
+        name=f"🟢 {post_name}"
+    ))
+    
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 100], tickfont=dict(size=8, color="#64748B")),
+            bgcolor="rgba(255, 255, 255, 0.6)"
+        ),
+        title=dict(text="<b>Before vs After Competency Growth Radar</b>", font=dict(family="Outfit", size=14, color="#1E3A8A")),
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=1.05, xanchor="center", x=0.5, font=dict(size=10)),
+        height=320,
+        margin=dict(l=30, r=30, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def create_peer_comparison_bar_chart(stud_a, stud_b, name_a="Student A", name_b="Student B"):
+    """
+    Side-by-side comparative bar chart between two students.
+    """
+    metrics = ["Predicted Math", "Reading Score", "Writing Score", "Attendance %", "Study Hrs/Wk"]
+    vals_a = [
+        float(stud_a.get("predicted_math", 65)),
+        float(stud_a.get("reading score", 65)),
+        float(stud_a.get("writing score", 65)),
+        float(stud_a.get("attendance_rate", 85)),
+        float(stud_a.get("weekly_study_hours", 12)) * 2.5 # scaled for visual balance
+    ]
+    vals_b = [
+        float(stud_b.get("predicted_math", 65)),
+        float(stud_b.get("reading score", 65)),
+        float(stud_b.get("writing score", 65)),
+        float(stud_b.get("attendance_rate", 85)),
+        float(stud_b.get("weekly_study_hours", 12)) * 2.5
+    ]
+    
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        name=name_a,
+        x=metrics,
+        y=vals_a,
+        marker_color='#2563EB',
+        text=[f"{stud_a.get('predicted_math', 0):.1f}", f"{stud_a.get('reading score', 0)}", f"{stud_a.get('writing score', 0)}", f"{stud_a.get('attendance_rate', 0):.0f}%", f"{stud_a.get('weekly_study_hours', 0):.1f}h"],
+        textposition='outside'
+    ))
+    fig.add_trace(go.Bar(
+        name=name_b,
+        x=metrics,
+        y=vals_b,
+        marker_color='#8B5CF6',
+        text=[f"{stud_b.get('predicted_math', 0):.1f}", f"{stud_b.get('reading score', 0)}", f"{stud_b.get('writing score', 0)}", f"{stud_b.get('attendance_rate', 0):.0f}%", f"{stud_b.get('weekly_study_hours', 0):.1f}h"],
+        textposition='outside'
+    ))
+    
+    fig.update_layout(
+        barmode='group',
+        title=dict(text=f"<b>Head-to-Head Comparison: {name_a} vs {name_b}</b>", font=dict(family="Outfit", size=14, color="#1E3A8A")),
+        yaxis=dict(title="Score / Level", range=[0, 115], showgrid=True, gridcolor="rgba(226, 232, 240, 0.6)"),
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.7)',
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5, font=dict(size=10))
+    )
+    return fig
+
+
 

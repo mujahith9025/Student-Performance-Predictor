@@ -43,7 +43,9 @@ from src.plotly_charts import (
     create_classroom_intervention_cluster_chart,
     create_confidence_interval_gauge,
     create_archetype_pca_scatter_chart,
-    create_multi_subject_forecast_chart
+    create_multi_subject_forecast_chart,
+    create_before_after_radar_chart,
+    create_peer_comparison_bar_chart
 )
 
 # ---------------------------------------------------------
@@ -349,10 +351,10 @@ with st.sidebar:
     st.markdown("- **38 Synergy Interaction Metrics**")
     st.markdown("- **Regression $R^2$:** **90.07%** ($\pm 3.47$ marks)")
     st.markdown("- **95% Conformal Prediction Intervals:** **Active**")
-    st.markdown("- **Unsupervised Archetype Clusters:** **4 Discovered**")
-    st.markdown("- **Multi-Subject Tri-Axis Engine:** **Active**")
+    st.markdown("- **Side-by-Side Growth Simulator:** **Active**")
+    st.markdown("- **Unsupervised Archetypes:** **4 Discovered**")
     
-    st.caption("EduPredict AI v3.5 • Statistical Suite")
+    st.caption("EduPredict AI v3.8 • Side-by-Side Suite")
 
 # ---------------------------------------------------------
 # STREAMLINED HERO HEADER
@@ -361,24 +363,25 @@ st.markdown("""
 <div class="hero-container">
     <div class="hero-title">🎓 EduPredict AI • Student Intelligence Hub</div>
     <div class="hero-subtitle">
-        Intelligent multi-dimensional academic forecasting, 95% conformal prediction intervals, behavioral archetype clustering, classroom batch analytics, and verified PDF certificates.
+        Intelligent multi-dimensional academic forecasting, 95% conformal prediction intervals, side-by-side growth simulator, classroom batch analytics, and verified PDF certificates.
     </div>
     <div class="badge-chip-group">
         <span class="badge-chip badge-success"><span class="pulse-dot"></span> Statistical Suite Online</span>
         <span class="badge-chip badge-primary">⚡ 14-Dimension Profile</span>
-        <span class="badge-chip badge-purple">🎯 90.1% R² (95% CI Bands)</span>
-        <span class="badge-chip badge-primary">🧬 Unsupervised Archetypes</span>
+        <span class="badge-chip badge-purple">🎯 90.1% R² Precision</span>
+        <span class="badge-chip badge-primary">🔄 Before/After Simulator</span>
         <span class="badge-chip badge-success">📄 Certified PDF Reports</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# 5 STREAMLINED WORKSPACE TABS
+# 6 STREAMLINED WORKSPACE TABS
 # ---------------------------------------------------------
-tab_pred, tab_batch, tab_goal, tab_xai, tab_models = st.tabs([
+tab_pred, tab_batch, tab_compare, tab_goal, tab_xai, tab_models = st.tabs([
     "🎯 Student Predictor", 
     "📂 Classroom Analytics",
+    "🔄 Side-by-Side Simulator",
     "🗺️ 'What-If' Simulator",
     "🔍 AI Insights & Data",
     "⚙️ Models & Architecture"
@@ -538,12 +541,10 @@ with tab_pred:
             input_df_eng = engineer_features(input_df)
             transformed_input = preprocessor.transform(input_df_eng)
             
-            # 1. Point Prediction & Statistical Confidence Intervals
             ci_res = predict_with_confidence_intervals(transformed_input, active_model, uncertainty_dict)
             predicted_math = ci_res["predicted_score"]
             overall_avg = (predicted_math + reading_score + writing_score) / 3.0
             
-            # 2. Behavioral Archetype Classification
             archetype_res = classify_student_archetype(transformed_input, cluster_bundle) if cluster_bundle else None
             
             if best_clf is not None:
@@ -634,7 +635,6 @@ with tab_pred:
                     </div>
                     """, unsafe_allow_html=True)
                 
-                # Show Top 3 Factor Impacts
                 for _, f_row in contrib_df.head(3).iterrows():
                     imp = f_row["Impact"]
                     s_sign = "+" if imp >= 0 else ""
@@ -996,7 +996,175 @@ with tab_batch:
             st.error(f"Error processing batch: {str(e)}")
 
 # =========================================================
-# TAB 3: 'WHAT-IF' ACADEMIC GOAL SIMULATOR
+# TAB 3: SIDE-BY-SIDE COMPARISON & BEFORE/AFTER SIMULATOR
+# =========================================================
+with tab_compare:
+    cmp_sub1, cmp_sub2 = st.tabs([
+        "🔄 Before vs After Intervention Growth",
+        "👥 Student-to-Student Peer Benchmark"
+    ])
+    
+    with cmp_sub1:
+        st.markdown("### 🔄 Before vs After Intervention Simulator")
+        st.markdown("Simulate how targeted academic and lifestyle boosters transform a student's baseline performance, grade, and pass probability:")
+        
+        sim_c1, sim_c2 = st.columns([1.1, 1.2])
+        
+        with sim_c1:
+            st.markdown("#### 1. Configure Current Baseline Profile:")
+            b_read = st.slider("Reading Score:", 0, 100, 58, 1, key="b_r")
+            b_write = st.slider("Writing Score:", 0, 100, 54, 1, key="b_w")
+            b_study = st.slider("Study Hours / Week:", 1.0, 40.0, 6.0, 0.5, key="b_s")
+            b_att = st.slider("Attendance Rate (%):", 50.0, 100.0, 78.0, 1.0, key="b_a")
+            b_prep = st.selectbox("Test Prep Status:", ["none", "completed"], index=0, key="b_p")
+            b_tut = st.selectbox("Tutoring Support:", ["none", "peer_tutoring", "private_tutor"], index=0, key="b_t")
+            
+            st.markdown("#### 2. Apply Targeted Intervention Boosters:")
+            boost_prep = st.checkbox("⚔️ Complete Exam Preparation Course (+9.4 pts)", value=True)
+            boost_tut = st.selectbox("👥 Enroll in Tutoring Program:", ["none", "peer_tutoring (+6.5 pts)", "private_tutor (+8.2 pts)"], index=1)
+            boost_study = st.slider("⏱️ Add Weekly Study Hours (+ hrs/wk):", 0.0, 15.0, 8.0, 0.5)
+            boost_att = st.slider("📅 Improve Attendance Rate (+%):", 0.0, 20.0, 12.0, 1.0)
+            boost_read = st.slider("📖 Improve Reading Comprehension (+ marks):", 0, 25, 12, 1)
+
+        # Baseline Data Preparation
+        base_dict = {
+            "gender": "female", "race/ethnicity": "group C", "parental level of education": "some college",
+            "lunch": "standard", "test preparation course": b_prep, "internet_access": "yes",
+            "extracurricular_activities": "no", "tutoring_support": b_tut, "reading score": b_read,
+            "writing score": b_write, "attendance_rate": b_att, "weekly_study_hours": b_study,
+            "sleep_hours_per_day": 7.0, "past_failures": 1
+        }
+        
+        # Post-Intervention Data Preparation
+        tut_applied = "peer_tutoring" if "peer" in boost_tut else ("private_tutor" if "private" in boost_tut else b_tut)
+        prep_applied = "completed" if boost_prep else b_prep
+        post_read = min(100, b_read + boost_read)
+        post_write = min(100, b_write + int(boost_read * 0.9))
+        post_study = min(40.0, b_study + boost_study)
+        post_att = min(100.0, b_att + boost_att)
+        
+        post_dict = {
+            "gender": "female", "race/ethnicity": "group C", "parental level of education": "some college",
+            "lunch": "standard", "test preparation course": prep_applied, "internet_access": "yes",
+            "extracurricular_activities": "yes", "tutoring_support": tut_applied, "reading score": post_read,
+            "writing score": post_write, "attendance_rate": post_att, "weekly_study_hours": post_study,
+            "sleep_hours_per_day": 7.5, "past_failures": 0
+        }
+        
+        if preprocessor is not None and active_model is not None:
+            # Baseline Prediction
+            df_b = pd.DataFrame([base_dict])
+            t_b = preprocessor.transform(engineer_features(df_b))
+            score_b = float(np.clip(active_model.predict(t_b)[0], 0, 100))
+            prob_b = float(best_clf.predict_proba(t_b)[0][1] * 100) if best_clf else 50.0
+            base_dict["predicted_math"] = score_b
+            
+            # Post Prediction
+            df_p = pd.DataFrame([post_dict])
+            t_p = preprocessor.transform(engineer_features(df_p))
+            score_p = float(np.clip(active_model.predict(t_p)[0], 0, 100))
+            prob_p = float(best_clf.predict_proba(t_p)[0][1] * 100) if best_clf else 95.0
+            post_dict["predicted_math"] = score_p
+            
+            delta_score = score_p - score_b
+            delta_prob = prob_p - prob_b
+            
+            with sim_c2:
+                st.markdown("#### 3. Real-Time Side-by-Side Impact Analysis:")
+                
+                sc1, sc2 = st.columns(2)
+                with sc1:
+                    st.markdown(f"""
+                    <div style="background:#FEF2F2; border:1.5px solid #FCA5A5; border-radius:12px; padding:1rem; text-align:center;">
+                        <div style="font-size:0.8rem; font-weight:700; color:#DC2626; text-transform:uppercase;">🔴 Current Baseline</div>
+                        <div style="font-size:2.2rem; font-weight:900; color:#DC2626; font-family:var(--font-heading);">{score_b:.1f}</div>
+                        <div style="font-size:0.82rem; color:#475569;">Pass Prob: <b>{prob_b:.1f}%</b></div>
+                        <div style="font-size:0.8rem; color:#64748B; margin-top:0.2rem;">Study: {b_study:.1f}h • Att: {b_att:.0f}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                with sc2:
+                    st.markdown(f"""
+                    <div style="background:#ECFDF5; border:1.5px solid #6EE7B7; border-radius:12px; padding:1rem; text-align:center;">
+                        <div style="font-size:0.8rem; font-weight:700; color:#047857; text-transform:uppercase;">🟢 Projected Post-Boost</div>
+                        <div style="font-size:2.2rem; font-weight:900; color:#047857; font-family:var(--font-heading);">{score_p:.1f} <span style="font-size:1.1rem; color:#059669;">(+{delta_score:.1f})</span></div>
+                        <div style="font-size:0.82rem; color:#475569;">Pass Prob: <b>{prob_p:.1f}%</b> (+{delta_prob:.1f}%)</div>
+                        <div style="font-size:0.8rem; color:#059669; margin-top:0.2rem;">Study: {post_study:.1f}h • Att: {post_att:.0f}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                st.write("")
+                # Growth Radar Chart
+                fig_ba_radar = create_before_after_radar_chart(base_dict, post_dict)
+                st.plotly_chart(fig_ba_radar, use_container_width=True)
+
+    with cmp_sub2:
+        st.markdown("### 👥 Student-to-Student Peer Benchmark Comparison")
+        st.markdown("Compare any two students or archetype profiles head-to-head across all competencies:")
+        
+        peer_col1, peer_col2 = st.columns(2)
+        
+        with peer_col1:
+            st.markdown("#### 👤 Student Profile A:")
+            a_preset = st.selectbox("Select Preset A:", ["🌟 Honors Candidate (90+)", "⚖️ Average Profile (65+)", "🚨 At-Risk Alert (<40)", "📖 Verbal Focus", "🚀 Rising Star"], index=0, key="preset_a")
+            
+            if "Honors" in a_preset:
+                sa_read, sa_write, sa_study, sa_att, sa_name = 92, 95, 24.0, 98.0, "Elena Rostova (Honors)"
+            elif "Average" in a_preset:
+                sa_read, sa_write, sa_study, sa_att, sa_name = 65, 62, 12.0, 86.0, "Jordan Miller (Average)"
+            elif "At-Risk" in a_preset:
+                sa_read, sa_write, sa_study, sa_att, sa_name = 34, 30, 4.0, 62.0, "Marcus Vance (At-Risk)"
+            elif "Verbal" in a_preset:
+                sa_read, sa_write, sa_study, sa_att, sa_name = 88, 85, 14.0, 90.0, "Sophia Chen (Verbal Focus)"
+            else:
+                sa_read, sa_write, sa_study, sa_att, sa_name = 76, 74, 20.0, 96.0, "Lucas Taylor (Rising Star)"
+                
+            stud_a_dict = {
+                "gender": "female", "race/ethnicity": "group C", "parental level of education": "bachelor's degree",
+                "lunch": "standard", "test preparation course": "completed", "internet_access": "yes",
+                "extracurricular_activities": "yes", "tutoring_support": "peer_tutoring", "reading score": sa_read,
+                "writing score": sa_write, "attendance_rate": sa_att, "weekly_study_hours": sa_study,
+                "sleep_hours_per_day": 7.5, "past_failures": 0
+            }
+            
+        with peer_col2:
+            st.markdown("#### 👤 Student Profile B:")
+            b_preset = st.selectbox("Select Preset B:", ["🌟 Honors Candidate (90+)", "⚖️ Average Profile (65+)", "🚨 At-Risk Alert (<40)", "📖 Verbal Focus", "🚀 Rising Star"], index=2, key="preset_b")
+            
+            if "Honors" in b_preset:
+                sb_read, sb_write, sb_study, sb_att, sb_name = 92, 95, 24.0, 98.0, "Elena Rostova (Honors)"
+            elif "Average" in b_preset:
+                sb_read, sb_write, sb_study, sb_att, sb_name = 65, 62, 12.0, 86.0, "Jordan Miller (Average)"
+            elif "At-Risk" in b_preset:
+                sb_read, sb_write, sb_study, sb_att, sb_name = 34, 30, 4.0, 62.0, "Marcus Vance (At-Risk)"
+            elif "Verbal" in b_preset:
+                sb_read, sb_write, sb_study, sb_att, sb_name = 88, 85, 14.0, 90.0, "Sophia Chen (Verbal Focus)"
+            else:
+                sb_read, sb_write, sb_study, sb_att, sb_name = 76, 74, 20.0, 96.0, "Lucas Taylor (Rising Star)"
+                
+            stud_b_dict = {
+                "gender": "male", "race/ethnicity": "group A", "parental level of education": "some high school",
+                "lunch": "free/reduced", "test preparation course": "none", "internet_access": "no",
+                "extracurricular_activities": "no", "tutoring_support": "none", "reading score": sb_read,
+                "writing score": sb_write, "attendance_rate": sb_att, "weekly_study_hours": sb_study,
+                "sleep_hours_per_day": 6.0, "past_failures": 2
+            }
+            
+        if preprocessor is not None and active_model is not None:
+            t_a = preprocessor.transform(engineer_features(pd.DataFrame([stud_a_dict])))
+            stud_a_dict["predicted_math"] = float(np.clip(active_model.predict(t_a)[0], 0, 100))
+            
+            t_b = preprocessor.transform(engineer_features(pd.DataFrame([stud_b_dict])))
+            stud_b_dict["predicted_math"] = float(np.clip(active_model.predict(t_b)[0], 0, 100))
+            
+            fig_peer_bar = create_peer_comparison_bar_chart(stud_a_dict, stud_b_dict, sa_name, sb_name)
+            st.plotly_chart(fig_peer_bar, use_container_width=True)
+            
+            fig_peer_radar = create_before_after_radar_chart(stud_a_dict, stud_b_dict, sa_name, sb_name)
+            st.plotly_chart(fig_peer_radar, use_container_width=True)
+
+# =========================================================
+# TAB 4: 'WHAT-IF' ACADEMIC GOAL SIMULATOR
 # =========================================================
 with tab_goal:
     st.markdown("### 🎯 'What-If' Gamified Academic Goal Simulator")
@@ -1128,7 +1296,7 @@ with tab_goal:
                 """, unsafe_allow_html=True)
 
 # =========================================================
-# TAB 4: AI INSIGHTS & EXPLORATORY DATA ANALYSIS (EDA)
+# TAB 5: AI INSIGHTS & EXPLORATORY DATA ANALYSIS (EDA)
 # =========================================================
 with tab_xai:
     xai_sub1, xai_sub2 = st.tabs([
@@ -1169,7 +1337,7 @@ with tab_xai:
                 st.plotly_chart(fig_box_edu, use_container_width=True)
 
 # =========================================================
-# TAB 5: MODELS, STATISTICAL BENCHMARKS & ARCHITECTURE
+# TAB 6: MODELS, STATISTICAL BENCHMARKS & ARCHITECTURE
 # =========================================================
 with tab_models:
     mod_sub1, mod_sub2, mod_sub3, mod_sub4 = st.tabs([
@@ -1249,13 +1417,14 @@ with tab_models:
            ├── Uncertainty Quantifier: Conformal Prediction 95% Confidence Bounds (±8.50 marks)
            ├── Behavioral Archetype Clusterer: K-Means (k=4) + 2D PCA Decomposition
            ├── Tri-Axis Multi-Subject Engine: Joint Math, Reading & Writing Regressor
+           ├── Side-by-Side Simulator: Before vs After Growth & Head-to-Head Peer Comparison
            ├── Prescriptive Diagnostic Engine: 6-dimensional clinical weakness detection
            └── Explainable AI (XAI): Permutation Importance & SHAP Waterfall Attributions
         
         3. Deliverables:
            ├── Exact Point Score with 95% Confidence Interval [Lower – Upper]
+           ├── Before vs After Competency Growth Radar & Head-to-Head Peer Charts
            ├── Behavioral Archetype Profile & 2D PCA Cohort Position Map
-           ├── 8-Axis Competency Radar Chart & Tri-Axis Subject Comparison
            ├── Pass Probability & Early Risk Tier
            ├── 12-Week Growth Milestones & Prescriptive Study Schedule
            └── Verified PDF Performance Certificate & Classroom Executive Report
