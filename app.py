@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import joblib
 from src.pdf_generator import generate_student_pdf_report
+from src.explainability import explain_single_student
 
 # Set Page Config
 st.set_page_config(
@@ -100,12 +101,6 @@ with st.sidebar:
     st.image("https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80", use_container_width=True)
     st.title("⚙️ ML Engine Settings")
     
-    analysis_mode = st.radio(
-        "Select Operation Mode:",
-        options=["🎯 Dual Mode (Score & Risk)", "📊 Score Regressor Only", "🛡️ Pass/Fail Classifier Only"]
-    )
-    
-    st.markdown("---")
     if all_models:
         default_index = 0
         model_names = sorted(list(all_models.keys()))
@@ -125,16 +120,17 @@ with st.sidebar:
     st.info(f"Classifier: **Support Vector Machine (ROC-AUC 0.933)**")
     
     st.markdown("---")
-    st.markdown("### 📊 Dual-Mode Benchmarks")
+    st.markdown("### 📊 System Benchmarks")
     st.markdown("- **Regression $R^2$:** **76.44%** ($\pm 5.95$ marks)")
-    st.markdown("- **Classification Accuracy:** **89.5%**")
-    st.markdown("- **ROC-AUC Score:** **0.933**")
+    st.markdown("- **Pass/Fail Accuracy:** **89.5%**")
+    st.markdown("- **Explainable AI (XAI):** Enabled")
+    st.markdown("- **PDF Generator:** ReportLab 5.0")
     
     st.caption("Student Performance & Dropout Risk Predictor")
 
 # Main Header
 st.markdown('<div class="main-header">🎓 Student Performance & Dropout Risk Predictor</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Dual-task machine learning system: Score Regression + Pass/Fail & Dropout Risk Classification with instant PDF export.</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Dual-task machine learning system with Explainable AI (SHAP attributions), risk diagnostics, and verified PDF report generation.</div>', unsafe_allow_html=True)
 
 # Overview Metric Cards
 c1, c2, c3, c4 = st.columns(4)
@@ -143,17 +139,18 @@ with c1:
 with c2:
     st.markdown('<div class="metric-card"><div class="metric-val">0.933</div><div class="metric-lbl">Classifier ROC-AUC</div></div>', unsafe_allow_html=True)
 with c3:
-    st.markdown('<div class="metric-card"><div class="metric-val">89.5%</div><div class="metric-lbl">Pass/Fail Accuracy</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">XAI</div><div class="metric-lbl">SHAP Attributions</div></div>', unsafe_allow_html=True)
 with c4:
     st.markdown('<div class="metric-card"><div class="metric-val">PDF</div><div class="metric-lbl">Verified Export</div></div>', unsafe_allow_html=True)
 
 st.write("")
 
 # Navigation Tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🚀 Score & Risk Predictor", 
+    "🔍 Explainable AI (XAI)",
     "📈 Exploratory Data Analysis", 
-    "🏆 Model Leaderboards (Dual)", 
+    "🏆 Model Leaderboards", 
     "⚙️ Hyperparameter Tuning",
     "📖 System Architecture"
 ])
@@ -161,7 +158,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 # ----------------- TAB 1: PREDICTOR -----------------
 with tab1:
     st.markdown("### 📝 Enter Student Academic & Demographic Profile")
-    st.markdown("Enter student characteristics to compute predicted marks, pass probability, and dropout risk alerts.")
+    st.markdown("Enter student characteristics to compute predicted marks, pass probability, local SHAP attributions, and dropout risk alerts.")
     
     with st.form("prediction_form"):
         # Student Info Header
@@ -250,13 +247,10 @@ with tab1:
             # Risk Level Assessment
             if pass_prob >= 80:
                 risk_level = "Safe / Low Risk"
-                risk_color = "#059669"
             elif pass_prob >= 50:
                 risk_level = "Moderate Risk (Needs Monitoring)"
-                risk_color = "#D97706"
             else:
                 risk_level = "🚨 High Academic / Dropout Risk"
-                risk_color = "#DC2626"
                 
             # Grade Mapping
             if overall_avg >= 90:
@@ -302,7 +296,30 @@ with tab1:
             st.markdown(f"**Academic Success Confidence:** `{pass_prob:.1f}%`")
             st.progress(int(pass_prob))
                 
+            # 3. Local Explainable AI (SHAP Breakdown)
+            st.markdown("---")
+            st.markdown("### 🔍 Why did the AI predict this score? (Feature Attribution Breakdown)")
+            st.markdown("This breakdown explains how each characteristic contributed points relative to the population baseline average of **67.95 marks**:")
+            
+            base_val, pred_val, contrib_df = explain_single_student(input_df, preprocessor, active_model, None)
+            
+            xai_c1, xai_c2 = st.columns([1.2, 1])
+            with xai_c1:
+                st.markdown("#### 📊 Individual Factor Impact on Score:")
+                for _, row in contrib_df.iterrows():
+                    impact = row["Impact"]
+                    sign = "+" if impact >= 0 else ""
+                    color = "green" if impact >= 0 else "red"
+                    st.markdown(f"- **{row['Factor']}** (`{row['Value']}`): <span style='color:{color}; font-weight:bold;'>{sign}{impact:.2f} marks</span>", unsafe_allow_html=True)
+            with xai_c2:
+                st.dataframe(
+                    contrib_df.style.format({"Impact": "{:+.2f} marks"}),
+                    use_container_width=True,
+                    hide_index=True
+                )
+
             # Diagnostic Feedback
+            st.markdown("---")
             st.markdown("#### 💡 Diagnostic Recommendations & Intervention Plan")
             tips = []
             if pass_prob < 50:
@@ -312,7 +329,7 @@ with tab1:
             if lunch == "free/reduced":
                 tips.append("📌 **Nutrition:** Standard lunch plan correlates with an **+8.0 mark boost** across all exams.")
             if reading_score < 60:
-                tips.append("📌 **Reading Focus:** Enhancing reading comprehension reinforces mathematical word-problem solving.")
+                tips.append("📌 **Reading Focus:** Enhancing reading comprehension reinforces mathematical problem solving.")
             if not tips:
                 tips.append("🌟 **Optimal Academic Standing:** Student profile exhibits strong positive indicators across all subjects.")
                 
@@ -359,10 +376,35 @@ with tab1:
                 use_container_width=True
             )
 
-# ----------------- TAB 2: EDA & INSIGHTS -----------------
+# ----------------- TAB 2: EXPLAINABLE AI (XAI) -----------------
 with tab2:
-    st.markdown("### 📊 Exploratory Data Analysis & Visual Insights")
+    st.markdown("### 🔍 Explainable AI (XAI) & Feature Importance Analysis")
+    st.markdown("Global interpretability analysis to unpack what factors truly determine student examination marks:")
+    
     plots_dir = os.path.join(os.path.dirname(__file__), "plots")
+    
+    col_x1, col_x2 = st.columns(2)
+    with col_x1:
+        st.markdown("#### 1. Global Feature Importance (Permutation Impact)")
+        p10 = os.path.join(plots_dir, "10_global_feature_importance.png")
+        if os.path.exists(p10):
+            st.image(p10, caption="Writing and Reading scores account for over 77% of predictive power.", use_container_width=True)
+            
+    with col_x2:
+        st.markdown("#### 2. Directional Feature Attribution (Point Adjustments)")
+        p11 = os.path.join(plots_dir, "11_shap_directional_impact.png")
+        if os.path.exists(p11):
+            st.image(p11, caption="Positive drivers (Green) vs Negative penalties (Red) on marks.", use_container_width=True)
+            
+    st.markdown("#### 📋 Full Feature Importance Impact Table:")
+    feat_csv = os.path.join(os.path.dirname(__file__), "artifacts", "feature_importance.csv")
+    if os.path.exists(feat_csv):
+        f_df = pd.read_csv(feat_csv)
+        st.dataframe(f_df, use_container_width=True, hide_index=True)
+
+# ----------------- TAB 3: EDA & INSIGHTS -----------------
+with tab3:
+    st.markdown("### 📊 Exploratory Data Analysis & Visual Insights")
     
     col_a, col_b = st.columns(2)
     with col_a:
@@ -387,8 +429,8 @@ with tab2:
         if os.path.exists(p4):
             st.image(p4, caption="Higher parental education degree correlates with higher median student scores.", use_container_width=True)
 
-# ----------------- TAB 3: DUAL MODEL LEADERBOARD -----------------
-with tab3:
+# ----------------- TAB 4: DUAL MODEL LEADERBOARD -----------------
+with tab4:
     st.markdown("### 🏆 Dual-Task Evaluation Leaderboards")
     
     st.markdown("#### A. Regression Leaderboard (Continuous Score Prediction)")
@@ -413,16 +455,16 @@ with tab3:
         if os.path.exists(p9):
             st.image(p9, caption="ROC-AUC Curves for all classifiers.", use_container_width=True)
 
-# ----------------- TAB 4: HYPERPARAMETER TUNING -----------------
-with tab4:
+# ----------------- TAB 5: HYPERPARAMETER TUNING -----------------
+with tab5:
     st.markdown("### ⚙️ 5-Fold Cross-Validation Hyperparameter Optimization")
     tuning_csv = os.path.join(os.path.dirname(__file__), "artifacts", "hyperparameter_tuning_results.csv")
     if os.path.exists(tuning_csv):
         t_df = pd.read_csv(tuning_csv)
         st.dataframe(t_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
 
-# ----------------- TAB 5: SYSTEM ARCHITECTURE -----------------
-with tab5:
+# ----------------- TAB 6: SYSTEM ARCHITECTURE -----------------
+with tab6:
     st.markdown("### 📖 Dual-Engine Machine Learning Architecture")
     st.markdown("""
     ```
@@ -431,11 +473,13 @@ with tab5:
     
     2. Dual Machine Learning Pipeline:
        ├── Regression Engine: Voting Ensemble Regressor (R² 76.44%, MAE ±5.95)
-       └── Classification Engine: Support Vector Classifier (Accuracy 89.5%, ROC-AUC 0.933)
+       ├── Classification Engine: Support Vector Classifier (Accuracy 89.5%, ROC-AUC 0.933)
+       └── Explainable AI (XAI): Permutation Importance & SHAP Directional Attributions
     
     3. Outputs & Deliverables:
        ├── Exact Predicted Marks & Grade (A+ to F)
        ├── Pass Probability & Early Dropout Risk Tier
+       ├── Local Real-Time Factor Attribution Breakdown (Points Added/Deducted)
        └── Verified PDF Performance Certificate
     ```
     """)
