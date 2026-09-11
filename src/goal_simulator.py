@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import joblib
+from src.advanced_feature_engineering import engineer_features
 
 def simulate_academic_goal(
     current_profile,
@@ -9,15 +10,12 @@ def simulate_academic_goal(
     model
 ):
     """
-    Simulates actionable academic pathways to reach a target score.
-    
-    current_profile dict must contain:
-    'gender', 'race/ethnicity', 'parental level of education', 'lunch',
-    'test preparation course', 'reading score', 'writing score'
+    Simulates actionable academic pathways to reach a target score using advanced features.
     """
     # 1. Baseline Current Prediction
     df_current = pd.DataFrame([current_profile])
-    transformed_current = preprocessor.transform(df_current)
+    df_current_eng = engineer_features(df_current)
+    transformed_current = preprocessor.transform(df_current_eng)
     current_pred = float(np.clip(model.predict(transformed_current)[0], 0, 100))
     
     score_gap = round(target_score - current_pred, 1)
@@ -27,23 +25,20 @@ def simulate_academic_goal(
     df_prep = df_current.copy()
     if current_profile["test preparation course"] == "none":
         df_prep["test preparation course"] = "completed"
-        t_prep = preprocessor.transform(df_prep)
+        df_prep_eng = engineer_features(df_prep)
+        t_prep = preprocessor.transform(df_prep_eng)
         pred_with_prep = float(np.clip(model.predict(t_prep)[0], 0, 100))
         test_prep_benefit = round(pred_with_prep - current_pred, 1)
     else:
         pred_with_prep = current_pred
         
     # 3. Strategy B: Balanced Subject Improvement Plan
-    # Optimization loop to find required reading & writing scores
-    # Gradient approximation: Math score increases ~0.48 pts per reading mark and ~0.32 pts per writing mark
     req_reading = current_profile["reading score"]
     req_writing = current_profile["writing score"]
     
     if score_gap > 0:
-        # Search for minimum equal boost in reading & writing to close the gap
         best_r = current_profile["reading score"]
         best_w = current_profile["writing score"]
-        found = False
         
         for delta in range(0, 50):
             test_r = min(100, current_profile["reading score"] + delta)
@@ -52,14 +47,14 @@ def simulate_academic_goal(
             df_test = df_prep.copy()
             df_test["reading score"] = test_r
             df_test["writing score"] = test_w
+            df_test_eng = engineer_features(df_test)
             
-            t_test = preprocessor.transform(df_test)
+            t_test = preprocessor.transform(df_test_eng)
             p_val = float(np.clip(model.predict(t_test)[0], 0, 100))
             
             if p_val >= target_score or (test_r == 100 and test_w == 100):
                 best_r = test_r
                 best_w = test_w
-                found = True
                 break
                 
         req_reading = best_r

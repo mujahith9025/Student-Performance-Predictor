@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import joblib
+from src.advanced_feature_engineering import engineer_features
 
 def test_dual_inference():
     preprocessor = joblib.load("artifacts/preprocessor.joblib")
@@ -18,7 +19,7 @@ def test_dual_inference():
         "reading score": [85],
         "writing score": [88]
     })
-    t_a = preprocessor.transform(student_a)
+    t_a = preprocessor.transform(engineer_features(student_a))
     pred_score_a = reg_model.predict(t_a)[0]
     prob_a = clf_model.predict_proba(t_a)[0][1] * 100
 
@@ -32,7 +33,7 @@ def test_dual_inference():
         "reading score": [32],
         "writing score": [28]
     })
-    t_b = preprocessor.transform(student_b)
+    t_b = preprocessor.transform(engineer_features(student_b))
     pred_score_b = reg_model.predict(t_b)[0]
     prob_b = clf_model.predict_proba(t_b)[0][1] * 100
 
@@ -50,3 +51,4 @@ def test_dual_inference():
 
 if __name__ == "__main__":
     test_dual_inference()
+

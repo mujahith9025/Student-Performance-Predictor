@@ -10,6 +10,7 @@ from src.pdf_generator import generate_student_pdf_report
 from src.explainability import explain_single_student
 from src.goal_simulator import simulate_academic_goal
 from src.batch_predictor import process_batch_predictions, generate_sample_csv_template
+from src.advanced_feature_engineering import engineer_features
 
 # Set Page Config
 st.set_page_config(
@@ -116,7 +117,11 @@ with st.sidebar:
     if all_models:
         default_index = 0
         model_names = sorted(list(all_models.keys()))
-        if "Voting Ensemble Regressor" in model_names:
+        if "Super Stacking Meta Regressor" in model_names:
+            default_index = model_names.index("Super Stacking Meta Regressor")
+        elif "Optimized Elasticnet" in model_names:
+            default_index = model_names.index("Optimized Elasticnet")
+        elif "Voting Ensemble Regressor" in model_names:
             default_index = model_names.index("Voting Ensemble Regressor")
             
         selected_model_name = st.selectbox(
@@ -127,14 +132,15 @@ with st.sidebar:
         active_model = all_models[selected_model_name]
     else:
         active_model = best_model
-        selected_model_name = "Voting Ensemble (Default)"
+        selected_model_name = "Optimized Model (Default)"
         
-    st.info(f"Classifier: **Support Vector Machine (ROC-AUC 0.933)**")
+    st.info(f"Classifier: **Support Vector Classifier (Accuracy 90.0%, ROC-AUC 0.932)**")
     
     st.markdown("---")
     st.markdown("### 📊 System Benchmarks")
-    st.markdown("- **Regression $R^2$:** **76.44%** ($\pm 5.95$ marks)")
-    st.markdown("- **Pass/Fail Accuracy:** **89.5%**")
+    st.markdown("- **Engineered Features:** **24 Interaction Metrics**")
+    st.markdown("- **Regression $R^2$:** **76.31%** ($\pm 5.96$ marks)")
+    st.markdown("- **Pass/Fail Accuracy:** **90.0%**")
     st.markdown("- **Batch CSV Processing:** Enabled")
     st.markdown("- **Goal Simulator:** Active")
     st.markdown("- **Explainable AI (XAI):** Enabled")
@@ -149,11 +155,11 @@ st.markdown('<div class="sub-header">Dual-task machine learning system with Clas
 # Overview Metric Cards
 c1, c2, c3, c4 = st.columns(4)
 with c1:
-    st.markdown('<div class="metric-card"><div class="metric-val">76.4%</div><div class="metric-lbl">Regression R²</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">76.3%</div><div class="metric-lbl">Regression R² (±5.9 MAE)</div></div>', unsafe_allow_html=True)
 with c2:
-    st.markdown('<div class="metric-card"><div class="metric-val">0.933</div><div class="metric-lbl">Classifier ROC-AUC</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">90.0%</div><div class="metric-lbl">Classifier Accuracy</div></div>', unsafe_allow_html=True)
 with c3:
-    st.markdown('<div class="metric-card"><div class="metric-val">📂 Batch</div><div class="metric-lbl">Classroom CSV</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-val">24 Feat</div><div class="metric-lbl">Engineered Synergy</div></div>', unsafe_allow_html=True)
 with c4:
     st.markdown('<div class="metric-card"><div class="metric-val">PDF</div><div class="metric-lbl">Verified Export</div></div>', unsafe_allow_html=True)
 
@@ -245,7 +251,8 @@ with tab1:
                 "writing score": [writing_score]
             }
             input_df = pd.DataFrame(input_dict)
-            transformed_input = preprocessor.transform(input_df)
+            input_df_eng = engineer_features(input_df)
+            transformed_input = preprocessor.transform(input_df_eng)
             
             # 1. Regression Prediction
             raw_prediction = active_model.predict(transformed_input)[0]

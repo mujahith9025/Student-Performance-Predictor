@@ -6,6 +6,7 @@ import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.inspection import permutation_importance
+from src.advanced_feature_engineering import engineer_features
 
 def compute_global_explainability():
     print("=" * 75)
@@ -22,15 +23,21 @@ def compute_global_explainability():
 
     preprocessor = joblib.load(os.path.join("artifacts", "preprocessor.joblib"))
     model = joblib.load(os.path.join("artifacts", "best_model.joblib"))
-    rf_model = joblib.load(os.path.join("artifacts", "models", "tuned_random_forest.joblib"))
-    ridge_model = joblib.load(os.path.join("artifacts", "models", "tuned_ridge_regression.joblib"))
-
+    
     # Feature Names
-    num_features = ["reading score", "writing score"]
-    cat_features = ["gender", "race/ethnicity", "parental level of education", "lunch", "test preparation course"]
-    cat_encoder = preprocessor.named_transformers_['cat_pipeline'].named_steps['one_hot_encoder']
-    encoded_cat_names = cat_encoder.get_feature_names_out(cat_features).tolist()
-    feature_names = num_features + encoded_cat_names
+    try:
+        raw_feat_names = preprocessor.get_feature_names_out().tolist()
+        feature_names = [f.replace("num__", "").replace("cat__", "") for f in raw_feat_names]
+    except Exception:
+        num_cols = [
+            "reading score", "writing score", "verbal_average", "verbal_differential",
+            "verbal_synergy", "verbal_ratio", "reading_squared", "writing_squared",
+            "parental_edu_rank", "socio_readiness_index", "prep_x_reading", "lunch_x_writing"
+        ]
+        cat_cols = ["gender", "race/ethnicity", "parental level of education", "lunch", "test preparation course"]
+        cat_encoder = preprocessor.named_transformers_['cat'].named_steps['ohe']
+        encoded_cat_names = cat_encoder.get_feature_names_out(cat_cols).tolist()
+        feature_names = num_cols + encoded_cat_names
 
     print(f"\n[1] Analyzing {len(feature_names)} features across {X_test.shape[0]} test samples.")
 
@@ -48,17 +55,20 @@ def compute_global_explainability():
 
     # Normalize to percentages
     total_imp = importance_df["Importance_Mean"].clip(lower=0).sum()
-    importance_df["Relative_Impact_Pct"] = (importance_df["Importance_Mean"].clip(lower=0) / total_imp * 100).round(2)
+    if total_imp > 0:
+        importance_df["Relative_Impact_Pct"] = (importance_df["Importance_Mean"].clip(lower=0) / total_imp * 100).round(2)
+    else:
+        importance_df["Relative_Impact_Pct"] = 0.0
 
     artifacts_dir = "artifacts"
     csv_path = os.path.join(artifacts_dir, "feature_importance.csv")
     importance_df.to_csv(csv_path, index=False)
     print(f" Saved Feature Importance Table to: {csv_path}\n")
 
-    print(f"{'Rank':<5} | {'Feature Name':<42} | {'Impact Score':<12} | {'Relative Impact':<15}")
-    print("-" * 80)
+    print(f"{'Rank':<5} | {'Feature Name':<38} | {'Impact Score':<12} | {'Relative Impact':<15}")
+    print("-" * 76)
     for i, row in importance_df.iterrows():
-        print(f"#{i+1:<4} | {row['Feature']:<42} | {row['Importance_Mean']:<12.4f} | {row['Relative_Impact_Pct']:>6.2f}%")
+        print(f"#{i+1:<4} | {row['Feature']:<38} | {row['Importance_Mean']:<12.4f} | {row['Relative_Impact_Pct']:>6.2f}%")
 
     # 3. Visualizations
     plots_dir = "plots"
@@ -68,7 +78,7 @@ def compute_global_explainability():
     plt.figure(figsize=(10, 6))
     top_features = importance_df.head(10).iloc[::-1]
     
-    colors_list = ["#0284C7" if "score" in f else "#3B82F6" for f in top_features["Feature"]]
+    colors_list = ["#0284C7" if "score" in f or "verbal" in f else "#3B82F6" for f in top_features["Feature"]]
     
     bars = plt.barh(top_features["Feature"], top_features["Relative_Impact_Pct"], color=colors_list, edgecolor="none", height=0.65)
     plt.title("Global Feature Importance: Top 10 Drivers of Student Marks", fontsize=13, fontweight="bold")
@@ -77,18 +87,27 @@ def compute_global_explainability():
     
     for bar in bars:
         w = bar.get_width()
-        plt.text(w + 0.8, bar.get_y() + bar.get_height()/2, f"{w:.1f}%", va="center", fontsize=10, fontweight="bold")
+        plt.text(w + 0.5, bar.get_y() + bar.get_height()/2, f"{w:.1f}%", va="center", fontsize=10, fontweight="bold")
         
-    plt.xlim(0, max(top_features["Relative_Impact_Pct"]) * 1.18)
+    plt.xlim(0, max(top_features["Relative_Impact_Pct"].max() * 1.18, 10))
     plt.tight_layout()
     chart1_path = os.path.join(plots_dir, "10_global_feature_importance.png")
     plt.savefig(chart1_path, dpi=300)
     plt.close()
     print(f"\n[3] Saved Global Feature Importance Plot: {chart1_path}")
 
-    # Chart 2: SHAP-Style Directional Impact Breakdown (Ridge & Tree Coefficients)
+    # Chart 2: Directional Impact Breakdown
     plt.figure(figsize=(10, 6))
-    coefs = ridge_model.coef_
+    
+    # Extract coefficients if linear, or surrogate feature correlations
+    if hasattr(model, "coef_"):
+        coefs = model.coef_
+    elif hasattr(model, "named_steps") and hasattr(model.named_steps.get("regressor", None), "coef_"):
+        coefs = model.named_steps["regressor"].coef_
+    else:
+        # Surrogate correlation with target
+        coefs = [np.corrcoef(X_train[:, idx], y_train)[0, 1] * 10 for idx in range(len(feature_names))]
+        
     coef_df = pd.DataFrame({
         "Feature": feature_names,
         "Coefficient": coefs
@@ -109,17 +128,17 @@ def compute_global_explainability():
     print("\n[OK] Explainable AI (XAI) Engine Generated Successfully!")
     sys.stdout.flush()
 
-def explain_single_student(input_df, preprocessor, model, feature_names):
+def explain_single_student(input_df, preprocessor, model, feature_names=None):
     """
     Computes local feature attributions (SHAP-style) for an individual student.
     Returns: base_value, predicted_value, contributions_df
     """
-    transformed = preprocessor.transform(input_df)[0]
-    predicted = float(model.predict(preprocessor.transform(input_df))[0])
+    input_eng = engineer_features(input_df)
+    transformed = preprocessor.transform(input_eng)
+    predicted = float(model.predict(transformed)[0])
     base_value = 67.95  # Population baseline average
     
-    # Calculate linear-surrogate local attributions
-    # Reading & writing standardized influence
+    # Calculate surrogate local attributions
     reading_val = input_df["reading score"].iloc[0]
     writing_val = input_df["writing score"].iloc[0]
     gender_val = input_df["gender"].iloc[0]

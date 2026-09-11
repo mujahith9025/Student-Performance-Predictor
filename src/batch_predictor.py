@@ -1,6 +1,7 @@
 import io
 import pandas as pd
 import numpy as np
+from src.advanced_feature_engineering import engineer_features
 
 REQUIRED_COLUMNS = [
     "gender",
@@ -42,7 +43,6 @@ def process_batch_predictions(df, preprocessor, reg_model, clf_model):
     """
     Processes an entire classroom DataFrame and returns the enriched DataFrame + summary analytics.
     """
-    # Verify required columns
     missing_cols = [c for c in REQUIRED_COLUMNS if c not in df.columns]
     if missing_cols:
         raise ValueError(f"Uploaded CSV is missing required columns: {missing_cols}")
@@ -50,8 +50,9 @@ def process_batch_predictions(df, preprocessor, reg_model, clf_model):
     processed_df = df.copy()
     feature_df = processed_df[REQUIRED_COLUMNS].copy()
 
-    # Preprocessing
-    transformed = preprocessor.transform(feature_df)
+    # Apply feature engineering
+    feature_df_eng = engineer_features(feature_df)
+    transformed = preprocessor.transform(feature_df_eng)
 
     # 1. Regression: Predict Math Marks
     predicted_math = reg_model.predict(transformed)
