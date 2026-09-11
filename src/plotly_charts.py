@@ -118,6 +118,47 @@ def create_local_xai_waterfall(base_val, predicted, contrib_df):
     )
     return fig
 
+def create_goal_trajectory_chart(current_score, prep_benefit, target_score):
+    """
+    Gamified Milestone Stepper Trajectory Chart (Baseline -> Test Prep Boost -> Final Target).
+    """
+    steps = ["1. Baseline Score", "2. + Test Prep Boost", "3. + Exam Targets (Goal)"]
+    step1 = current_score
+    step2 = min(100, current_score + prep_benefit)
+    step3 = target_score
+    scores = [step1, step2, step3]
+    
+    fig = go.Figure()
+    
+    # Pathway line
+    fig.add_trace(go.Scatter(
+        x=steps,
+        y=scores,
+        mode='lines+markers+text',
+        line=dict(color='#2563EB', width=3, dash='solid'),
+        marker=dict(size=[14, 16, 20], color=['#94A3B8', '#06B6D4', '#10B981'], symbol=['circle', 'diamond', 'star']),
+        text=[f"{s:.1f} Marks" for s in scores],
+        textposition=['bottom center', 'top center', 'top center'],
+        textfont=dict(size=12, family="Plus Jakarta Sans", color="#1E3A8A"),
+        name="Milestone Path"
+    ))
+    
+    # Target Line
+    fig.add_hline(y=target_score, line_dash="dot", line_color="#10B981", annotation_text=f"Target Goal ({target_score})", annotation_position="bottom right")
+    
+    fig.update_layout(
+        title="<b>Gamified Academic Milestone Trajectory</b>",
+        title_font=dict(size=14, family="Outfit"),
+        height=260,
+        margin=dict(l=20, r=20, t=40, b=25),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(248, 250, 252, 0.6)',
+        yaxis=dict(title="Marks (0 - 100)", range=[max(0, min(scores) - 15), min(105, max(scores) + 15)]),
+        showlegend=False
+    )
+    return fig
+
+
 # ---------------------------------------------------------
 # TAB 2: CLASSROOM BATCH ANALYTICS
 # ---------------------------------------------------------

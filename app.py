@@ -995,14 +995,44 @@ with tab2:
 
 # ----------------- TAB 3: WHAT-IF GOAL SIMULATOR -----------------
 with tab3:
-    st.markdown("### 🎯 'What-If' Academic Goal Simulator")
-    st.markdown("Set a target mark and simulate the exact study roadmap, reading/writing score targets, and preparation milestones required to achieve it.")
+    st.markdown("### 🎯 'What-If' Gamified Academic Goal Simulator")
+    st.markdown("Select a target achievement trophy or set a custom score to reverse-engineer the exact study quest roadmap and exam milestones:")
     
-    col_sim1, col_sim2 = st.columns([1, 1.2])
+    # Trophy Quick-Select Header
+    st.markdown("""
+    <div class="preset-chip-box">
+        <span style="font-size: 0.85rem; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.5px;">🏆 Select Target Milestone Trophy:</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    if "sim_target_val" not in st.session_state:
+        st.session_state["sim_target_val"] = 85
+        
+    t_c1, t_c2, t_c3, t_c4 = st.columns(4)
+    with t_c1:
+        if st.button("🥉 Bronze: Pass (50 Marks)", use_container_width=True):
+            st.session_state["sim_target_val"] = 50
+            st.rerun()
+    with t_c2:
+        if st.button("🥈 Silver: Credit (70 Marks)", use_container_width=True):
+            st.session_state["sim_target_val"] = 70
+            st.rerun()
+    with t_c3:
+        if st.button("🥇 Gold: Honor Roll (85 Marks)", use_container_width=True):
+            st.session_state["sim_target_val"] = 85
+            st.rerun()
+    with t_c4:
+        if st.button("💎 Diamond: Ivy (95 Marks)", use_container_width=True):
+            st.session_state["sim_target_val"] = 95
+            st.rerun()
+            
+    st.write("")
+    
+    col_sim1, col_sim2 = st.columns([1, 1.3])
     
     with col_sim1:
-        st.markdown("#### 1. Define Student Baseline & Desired Target")
-        sim_target_score = st.slider("🎯 Desired Target Math Score (0 - 100):", min_value=50, max_value=100, value=85, step=1)
+        st.markdown("#### 1. Define Student Baseline & Goal")
+        sim_target_score = st.slider("🎯 Desired Target Math Score (0 - 100):", min_value=50, max_value=100, value=st.session_state["sim_target_val"], step=1)
         
         st.markdown("##### Current Student Profile:")
         sim_curr_read = st.slider("Current Reading Score:", min_value=0, max_value=100, value=65, step=1)
@@ -1018,7 +1048,7 @@ with tab3:
         sim_btn = st.button("🚀 Calculate Milestone Roadmap", use_container_width=True, type="primary")
 
     with col_sim2:
-        st.markdown("#### 2. Simulation Results & Target Roadmap")
+        st.markdown("#### 2. Simulation Results & Quest Roadmap")
         
         # Build Profile Dict
         sim_profile = {
@@ -1039,44 +1069,49 @@ with tab3:
             if gap <= 0:
                 st.success(f"🎉 **Target Already Reached!** Current projected score is **{sim_res['current_predicted_math']:.1f} / 100**.")
             else:
-                st.warning(f"🎯 **Target Score:** `{sim_target_score}` | **Current Projected:** `{sim_res['current_predicted_math']:.1f}` | **Score Gap to Bridge:** `+{gap:.1f} marks`")
+                st.warning(f"🎯 **Target Goal:** `{sim_target_score} Marks` | **Current Projected:** `{sim_res['current_predicted_math']:.1f}` | **Score Gap to Bridge:** `+{gap:.1f} marks`")
                 
             st.markdown(f"**Feasibility Rating:** <span style='color:{sim_res['badge_color']}; font-weight:bold;'>{sim_res['feasibility']}</span>", unsafe_allow_html=True)
             st.info(sim_res["advice"])
             
-            st.markdown("---")
-            st.markdown("#### 🗺️ Recommended Action Roadmap:")
+            # Interactive Plotly Trajectory Stepper Chart
+            fig_traj = create_goal_trajectory_chart(sim_res["current_predicted_math"], sim_res["test_prep_benefit"], sim_target_score)
+            st.plotly_chart(fig_traj, use_container_width=True)
             
-            # Step 1: Test Prep
+            st.markdown("#### 🗺️ Step-by-Step Study Quest Roadmap:")
+            
+            # Quest 1: Test Prep
             if sim_prep == "none":
                 st.markdown(f"""
                 <div class="roadmap-card">
-                    <b>Step 1: Enroll in Test Preparation Course</b><br/>
-                    <span style="color:#0284C7;">Estimated Gain: <b>+{sim_res['test_prep_benefit']:.1f} to +9.4 marks</b> in Mathematics.</span>
+                    <b>⚔️ Quest 1: Complete Test Preparation Power-Up</b><br/>
+                    <span style="color:#0284C7; font-weight:600;">Immediate XP Gain: <b>+{sim_res['test_prep_benefit']:.1f} Marks</b> in Mathematics.</span><br/>
+                    <span style="font-size: 0.85rem; color: #64748B;">Action: Complete the online preparation modules and review practice question sets.</span>
                 </div>
                 """, unsafe_allow_html=True)
             else:
                 st.markdown("""
                 <div class="roadmap-card">
-                    <b>Step 1: Test Prep Course Completed</b><br/>
-                    <span style="color:#059669;">Great job! You already have the preparation boost active.</span>
+                    <b>✅ Quest 1: Test Prep Power-Up Active</b><br/>
+                    <span style="color:#059669; font-weight:600;">Great job! Your profile already possesses the +9.4 prep boost.</span>
                 </div>
                 """, unsafe_allow_html=True)
                 
-            # Step 2: Subject Marks Targets
+            # Quest 2: Subject Marks Targets
             st.markdown(f"""
             <div class="roadmap-card">
-                <b>Step 2: Reach Milestone Exam Scores</b><br/>
-                • Target Reading Score: <b>{sim_res['required_reading_score']} / 100</b> <span style="color:#0284C7;">(+{sim_res['reading_delta']} marks from current {sim_curr_read})</span><br/>
-                • Target Writing Score: <b>{sim_res['required_writing_score']} / 100</b> <span style="color:#0284C7;">(+{sim_res['writing_delta']} marks from current {sim_curr_write})</span>
+                <b>📖 Quest 2: Reach Prerequisite Exam Milestones</b><br/>
+                • Target Reading Score: <b>{sim_res['required_reading_score']} / 100</b> <span style="color:#0284C7; font-weight:bold;">(+{sim_res['reading_delta']} marks from current {sim_curr_read})</span><br/>
+                • Target Writing Score: <b>{sim_res['required_writing_score']} / 100</b> <span style="color:#0284C7; font-weight:bold;">(+{sim_res['writing_delta']} marks from current {sim_curr_write})</span><br/>
+                <span style="font-size: 0.85rem; color: #64748B;">Action: Focus on text comprehension drills and analytical writing structure.</span>
             </div>
             """, unsafe_allow_html=True)
             
-            # Step 3: Probability forecast
-            st.markdown("""
+            # Quest 3: Victory Outcome
+            st.markdown(f"""
             <div class="roadmap-card">
-                <b>Step 3: Projected Academic Outcome</b><br/>
-                Meeting these reading and writing milestones is statistically verified by the ML model to deliver your target of <b>85+ marks (Grade A / A+)</b>.
+                <b>🏆 Final Victory Condition: Goal Achievement</b><br/>
+                Meeting these exam milestones is mathematically and statistically verified by the ML model to deliver your target of <b>{sim_target_score}+ marks (High Standing / Honor Roll)</b>.
             </div>
             """, unsafe_allow_html=True)
 
