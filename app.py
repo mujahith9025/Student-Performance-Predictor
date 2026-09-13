@@ -326,7 +326,7 @@ preprocessor, best_model, best_clf, all_models, uncertainty_dict, cluster_bundle
 raw_df = load_raw_dataset()
 
 # ---------------------------------------------------------
-# SIDEBAR CONTROLS & BENCHMARKS
+# SIDEBAR CONTROLS & BEGINNER GUIDES
 # ---------------------------------------------------------
 with st.sidebar:
     st.image("https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80", use_container_width=True)
@@ -341,45 +341,62 @@ with st.sidebar:
             default_index = model_names.index("Super Stacking Meta Regressor")
             
         selected_model_name = st.selectbox(
-            "AI Forecasting Algorithm:",
+            "Select AI Model:",
             options=model_names,
             index=default_index,
-            help="Select the machine learning algorithm used for score prediction"
+            help="Choose which trained machine learning model will predict the student's exam score."
         )
         active_model = all_models[selected_model_name]
     else:
         active_model = best_model
         selected_model_name = "Optimized Model (Default)"
         
-    st.info("🛡️ Pass Classifier: **Champion Gradient Boosting (98.0% Accuracy)**")
+    st.success("🛡️ Pass Classifier: **Gradient Boosting (98.0% Accuracy)**")
     
+    # Simple Beginner Guide
+    with st.expander("💡 3-Step Beginner Guide", expanded=False):
+        st.markdown("""
+        **1. 📝 Enter Details:** Pick a preset student above or adjust sliders for study hours, prior exam, etc.  
+        **2. ⚡ Get Predictions:** See predicted marks out of 100, letter grade, and passing likelihood.  
+        **3. 🛠️ Follow Action Plan:** Check customized study tips, weekly schedule, and download the official PDF report.
+        """)
+        
+    # Plain-English Glossary
+    with st.expander("📘 Easy Terms Glossary", expanded=False):
+        st.markdown("""
+        - **🎯 Predicted Score:** The marks (out of 100) our AI estimates the student will achieve.
+        - **🛡️ 95% Safe Range:** The range where the actual score is 95% likely to land (e.g. 79 – 91).
+        - **✨ Pass Likelihood:** The probability (0–100%) that the student scores 50+ marks.
+        - **⚡ Student Persona:** The student's learning and habit style (e.g. *High-Effort Dedicated Striver*).
+        - **📊 Model Accuracy ($R^2$ 95.8%):** How closely AI predictions match real examination results.
+        - **📉 Average Error ($\pm 2.5$ marks):** How close our predictions are to the true marks on average.
+        """)
+
     st.markdown("---")
-    st.markdown("### 📊 Statistical Capabilities")
-    st.markdown("- **18 Student Input Dimensions**")
-    st.markdown("- **43 Synergy Interaction Metrics**")
-    st.markdown("- **Regression $R^2$:** **95.75%** ($\pm 2.54$ marks)")
-    st.markdown("- **Classification Accuracy:** **98.00%** (AUC: 0.995)")
-    st.markdown("- **95% Conformal Prediction Intervals:** **Active** ($\pm 6.03$ marks)")
-    st.markdown("- **Side-by-Side Growth Simulator:** **Active**")
-    st.markdown("- **Unsupervised Archetypes:** **4 Discovered**")
+    st.markdown("### 📊 Quick Project Stats")
+    st.markdown("- **18 Student Dimensions** (Academics, Lifestyle, Habits)")
+    st.markdown("- **95.75% Prediction Accuracy** ($\pm 2.54$ avg error)")
+    st.markdown("- **98.00% Pass / Fail Accuracy**")
+    st.markdown("- **95% Confidence Bounds** ($\pm 6.03$ safe margin)")
+    st.markdown("- **4 Behavioral Learning Personas**")
     
-    st.caption("EduPredict AI v4.0 • 18-Dimension Suite")
+    st.caption("EduPredict AI • Simple, Smart & User-Friendly")
 
 # ---------------------------------------------------------
-# STREAMLINED HERO HEADER
+# CRISP & WELCOMING HERO HEADER
 # ---------------------------------------------------------
 st.markdown("""
 <div class="hero-container">
-    <div class="hero-title">🎓 EduPredict AI • Student Intelligence Hub</div>
+    <div class="hero-title">🎓 EduPredict AI • Student Success & Growth Intelligence</div>
     <div class="hero-subtitle">
-        Intelligent multi-dimensional academic forecasting, 95% conformal prediction intervals, side-by-side growth simulator, classroom batch analytics, and verified PDF certificates.
+        Simple, smart, and accurate AI to predict exam marks, identify learning habits, simulate growth, and help every student succeed.
     </div>
     <div class="badge-chip-group">
-        <span class="badge-chip badge-success"><span class="pulse-dot"></span> Statistical Suite Online</span>
-        <span class="badge-chip badge-primary">⚡ 18-Dimension Profile</span>
-        <span class="badge-chip badge-purple">🎯 95.8% R² Precision</span>
-        <span class="badge-chip badge-primary">🔄 Before/After Simulator</span>
-        <span class="badge-chip badge-success">📄 Certified PDF Reports</span>
+        <span class="badge-chip badge-success"><span class="pulse-dot"></span> System Ready</span>
+        <span class="badge-chip badge-primary">✨ Beginner Friendly</span>
+        <span class="badge-chip badge-purple">🎯 95.8% Prediction Accuracy</span>
+        <span class="badge-chip badge-primary">🔄 Growth Simulator</span>
+        <span class="badge-chip badge-success">📄 Instant PDF Reports</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -390,16 +407,18 @@ st.markdown("""
 tab_pred, tab_batch, tab_compare, tab_goal, tab_xai, tab_models = st.tabs([
     "🎯 Student Predictor", 
     "📂 Classroom Analytics",
-    "🔄 Side-by-Side Simulator",
-    "🗺️ 'What-If' Simulator",
-    "🔍 AI Insights & Data",
-    "⚙️ Models & Architecture"
+    "🔄 Growth Simulator",
+    "🗺️ Goal Planner",
+    "🔍 What Drives Scores?",
+    "⚙️ AI Models & Accuracy"
 ])
 
 # =========================================================
 # TAB 1: BENTO GRID STUDENT PREDICTOR & ACTION PLAN
 # =========================================================
 with tab_pred:
+    st.info("💡 **Quick Start:** Click any preset button below to load a sample student, or customize the sliders and click **'Predict Student Score & Generate Action Plan'**.")
+
     # State Initialization
     if "p_name" not in st.session_state: st.session_state["p_name"] = "Alex Johnson"
     if "p_id" not in st.session_state: st.session_state["p_id"] = "STU-2026-101"
@@ -425,13 +444,13 @@ with tab_pred:
     # 1-Row Quick Demo Personas
     st.markdown("""
     <div class="preset-chip-box">
-        <span style="font-size: 0.8rem; font-weight: 700; color: #334155; text-transform: uppercase;">⚡ Quick-Load Demo Student Presets:</span>
+        <span style="font-size: 0.8rem; font-weight: 700; color: #334155; text-transform: uppercase;">⚡ 1-Click Demo Profiles:</span>
     </div>
     """, unsafe_allow_html=True)
     
     pre_c1, pre_c2, pre_c3, pre_c4, pre_c5, pre_c6 = st.columns(6)
     with pre_c1:
-        if st.button("🌟 Honors (90+)", use_container_width=True):
+        if st.button("🌟 Top Scorer (90+)", use_container_width=True, help="High prior scores, active study habits & high attendance"):
             st.session_state.update({
                 "p_name": "Elena Rostova", "p_id": "STU-2026-HONORS", "p_gender": "female",
                 "p_race": "group E", "p_edu": "master's degree", "p_lunch": "standard",
@@ -441,7 +460,7 @@ with tab_pred:
             })
             st.rerun()
     with pre_c2:
-        if st.button("⚖️ Average (65+)", use_container_width=True):
+        if st.button("⚖️ Average Student (65+)", use_container_width=True, help="Moderate study hours and steady baseline marks"):
             st.session_state.update({
                 "p_name": "Jordan Miller", "p_id": "STU-2026-AVG", "p_gender": "male",
                 "p_race": "group C", "p_edu": "some college", "p_lunch": "standard",
@@ -451,7 +470,7 @@ with tab_pred:
             })
             st.rerun()
     with pre_c3:
-        if st.button("🚨 High-Risk (<40)", use_container_width=True):
+        if st.button("🚨 Needs Support (<40)", use_container_width=True, help="Low study time, high screen time, and past backlogs"):
             st.session_state.update({
                 "p_name": "Marcus Vance", "p_id": "STU-2026-RISK", "p_gender": "male",
                 "p_race": "group A", "p_edu": "some high school", "p_lunch": "free/reduced",
@@ -461,7 +480,7 @@ with tab_pred:
             })
             st.rerun()
     with pre_c4:
-        if st.button("📖 Verbal Focus", use_container_width=True):
+        if st.button("📖 Strong in Reading", use_container_width=True, help="High literacy and verbal strength with room for math gains"):
             st.session_state.update({
                 "p_name": "Sophia Chen", "p_id": "STU-2026-VERBAL", "p_gender": "female",
                 "p_race": "group D", "p_edu": "bachelor's degree", "p_lunch": "standard",
@@ -471,7 +490,7 @@ with tab_pred:
             })
             st.rerun()
     with pre_c5:
-        if st.button("🚀 Rising Star", use_container_width=True):
+        if st.button("🚀 Fast Improver", use_container_width=True, help="High study effort and dedication to rapidly raise marks"):
             st.session_state.update({
                 "p_name": "Lucas Taylor", "p_id": "STU-2026-RISING", "p_gender": "male",
                 "p_race": "group B", "p_edu": "high school", "p_lunch": "free/reduced",
@@ -481,7 +500,7 @@ with tab_pred:
             })
             st.rerun()
     with pre_c6:
-        if st.button("🎯 Borderline (50)", use_container_width=True):
+        if st.button("🎯 Borderline (50)", use_container_width=True, help="On the edge of passing — a small boost makes a big difference"):
             st.session_state.update({
                 "p_name": "Amara Patel", "p_id": "STU-2026-BORDER", "p_gender": "female",
                 "p_race": "group C", "p_edu": "some college", "p_lunch": "free/reduced",
@@ -495,58 +514,58 @@ with tab_pred:
     with st.form("bento_prediction_form"):
         f_id1, f_id2 = st.columns(2)
         with f_id1:
-            student_name = st.text_input("Student Name:", value=st.session_state["p_name"])
+            student_name = st.text_input("📝 Student Name:", value=st.session_state["p_name"])
         with f_id2:
-            student_id = st.text_input("Student Roll / ID:", value=st.session_state["p_id"])
+            student_id = st.text_input("🆔 Student Roll / ID:", value=st.session_state["p_id"])
 
-        st.markdown("#### ⚡ Essential Academic & Habit Levers")
+        st.markdown("#### 📊 Key Academic & Study Habits")
         c_in1, c_in2, c_in3, c_in4, c_in5 = st.columns(5)
         with c_in1:
-            previous_term_score = st.slider("Prior Term Exam (0-100):", 0, 100, int(st.session_state["p_prev"]), 1, help="Previous semester baseline / term exam marks")
+            previous_term_score = st.slider("Prior Exam Marks (0-100):", 0, 100, int(st.session_state["p_prev"]), 1, help="Marks scored in the previous semester / term test")
         with c_in2:
-            reading_score = st.slider("Reading Score (0-100):", 0, 100, int(st.session_state["p_read"]), 1)
+            reading_score = st.slider("Reading Score (0-100):", 0, 100, int(st.session_state["p_read"]), 1, help="Reading comprehension test score")
         with c_in3:
-            writing_score = st.slider("Writing Score (0-100):", 0, 100, int(st.session_state["p_write"]), 1)
+            writing_score = st.slider("Writing Score (0-100):", 0, 100, int(st.session_state["p_write"]), 1, help="Writing and essay test score")
         with c_in4:
-            weekly_study_hours = st.slider("Study Hours / Week:", 1.0, 40.0, float(st.session_state["p_study"]), 0.5)
+            weekly_study_hours = st.slider("Weekly Study Hours:", 1.0, 40.0, float(st.session_state["p_study"]), 0.5, help="Self-study hours per week outside class")
         with c_in5:
-            attendance_rate = st.slider("Attendance Rate (%):", 50.0, 100.0, float(st.session_state["p_att"]), 0.5)
+            attendance_rate = st.slider("Attendance Rate (%):", 50.0, 100.0, float(st.session_state["p_att"]), 0.5, help="Class attendance percentage")
 
-        with st.expander("⚙️ Additional Lifestyle, Study Technique & Support Levers", expanded=False):
+        with st.expander("⚙️ Additional Lifestyle, Study Technique & Support (Optional)", expanded=False):
             adv_c1, adv_c2, adv_c3 = st.columns(3)
             with adv_c1:
                 method_opts = ["active_problem_solving", "spaced_repetition", "group_study", "passive_reading"]
                 study_method = st.selectbox(
-                    "Study Technique & Method:", 
+                    "Study Technique:", 
                     method_opts, 
                     index=method_opts.index(st.session_state["p_method"]),
                     format_func=lambda x: x.replace('_', ' ').title(),
-                    help="Active recall & practice questions provide the highest retention efficiency"
+                    help="Active problem solving & flashcard review offer the highest retention."
                 )
-                daily_screen_time_hours = st.slider("Daily Screen Time (Hours/Day):", 0.5, 10.0, float(st.session_state["p_screen"]), 0.2, help="Hours spent on phone/social media/digital leisure")
-                sleep_hours_per_day = st.slider("Sleep (Hours/Day):", 4.0, 10.0, float(st.session_state["p_sleep"]), 0.2)
-                past_failures = st.selectbox("Prior Course Failures:", [0, 1, 2, 3, 4], index=[0, 1, 2, 3, 4].index(st.session_state["p_fails"]))
+                daily_screen_time_hours = st.slider("Recreational Screen Time (Hours/Day):", 0.5, 10.0, float(st.session_state["p_screen"]), 0.2, help="Hours spent daily on social media, gaming, or phone entertainment")
+                sleep_hours_per_day = st.slider("Sleep (Hours/Day):", 4.0, 10.0, float(st.session_state["p_sleep"]), 0.2, help="Average daily sleep hours")
+                past_failures = st.selectbox("Prior Course Backlogs / Failures:", [0, 1, 2, 3, 4], index=[0, 1, 2, 3, 4].index(st.session_state["p_fails"]), help="Number of previous courses failed or backlogs")
             with adv_c2:
                 inv_opts = ["high", "medium", "low"]
-                parental_involvement = st.selectbox("Parental Involvement:", inv_opts, index=inv_opts.index(st.session_state["p_inv"]), format_func=lambda x: x.title(), help="Level of parental mentorship and academic engagement")
+                parental_involvement = st.selectbox("Parental Mentorship / Support:", inv_opts, index=inv_opts.index(st.session_state["p_inv"]), format_func=lambda x: x.title(), help="Level of guidance, check-ins, and study environment support at home")
                 prep_opts = ["none", "completed"]
-                test_prep = st.selectbox("Test Prep Course:", prep_opts, index=prep_opts.index(st.session_state["p_prep"]))
+                test_prep = st.selectbox("Exam Preparation Course:", prep_opts, index=prep_opts.index(st.session_state["p_prep"]), format_func=lambda x: "Completed (+Prep)" if x=="completed" else "None", help="Whether the student finished a structured exam prep course")
                 tut_opts = ["none", "peer_tutoring", "private_tutor"]
-                tutoring_support = st.selectbox("Tutoring Support:", tut_opts, index=tut_opts.index(st.session_state["p_tutor"]), format_func=lambda x: x.replace('_', ' ').title())
+                tutoring_support = st.selectbox("Tutoring Support:", tut_opts, index=tut_opts.index(st.session_state["p_tutor"]), format_func=lambda x: x.replace('_', ' ').title(), help="Extra tutoring sessions outside school")
                 lunch_opts = ["standard", "free/reduced"]
-                lunch = st.selectbox("Lunch Program:", lunch_opts, index=lunch_opts.index(st.session_state["p_lunch"]))
+                lunch = st.selectbox("Lunch Program:", lunch_opts, index=lunch_opts.index(st.session_state["p_lunch"]), format_func=lambda x: "Standard Meal" if x=="standard" else "Subsidized Meal")
             with adv_c3:
                 net_opts = ["yes", "no"]
-                internet_access = st.selectbox("Home Internet Access:", net_opts, index=net_opts.index(st.session_state["p_internet"]))
+                internet_access = st.selectbox("Home Internet Access:", net_opts, index=net_opts.index(st.session_state["p_internet"]), format_func=lambda x: "Yes" if x=="yes" else "No")
                 edu_opts = ["some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree"]
-                parental_education = st.selectbox("Parental Education:", edu_opts, index=edu_opts.index(st.session_state["p_edu"]))
+                parental_education = st.selectbox("Parent's Education Level:", edu_opts, index=edu_opts.index(st.session_state["p_edu"]), format_func=lambda x: x.title())
                 extra_opts = ["yes", "no"]
-                extracurricular_activities = st.selectbox("Extracurricular Engagement:", extra_opts, index=extra_opts.index(st.session_state["p_extra"]))
+                extracurricular_activities = st.selectbox("Extracurricular Activities (Sports/Clubs):", extra_opts, index=extra_opts.index(st.session_state["p_extra"]), format_func=lambda x: "Yes" if x=="yes" else "No")
                 gen_opts = ["female", "male"]
-                gender = st.selectbox("Gender:", gen_opts, index=gen_opts.index(st.session_state["p_gender"]))
+                gender = st.selectbox("Gender:", gen_opts, index=gen_opts.index(st.session_state["p_gender"]), format_func=lambda x: x.title())
                 race_ethnicity = "group C"
 
-        submit_btn = st.form_submit_button("⚡ Calculate Student Assessment & Statistical Intervals", use_container_width=True, type="primary")
+        submit_btn = st.form_submit_button("⚡ Predict Student Score & Generate Action Plan", use_container_width=True, type="primary")
 
     if submit_btn or "last_pred" in st.session_state:
         if submit_btn:
@@ -620,30 +639,30 @@ with tab_pred:
             base_val, pred_val, contrib_df = explain_single_student(input_df, preprocessor, active_model, None)
 
             # =========================================================
-            # 🍱 4-BOX MODERN BENTO GRID DASHBOARD
+            # 🍱 4-BOX SIMPLE & CRISP STUDENT DASHBOARD
             # =========================================================
-            st.markdown("### 🍱 Student Academic Intelligence Dashboard")
+            st.markdown("### 📊 Assessment Summary & Personalized Roadmap")
             
             bento_row1_c1, bento_row1_c2 = st.columns([1.1, 1.1])
             
-            # --- BENTO TILE 1: ACADEMIC STANDING & 95% CONFIDENCE INTERVAL ---
+            # --- BENTO TILE 1: PREDICTED MARKS & SAFE RANGE ---
             with bento_row1_c1:
                 score_accent = "#059669" if is_pass == 1 else "#DC2626"
                 ci_l, ci_u = ci_res["ci_95_range"]
                 st.markdown(f"""
                 <div class="bento-tile">
                     <div class="bento-tile-header">
-                        <span class="bento-tile-title">🎯 Predicted Marks & 95% Confidence Interval</span>
+                        <span class="bento-tile-title">🎯 Predicted Score & Likely Range</span>
                         <span style="background:{risk_badge_bg}; color:{risk_badge_color}; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">{risk_level}</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div>
                             <div class="bento-score-hero" style="color:{score_accent};">{predicted_math:.1f} <span style="font-size:1.2rem; opacity:0.8;">/ 100</span></div>
                             <div style="font-size:0.86rem; color:#1D4ED8; font-weight:700; background:#EFF6FF; padding:0.25rem 0.6rem; border-radius:6px; display:inline-block; margin-bottom:0.3rem;">
-                                🛡️ 95% Confidence Bounds: <b>{ci_l:.1f} – {ci_u:.1f} marks</b> (±{ci_res['margin_95']:.1f})
+                                🛡️ 95% Certainty Bounds: <b>{ci_l:.1f} – {ci_u:.1f} marks</b> (±{ci_res['margin_95']:.1f})
                             </div>
-                            <div style="font-size:0.9rem; color:#334155; font-weight:600;">Grade: <b>{grade.split()[0]}</b> • 3-Subject Avg: <b>{overall_avg:.1f}</b></div>
-                            <div style="font-size:0.84rem; color:#64748B;">Pass Probability: <b style="color:{score_accent};">{pass_prob:.1f}%</b> ({'Passed' if is_pass==1 else 'At-Risk'})</div>
+                            <div style="font-size:0.9rem; color:#334155; font-weight:600;">Letter Grade: <b>{grade.split()[0]}</b> • 3-Subject Average: <b>{overall_avg:.1f}</b></div>
+                            <div style="font-size:0.84rem; color:#64748B;">Pass Likelihood: <b style="color:{score_accent};">{pass_prob:.1f}%</b> ({'Safe / Passing' if is_pass==1 else 'Needs Support'})</div>
                         </div>
                     </div>
                 </div>
@@ -652,12 +671,12 @@ with tab_pred:
                 fig_gauge = create_confidence_interval_gauge(predicted_math, grade, ci_l, ci_u)
                 st.plotly_chart(fig_gauge, use_container_width=True)
 
-            # --- BENTO TILE 2: WHY DID AI PREDICT THIS SCORE & ARCHETYPE ---
+            # --- BENTO TILE 2: LEARNING STYLE & KEY HABIT DRIVERS ---
             with bento_row1_c2:
                 st.markdown("""
                 <div class="bento-tile">
                     <div class="bento-tile-header">
-                        <span class="bento-tile-title">🔍 Behavioral Archetype & Point Drivers</span>
+                        <span class="bento-tile-title">🔍 Learning Persona & Key Habit Drivers</span>
                         <span style="background:#EFF6FF; color:#1D4ED8; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">AI Insights</span>
                     </div>
                 </div>
@@ -666,7 +685,7 @@ with tab_pred:
                 if archetype_res:
                     st.markdown(f"""
                     <div style="background:{archetype_res['bg_color']}; border-left:3.5px solid {archetype_res['badge_color']}; border-radius:8px; padding:0.5rem 0.75rem; margin-bottom:0.5rem;">
-                        <div style="font-weight:800; font-size:0.86rem; color:{archetype_res['badge_color']};">{archetype_res['name']} <span style="font-size:0.75rem; opacity:0.85;">({archetype_res['affinity_score']:.0f}% Profile Affinity)</span></div>
+                        <div style="font-weight:800; font-size:0.86rem; color:{archetype_res['badge_color']};">{archetype_res['name']} <span style="font-size:0.75rem; opacity:0.85;">({archetype_res['affinity_score']:.0f}% Match)</span></div>
                         <div style="font-size:0.78rem; color:#334155; margin-top:0.15rem; line-height:1.3;">{archetype_res['summary']}</div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -683,8 +702,8 @@ with tab_pred:
                     </div>
                     """, unsafe_allow_html=True)
                     
-                fig_waterfall = create_local_xai_waterfall(base_val, predicted_math, contrib_df)
-                st.plotly_chart(fig_waterfall, use_container_width=True)
+                fig_waterfall = create_local_xAI_waterfall = create_local_xai_waterfall(base_val, predicted_math, contrib_df)
+                st.plotly_chart(create_local_xAI_waterfall, use_container_width=True)
 
             bento_row2_c1, bento_row2_c2 = st.columns([1.1, 1.1])
             
@@ -693,7 +712,7 @@ with tab_pred:
                 st.markdown("""
                 <div class="bento-tile">
                     <div class="bento-tile-header">
-                        <span class="bento-tile-title">🛠️ Top Action Plan & Study Schedule</span>
+                        <span class="bento-tile-title">🛠️ Top Action Steps & Study Timetable</span>
                         <span style="background:#ECFDF5; color:#047857; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">Prescriptive</span>
                     </div>
                 </div>
@@ -719,25 +738,25 @@ with tab_pred:
                 st.markdown("""
                 <div class="bento-tile">
                     <div class="bento-tile-header">
-                        <span class="bento-tile-title">📄 Certified Counselor Report Card</span>
+                        <span class="bento-tile-title">📄 Official Downloadable Report Card</span>
                         <span style="background:#F5F3FF; color:#6D28D9; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:9999px;">Verified</span>
                     </div>
-                    <div style="font-size:0.84rem; color:#475569; margin-bottom:0.4rem;">Official downloadable PDF report with clinical AI prescriptions:</div>
+                    <div style="font-size:0.84rem; color:#475569; margin-bottom:0.4rem;">Generate a ready-to-print official PDF report card with tailored study prescriptions:</div>
                 </div>
                 """, unsafe_allow_html=True)
                 
                 counselor_note = st.text_area(
-                    "✍️ Counselor Observations (Appears on Certificate):",
-                    value="Student exhibits strong conceptual grasp in language components. Recommended enrollment in mathematics peer tutoring and weekly practice modules.",
+                    "✍️ Counselor / Teacher Observations (Included on PDF):",
+                    value="Student demonstrates strong literacy skills. Recommended daily problem solving practice and enrollment in structured math tutoring.",
                     height=75
                 )
                 
                 tips = []
-                if pass_prob < 50: tips.append("🚨 High Risk Alert: Immediate remedial sessions recommended in Mathematics.")
-                if test_prep == "none": tips.append("📌 Test Prep Course: Statistically provides a +9.4 mark boost.")
-                if reading_score < 60: tips.append("📌 Reading Focus: Enhancing reading comprehension reinforces mathematical problem solving.")
-                if daily_screen_time_hours > 4.5: tips.append("📱 Digital Diet: Capping recreational screen time under 2.5h/day restores attention span.")
-                if not tips: tips.append("🌟 Optimal Academic Standing across all subjects.")
+                if pass_prob < 50: tips.append("🚨 Support Alert: Immediate remedial practice recommended in Mathematics.")
+                if test_prep == "none": tips.append("📌 Exam Prep: Completing a prep module statistically provides a +9.4 mark boost.")
+                if reading_score < 60: tips.append("📌 Reading Focus: Enhancing reading comprehension reinforces mathematical word problems.")
+                if daily_screen_time_hours > 4.5: tips.append("📱 Screen Time Diet: Capping recreational screen time under 2.5h/day restores daily focus.")
+                if not tips: tips.append("🌟 Strong academic standing across all subjects.")
 
                 pdf_bytes = generate_student_pdf_report(
                     student_name=student_name if student_name.strip() else "Student",
@@ -786,7 +805,7 @@ with tab_pred:
             # =========================================================
             # 🔬 DEEP-DIVE EXPANDER: PCA CLUSTER MAP, RADAR & ROADMAP
             # =========================================================
-            with st.expander("🔬 Deep-Dive AI Diagnostics, 2D PCA Cluster Map & Tri-Axis Radar", expanded=False):
+            with st.expander("🔍 Explore Deeper: Radar Profile, 3-Subject Breakdown & Growth Map", expanded=False):
                 dd_col1, dd_col2 = st.columns(2)
                 with dd_col1:
                     st.markdown("#### 🌐 8-Axis Competency Radar Profile")
@@ -827,47 +846,47 @@ with tab_pred:
                         """, unsafe_allow_html=True)
 
 # =========================================================
-# TAB 2: CLASSROOM BATCH ANALYTICS & INTERVENTIONS
+# TAB 2: CLASSROOM ANALYTICS & GROUP SUPPORT
 # =========================================================
 with tab_batch:
-    st.markdown("### 📂 Classroom Batch Prediction & Cohort Risk Analytics")
-    st.markdown("Upload a classroom CSV or load pre-built benchmark datasets to evaluate risk distributions and generate cohort intervention clusters.")
+    st.markdown("### 📂 Classroom Batch Prediction & Early Risk Detection")
+    st.info("💡 **How it works:** Upload a classroom CSV roster or load one of our ready-made sample classes below to see grade distributions, passing rates, and automatically group students who need extra tutoring or advanced honors mentorship.")
 
     # 1-Click Pre-Built Cohorts
     st.markdown("""
     <div class="preset-chip-box">
-        <span style="font-size: 0.8rem; font-weight: 700; color: #334155; text-transform: uppercase;">⚡ Quick-Load Benchmark Classrooms:</span>
+        <span style="font-size: 0.8rem; font-weight: 700; color: #334155; text-transform: uppercase;">⚡ 1-Click Ready-Made Classes:</span>
     </div>
     """, unsafe_allow_html=True)
     
     samp_c1, samp_c2, samp_c3, samp_c4, samp_c5 = st.columns(5)
     with samp_c1:
-        if st.button("🌟 Balanced 50 Class", use_container_width=True):
+        if st.button("🌟 Balanced Class (50)", use_container_width=True, help="A normal class with balanced mix of scores"):
             st.session_state["cached_batch"] = load_or_create_sample_cohort("balanced_50")
             st.session_state["cached_batch_name"] = "Balanced Classroom Cohort (50 Students)"
             st.rerun()
     with samp_c2:
-        if st.button("🏫 Grade 100 Cohort", use_container_width=True):
+        if st.button("🏫 Whole Grade (100)", use_container_width=True, help="Full grade-wide roster"):
             st.session_state["cached_batch"] = load_or_create_sample_cohort("large_100")
             st.session_state["cached_batch_name"] = "Grade-Wide Cohort (100 Students)"
             st.rerun()
     with samp_c3:
-        if st.button("🚨 At-Risk Focus 40", use_container_width=True):
+        if st.button("🚨 Support Focus (40)", use_container_width=True, help="Classroom with higher number of students needing help"):
             st.session_state["cached_batch"] = load_or_create_sample_cohort("at_risk_40")
-            st.session_state["cached_batch_name"] = "High-Risk Intervention Focus (40 Students)"
+            st.session_state["cached_batch_name"] = "Support Intervention Focus (40 Students)"
             st.rerun()
     with samp_c4:
-        if st.button("🏆 Honors 35 Cohort", use_container_width=True):
+        if st.button("🏆 Honors Class (35)", use_container_width=True, help="High-achieving honors and distinction candidates"):
             st.session_state["cached_batch"] = load_or_create_sample_cohort("honors_35")
             st.session_state["cached_batch_name"] = "Honors / AP Distinction Cohort (35 Students)"
             st.rerun()
     with samp_c5:
-        if st.button("🌐 Diverse 200 Class", use_container_width=True):
+        if st.button("🌐 Diverse Class (200)", use_container_width=True, help="Large multi-section cohort"):
             st.session_state["cached_batch"] = load_or_create_sample_cohort("mixed_200")
             st.session_state["cached_batch_name"] = "Diverse Multi-Section Cohort (200 Students)"
             st.rerun()
 
-    with st.expander("📥 Download CSV Templates & Custom Synthetic Generator", expanded=False):
+    with st.expander("📥 Download CSV Templates & Custom Classroom Generator", expanded=False):
         exp_c1, exp_c2 = st.columns(2)
         with exp_c1:
             st.markdown("**Download Sample CSVs:**")
@@ -881,22 +900,22 @@ with tab_batch:
                 df_r40 = load_or_create_sample_cohort("at_risk_40")
                 buf_r40 = io.StringIO()
                 df_r40.to_csv(buf_r40, index=False)
-                st.download_button("🚨 At-Risk 40 CSV", data=buf_r40.getvalue(), file_name="sample_at_risk_40.csv", mime="text/csv", use_container_width=True)
+                st.download_button("🚨 Support Focus 40 CSV", data=buf_r40.getvalue(), file_name="sample_at_risk_40.csv", mime="text/csv", use_container_width=True)
                 
             tmpl_data = generate_sample_csv_template()
             st.download_button("📋 10-Student Starter Template CSV", data=tmpl_data, file_name="starter_classroom_template.csv", mime="text/csv", use_container_width=True)
             
         with exp_c2:
             st.markdown("**Generate Custom Synthetic Classroom:**")
-            gen_size = st.slider("Classroom Volume (Students):", 10, 500, 60, 5)
-            gen_dist = st.selectbox("Distribution Profile:", [("balanced", "Balanced Bell Curve"), ("at_risk_focus", "At-Risk Focus"), ("honors_advanced", "Honors / AP Focus")], format_func=lambda x: x[1])[0]
-            if st.button("⚡ Generate & Assess Cohort", use_container_width=True, type="primary"):
+            gen_size = st.slider("Class Size (Students):", 10, 500, 60, 5)
+            gen_dist = st.selectbox("Class Makeup:", [("balanced", "Balanced Mix"), ("at_risk_focus", "Needs Extra Support Focus"), ("honors_advanced", "High Achievers Focus")], format_func=lambda x: x[1])[0]
+            if st.button("⚡ Generate & Analyze Class", use_container_width=True, type="primary"):
                 gen_df = generate_synthetic_classroom(n_students=gen_size, cohort_type=gen_dist, seed=np.random.randint(1, 9999))
                 st.session_state["cached_batch"] = gen_df
-                st.session_state["cached_batch_name"] = f"Custom Synthetic Cohort ({gen_size} Students • {gen_dist.replace('_', ' ').title()})"
+                st.session_state["cached_batch_name"] = f"Custom Class ({gen_size} Students • {gen_dist.replace('_', ' ').title()})"
                 st.rerun()
 
-    uploaded_file = st.file_uploader("📤 Or Drag & Drop Custom CSV Roster:", type=["csv"])
+    uploaded_file = st.file_uploader("📤 Or Drag & Drop Your Custom CSV File:", type=["csv"])
     
     batch_to_process = None
     batch_source_name = ""
@@ -908,7 +927,7 @@ with tab_batch:
         st.session_state["cached_batch_name"] = batch_source_name
     elif "cached_batch" in st.session_state:
         batch_to_process = st.session_state["cached_batch"]
-        batch_source_name = st.session_state.get("cached_batch_name", "Loaded Cohort")
+        batch_source_name = st.session_state.get("cached_batch_name", "Loaded Class")
         
     if batch_to_process is not None:
         try:
@@ -920,18 +939,18 @@ with tab_batch:
                 
                 b1, b2, b3, b4, b5 = st.columns(5)
                 with b1: st.metric("Total Students", summary["total_students"])
-                with b2: st.metric("Class Avg Math", f"{summary['class_avg_math']:.1f} / 100")
-                with b3: st.metric("Overall 3-Sub Avg", f"{summary['class_avg_overall']:.1f} / 100")
+                with b2: st.metric("Class Math Avg", f"{summary['class_avg_math']:.1f} / 100")
+                with b3: st.metric("3-Subject Avg", f"{summary['class_avg_overall']:.1f} / 100")
                 with b4: st.metric("Class Pass Rate", f"{summary['pass_rate']}%")
-                with b5: st.metric("🚨 At-Risk Count", summary["at_risk_count"])
+                with b5: st.metric("🚨 Need Support", summary["at_risk_count"])
                 
                 st.write("")
                 
                 bt_tab1, bt_tab2, bt_tab3, bt_tab4 = st.tabs([
                     "📊 Grade & Risk Visuals",
-                    "📋 Targeted Student Action Groups",
+                    "🎯 Targeted Student Action Groups",
                     "🚨 Student Roster & Filters",
-                    "📄 Executive PDF Export"
+                    "📄 Download Reports (PDF & CSV)"
                 ])
                 
                 matrix = generate_classroom_intervention_matrix(processed_batch)
@@ -941,13 +960,13 @@ with tab_batch:
                     with c_col1:
                         grade_counts = processed_batch["Predicted_Grade"].value_counts().reset_index()
                         grade_counts.columns = ["Grade", "Count"]
-                        fig_grade = px.pie(grade_counts, names="Grade", values="Count", hole=0.45, color_discrete_sequence=px.colors.qualitative.Prism, title="<b>Grade Breakdown</b>")
+                        fig_grade = px.pie(grade_counts, names="Grade", values="Count", hole=0.45, color_discrete_sequence=px.colors.qualitative.Prism, title="<b>Class Grade Breakdown</b>")
                         fig_grade.update_layout(height=280, margin=dict(l=20, r=20, t=40, b=20), paper_bgcolor='rgba(0,0,0,0)')
                         st.plotly_chart(fig_grade, use_container_width=True)
                     with c_col2:
                         risk_counts = processed_batch["Risk_Tier"].value_counts().reset_index()
                         risk_counts.columns = ["Risk Tier", "Count"]
-                        fig_risk = px.bar(risk_counts, x="Risk Tier", y="Count", color="Risk Tier", color_discrete_map={"Safe / Low Risk": "#10B981", "Moderate Risk": "#F59E0B", "🚨 High Academic Risk": "#EF4444"}, title="<b>Risk Tier Breakdown</b>")
+                        fig_risk = px.bar(risk_counts, x="Risk Tier", y="Count", color="Risk Tier", color_discrete_map={"Safe / Low Risk": "#10B981", "Moderate Risk": "#F59E0B", "🚨 High Academic Risk": "#EF4444"}, title="<b>Academic Safety Status</b>")
                         fig_risk.update_layout(height=280, margin=dict(l=20, r=20, t=40, b=20), paper_bgcolor='rgba(0,0,0,0)', showlegend=False)
                         st.plotly_chart(fig_risk, use_container_width=True)
                         
@@ -960,22 +979,22 @@ with tab_batch:
                         fig_clusters = create_classroom_intervention_cluster_chart(matrix["summary"])
                         st.plotly_chart(fig_clusters, use_container_width=True)
                     with m_c2:
-                        st.markdown("#### 🎯 Targeted Institutional Action Strategies:")
+                        st.markdown("#### 🎯 Targeted Action Strategies for Groups:")
                         st.markdown(f"""
                         <div style="background: rgba(254, 242, 242, 0.9); border-left: 4px solid #EF4444; border-radius: 8px; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;">
-                            <span style="font-weight: 800; color: #DC2626;">🚨 Intensive Remedial ({matrix['summary']['high_risk_count']} students):</span><br/>
+                            <span style="font-weight: 800; color: #DC2626;">🚨 1. Intensive Math Remedial ({matrix['summary']['high_risk_count']} students):</span><br/>
                             <span style="font-size: 0.8rem; color: #334155;">{matrix['action_plans']['Intensive Remedial (High Risk)']}</span>
                         </div>
                         <div style="background: rgba(254, 243, 199, 0.9); border-left: 4px solid #F59E0B; border-radius: 8px; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;">
-                            <span style="font-weight: 800; color: #D97706;">🎯 Test Prep Bootcamp ({matrix['summary']['test_prep_needed_count']} students):</span><br/>
+                            <span style="font-weight: 800; color: #D97706;">🎯 2. Exam Prep Bootcamp ({matrix['summary']['test_prep_needed_count']} students):</span><br/>
                             <span style="font-size: 0.8rem; color: #334155;">{matrix['action_plans']['Test Prep Bootcamp (Moderate Gap)']}</span>
                         </div>
                         <div style="background: rgba(239, 246, 255, 0.9); border-left: 4px solid #3B82F6; border-radius: 8px; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;">
-                            <span style="font-weight: 800; color: #2563EB;">📚 Verbal / Reading Support ({matrix['summary']['verbal_support_count']} students):</span><br/>
+                            <span style="font-weight: 800; color: #2563EB;">📚 3. Reading & Verbal Support ({matrix['summary']['verbal_support_count']} students):</span><br/>
                             <span style="font-size: 0.8rem; color: #334155;">{matrix['action_plans']['Verbal / Reading Support']}</span>
                         </div>
                         <div style="background: rgba(236, 253, 245, 0.9); border-left: 4px solid #10B981; border-radius: 8px; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;">
-                            <span style="font-weight: 800; color: #059669;">🏆 Honors & Distinction Mentorship ({matrix['summary']['honors_count']} students):</span><br/>
+                            <span style="font-weight: 800; color: #059669;">🏆 4. Honors & Distinction Mentorship ({matrix['summary']['honors_count']} students):</span><br/>
                             <span style="font-size: 0.8rem; color: #334155;">{matrix['action_plans']['Honors / Distinction Mentorship']}</span>
                         </div>
                         """, unsafe_allow_html=True)
@@ -983,18 +1002,18 @@ with tab_batch:
                 with bt_tab3:
                     f_col1, f_col2, f_col3 = st.columns(3)
                     with f_col1:
-                        search_term = st.text_input("Search Student Name / ID:", placeholder="e.g. Liam or STU-2026")
+                        search_term = st.text_input("🔍 Search by Student Name or ID:", placeholder="e.g. Liam or STU-2026")
                     with f_col2:
-                        risk_filter = st.selectbox("Filter Risk Tier:", ["All Risk Tiers"] + sorted(list(processed_batch["Risk_Tier"].unique())))
+                        risk_filter = st.selectbox("Filter Risk Status:", ["All Students"] + sorted(list(processed_batch["Risk_Tier"].unique())))
                     with f_col3:
-                        grade_filter = st.selectbox("Filter Grade:", ["All Grades"] + sorted(list(processed_batch["Predicted_Grade"].unique())))
+                        grade_filter = st.selectbox("Filter Letter Grade:", ["All Grades"] + sorted(list(processed_batch["Predicted_Grade"].unique())))
                         
                     filtered_df = processed_batch.copy()
                     if search_term:
                         mask = (filtered_df["student_name"].astype(str).str.contains(search_term, case=False, na=False) |
                                 filtered_df["student_id"].astype(str).str.contains(search_term, case=False, na=False))
                         filtered_df = filtered_df[mask]
-                    if risk_filter != "All Risk Tiers":
+                    if risk_filter != "All Students":
                         filtered_df = filtered_df[filtered_df["Risk_Tier"] == risk_filter]
                     if grade_filter != "All Grades":
                         filtered_df = filtered_df[filtered_df["Predicted_Grade"] == grade_filter]
@@ -1004,8 +1023,8 @@ with tab_batch:
 
                 with bt_tab4:
                     class_counselor_notes = st.text_area(
-                        "✍️ Cohort Counselor Observations:",
-                        value="Classroom evaluated with dual ML forecasting. Prescriptive intervention clusters generated for remedial tutoring, test prep bootcamps, and distinction mentorship.",
+                        "✍️ Teacher / Counselor Executive Notes:",
+                        value="Classroom assessed with predictive AI. Action groups organized for remedial tutoring, exam prep bootcamps, and distinction mentorship.",
                         height=60
                     )
                     exp_c1, exp_c2 = st.columns(2)
@@ -1013,7 +1032,7 @@ with tab_batch:
                         enriched_csv = io.StringIO()
                         filtered_df.to_csv(enriched_csv, index=False)
                         st.download_button(
-                            label=f"📥 Download Processed CSV ({len(filtered_df)} Records)",
+                            label=f"📥 Download Processed CSV ({len(filtered_df)} Students)",
                             data=enriched_csv.getvalue(),
                             file_name="Processed_Classroom_Report.csv",
                             mime="text/csv",
@@ -1029,7 +1048,7 @@ with tab_batch:
                             intervention_matrix=matrix
                         )
                         st.download_button(
-                            label="📄 Download Classroom Executive PDF Report",
+                            label="📄 Download Classroom PDF Executive Summary",
                             data=class_pdf,
                             file_name="Classroom_Executive_Summary_Report.pdf",
                             mime="application/pdf",
@@ -1040,40 +1059,40 @@ with tab_batch:
             st.error(f"Error processing batch: {str(e)}")
 
 # =========================================================
-# TAB 3: SIDE-BY-SIDE COMPARISON & BEFORE/AFTER SIMULATOR
+# TAB 3: GROWTH SIMULATOR & COMPARISON
 # =========================================================
 with tab_compare:
     cmp_sub1, cmp_sub2 = st.tabs([
-        "🔄 Before vs After Intervention Growth",
-        "👥 Student-to-Student Peer Benchmark"
+        "🔄 Before vs After Growth Simulator",
+        "👥 Compare Two Students Side-by-Side"
     ])
     
     with cmp_sub1:
-        st.markdown("### 🔄 Before vs After Intervention Simulator")
-        st.markdown("Simulate how targeted academic, study technique, and lifestyle boosters transform a student's baseline performance, grade, and pass probability:")
+        st.markdown("### 🔄 Before vs After Habit Growth Simulator")
+        st.info("💡 **See the Impact:** Adjust the habit boosters on the left (e.g. studying 4 extra hours or cutting screen time) to see how much marks and pass chance increase in real time!")
         
         sim_c1, sim_c2 = st.columns([1.1, 1.2])
         
         with sim_c1:
-            st.markdown("#### 1. Configure Current Baseline Profile:")
-            b_prev = st.slider("Prior Term Exam:", 0, 100, 55, 1, key="b_pr")
+            st.markdown("#### 1. Current Baseline Habits:")
+            b_prev = st.slider("Prior Exam Marks:", 0, 100, 55, 1, key="b_pr")
             b_read = st.slider("Reading Score:", 0, 100, 58, 1, key="b_r")
             b_write = st.slider("Writing Score:", 0, 100, 54, 1, key="b_w")
-            b_study = st.slider("Study Hours / Week:", 1.0, 40.0, 6.0, 0.5, key="b_s")
-            b_screen = st.slider("Daily Screen Time (Hours/Day):", 0.5, 10.0, 5.5, 0.2, key="b_sc")
+            b_study = st.slider("Weekly Study Hours:", 1.0, 40.0, 6.0, 0.5, key="b_s")
+            b_screen = st.slider("Recreational Screen Time (Hours/Day):", 0.5, 10.0, 5.5, 0.2, key="b_sc")
             b_att = st.slider("Attendance Rate (%):", 50.0, 100.0, 78.0, 1.0, key="b_a")
             b_method = st.selectbox("Study Technique:", ["active_problem_solving", "spaced_repetition", "group_study", "passive_reading"], index=3, format_func=lambda x: x.replace('_', ' ').title(), key="b_m")
-            b_prep = st.selectbox("Test Prep Status:", ["none", "completed"], index=0, key="b_p")
-            b_tut = st.selectbox("Tutoring Support:", ["none", "peer_tutoring", "private_tutor"], index=0, key="b_t")
+            b_prep = st.selectbox("Exam Prep Status:", ["none", "completed"], index=0, format_func=lambda x: "Completed" if x=="completed" else "None", key="b_p")
+            b_tut = st.selectbox("Tutoring Support:", ["none", "peer_tutoring", "private_tutor"], index=0, format_func=lambda x: x.replace('_', ' ').title(), key="b_t")
             
-            st.markdown("#### 2. Apply Targeted Intervention Boosters:")
+            st.markdown("#### 2. Apply Targeted Habit Boosters:")
             boost_prep = st.checkbox("⚔️ Complete Exam Preparation Course (+5.5 pts)", value=True)
             boost_method = st.selectbox("🧠 Upgrade Study Technique:", ["Keep Current", "active_problem_solving (+4.2 pts)", "spaced_repetition (+2.8 pts)"], index=1)
-            boost_screen = st.slider("📱 Reduce Daily Screen Time (Target Hours/Day):", 0.5, 6.0, 2.0, 0.2)
+            boost_screen = st.slider("📱 Lower Daily Screen Time (Target Hours/Day):", 0.5, 6.0, 2.0, 0.2)
             boost_tut = st.selectbox("👥 Enroll in Tutoring Program:", ["none", "peer_tutoring (+4.0 pts)", "private_tutor (+6.0 pts)"], index=1)
-            boost_study = st.slider("⏱️ Add Weekly Study Hours (+ hrs/wk):", 0.0, 15.0, 8.0, 0.5)
-            boost_att = st.slider("📅 Improve Attendance Rate (+%):", 0.0, 20.0, 12.0, 1.0)
-            boost_read = st.slider("📖 Improve Reading Comprehension (+ marks):", 0, 25, 12, 1)
+            boost_study = st.slider("⏱️ Add Extra Weekly Study Hours (+ hrs/wk):", 0.0, 15.0, 8.0, 0.5)
+            boost_att = st.slider("📅 Raise Attendance Rate (+%):", 0.0, 20.0, 12.0, 1.0)
+            boost_read = st.slider("📖 Improve Reading Practice (+ marks):", 0, 25, 12, 1)
 
         # Baseline Data Preparation
         base_dict = {
@@ -1122,7 +1141,7 @@ with tab_compare:
             delta_prob = prob_p - prob_b
             
             with sim_c2:
-                st.markdown("#### 3. Real-Time Side-by-Side Impact Analysis:")
+                st.markdown("#### 3. Real-Time Growth Comparison:")
                 
                 sc1, sc2 = st.columns(2)
                 with sc1:
@@ -1130,7 +1149,7 @@ with tab_compare:
                     <div style="background:#FEF2F2; border:1.5px solid #FCA5A5; border-radius:12px; padding:1rem; text-align:center;">
                         <div style="font-size:0.8rem; font-weight:700; color:#DC2626; text-transform:uppercase;">🔴 Current Baseline</div>
                         <div style="font-size:2.2rem; font-weight:900; color:#DC2626; font-family:var(--font-heading);">{score_b:.1f}</div>
-                        <div style="font-size:0.82rem; color:#475569;">Pass Prob: <b>{prob_b:.1f}%</b></div>
+                        <div style="font-size:0.82rem; color:#475569;">Pass Likelihood: <b>{prob_b:.1f}%</b></div>
                         <div style="font-size:0.8rem; color:#64748B; margin-top:0.2rem;">Prior: {b_prev:.0f} • Screen: {b_screen:.1f}h • Study: {b_study:.1f}h</div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -1138,38 +1157,37 @@ with tab_compare:
                 with sc2:
                     st.markdown(f"""
                     <div style="background:#ECFDF5; border:1.5px solid #6EE7B7; border-radius:12px; padding:1rem; text-align:center;">
-                        <div style="font-size:0.8rem; font-weight:700; color:#047857; text-transform:uppercase;">🟢 Projected Post-Boost</div>
-                        <div style="font-size:2.2rem; font-weight:900; color:#047857; font-family:var(--font-heading);">{score_p:.1f} <span style="font-size:1.1rem; color:#059669;">(+{delta_score:.1f})</span></div>
-                        <div style="font-size:0.82rem; color:#475569;">Pass Prob: <b>{prob_p:.1f}%</b> (+{delta_prob:.1f}%)</div>
+                        <div style="font-size:0.8rem; font-weight:700; color:#047857; text-transform:uppercase;">🟢 Projected After Boosters</div>
+                        <div style="font-size:2.2rem; font-weight:900; color:#047857; font-family:var(--font-heading);">{score_p:.1f} <span style="font-size:1.1rem; color:#059669;">(+{delta_score:.1f} pts)</span></div>
+                        <div style="font-size:0.82rem; color:#475569;">Pass Likelihood: <b>{prob_p:.1f}%</b> (+{delta_prob:.1f}%)</div>
                         <div style="font-size:0.8rem; color:#059669; margin-top:0.2rem;">Method: {method_applied.replace('_', ' ').title()} • Screen: {boost_screen:.1f}h</div>
                     </div>
                     """, unsafe_allow_html=True)
                     
                 st.write("")
-                # Growth Radar Chart
                 fig_ba_radar = create_before_after_radar_chart(base_dict, post_dict)
                 st.plotly_chart(fig_ba_radar, use_container_width=True)
 
     with cmp_sub2:
-        st.markdown("### 👥 Student-to-Student Peer Benchmark Comparison")
-        st.markdown("Compare any two students or archetype profiles head-to-head across all competencies:")
+        st.markdown("### 👥 Head-to-Head Student Peer Comparison")
+        st.info("💡 **Compare Profiles:** Select two student profiles below to compare their marks, study habits, and competencies side-by-side.")
         
         peer_col1, peer_col2 = st.columns(2)
         
         with peer_col1:
             st.markdown("#### 👤 Student Profile A:")
-            a_preset = st.selectbox("Select Preset A:", ["🌟 Honors Candidate (90+)", "⚖️ Average Profile (65+)", "🚨 At-Risk Alert (<40)", "📖 Verbal Focus", "🚀 Rising Star"], index=0, key="preset_a")
+            a_preset = st.selectbox("Select Preset A:", ["🌟 Top Scorer (90+)", "⚖️ Average Student (65+)", "🚨 Needs Support (<40)", "📖 Strong in Reading", "🚀 Fast Improver"], index=0, key="preset_a")
             
-            if "Honors" in a_preset:
-                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 92, 95, 24.0, 98.0, "Elena Rostova (Honors)", 92, 1.8, "active_problem_solving"
+            if "Top Scorer" in a_preset or "Honors" in a_preset:
+                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 92, 95, 24.0, 98.0, "Elena Rostova (Top Scorer)", 92, 1.8, "active_problem_solving"
             elif "Average" in a_preset:
                 sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 65, 62, 12.0, 86.0, "Jordan Miller (Average)", 64, 3.5, "spaced_repetition"
-            elif "At-Risk" in a_preset:
-                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 34, 30, 4.0, 62.0, "Marcus Vance (At-Risk)", 38, 6.5, "passive_reading"
-            elif "Verbal" in a_preset:
-                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 88, 85, 14.0, 90.0, "Sophia Chen (Verbal Focus)", 82, 2.8, "spaced_repetition"
+            elif "Support" in a_preset or "At-Risk" in a_preset:
+                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 34, 30, 4.0, 62.0, "Marcus Vance (Needs Support)", 38, 6.5, "passive_reading"
+            elif "Reading" in a_preset or "Verbal" in a_preset:
+                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 88, 85, 14.0, 90.0, "Sophia Chen (Strong in Reading)", 82, 2.8, "spaced_repetition"
             else:
-                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 76, 74, 20.0, 96.0, "Lucas Taylor (Rising Star)", 70, 2.2, "active_problem_solving"
+                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 76, 74, 20.0, 96.0, "Lucas Taylor (Fast Improver)", 70, 2.2, "active_problem_solving"
                 
             stud_a_dict = {
                 "gender": "female", "race/ethnicity": "group C", "parental level of education": "bachelor's degree",
@@ -1182,18 +1200,18 @@ with tab_compare:
             
         with peer_col2:
             st.markdown("#### 👤 Student Profile B:")
-            b_preset = st.selectbox("Select Preset B:", ["🌟 Honors Candidate (90+)", "⚖️ Average Profile (65+)", "🚨 At-Risk Alert (<40)", "📖 Verbal Focus", "🚀 Rising Star"], index=2, key="preset_b")
+            b_preset = st.selectbox("Select Preset B:", ["🌟 Top Scorer (90+)", "⚖️ Average Student (65+)", "🚨 Needs Support (<40)", "📖 Strong in Reading", "🚀 Fast Improver"], index=2, key="preset_b")
             
-            if "Honors" in b_preset:
-                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 92, 95, 24.0, 98.0, "Elena Rostova (Honors)", 92, 1.8, "active_problem_solving"
+            if "Top Scorer" in b_preset or "Honors" in b_preset:
+                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 92, 95, 24.0, 98.0, "Elena Rostova (Top Scorer)", 92, 1.8, "active_problem_solving"
             elif "Average" in b_preset:
                 sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 65, 62, 12.0, 86.0, "Jordan Miller (Average)", 64, 3.5, "spaced_repetition"
-            elif "At-Risk" in b_preset:
-                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 34, 30, 4.0, 62.0, "Marcus Vance (At-Risk)", 38, 6.5, "passive_reading"
-            elif "Verbal" in b_preset:
-                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 88, 85, 14.0, 90.0, "Sophia Chen (Verbal Focus)", 82, 2.8, "spaced_repetition"
+            elif "Support" in b_preset or "At-Risk" in b_preset:
+                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 34, 30, 4.0, 62.0, "Marcus Vance (Needs Support)", 38, 6.5, "passive_reading"
+            elif "Reading" in b_preset or "Verbal" in b_preset:
+                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 88, 85, 14.0, 90.0, "Sophia Chen (Strong in Reading)", 82, 2.8, "spaced_repetition"
             else:
-                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 76, 74, 20.0, 96.0, "Lucas Taylor (Rising Star)", 70, 2.2, "active_problem_solving"
+                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 76, 74, 20.0, 96.0, "Lucas Taylor (Fast Improver)", 70, 2.2, "active_problem_solving"
                 
             stud_b_dict = {
                 "gender": "male", "race/ethnicity": "group A", "parental level of education": "some high school",
@@ -1218,30 +1236,30 @@ with tab_compare:
             st.plotly_chart(fig_peer_radar, use_container_width=True)
 
 # =========================================================
-# TAB 4: 'WHAT-IF' ACADEMIC GOAL SIMULATOR
+# TAB 4: 'WHAT-IF' GOAL PLANNER
 # =========================================================
 with tab_goal:
-    st.markdown("### 🎯 'What-If' Gamified Academic Goal Simulator")
-    st.markdown("Select a target achievement trophy or set a custom score to reverse-engineer the exact study quest roadmap:")
+    st.markdown("### 🎯 'What-If' Academic Goal Planner")
+    st.info("💡 **How it works:** Choose a target trophy score (or drag the slider). Our AI will calculate the exact study hours, attendance, and exam marks you need to reach it!")
 
     if "sim_target_val" not in st.session_state:
         st.session_state["sim_target_val"] = 85
         
     t_c1, t_c2, t_c3, t_c4 = st.columns(4)
     with t_c1:
-        if st.button("🥉 Bronze: Pass (50)", use_container_width=True):
+        if st.button("🥉 Bronze: Pass (50)", use_container_width=True, help="Baseline pass threshold"):
             st.session_state["sim_target_val"] = 50
             st.rerun()
     with t_c2:
-        if st.button("🥈 Silver: Credit (70)", use_container_width=True):
+        if st.button("🥈 Silver: Credit (70)", use_container_width=True, help="Solid solid foundation"):
             st.session_state["sim_target_val"] = 70
             st.rerun()
     with t_c3:
-        if st.button("🥇 Gold: Honor Roll (85)", use_container_width=True):
+        if st.button("🥇 Gold: Honor Roll (85)", use_container_width=True, help="High distinction"):
             st.session_state["sim_target_val"] = 85
             st.rerun()
     with t_c4:
-        if st.button("💎 Diamond: Ivy (95)", use_container_width=True):
+        if st.button("💎 Diamond: Top Rank (95)", use_container_width=True, help="Elite academic performance"):
             st.session_state["sim_target_val"] = 95
             st.rerun()
             
@@ -1249,23 +1267,24 @@ with tab_goal:
     col_sim1, col_sim2 = st.columns([1, 1.3])
     
     with col_sim1:
-        st.markdown("#### 1. Define Baseline & Target")
+        st.markdown("#### 1. Set Your Target Score")
         sim_target_score = st.slider("🎯 Target Math Score (0 - 100):", 50, 100, st.session_state["sim_target_val"], 1)
         
+        st.markdown("#### 2. Your Current Baseline Habits")
         sim_curr_read = st.slider("Current Reading Score:", 0, 100, 65, 1)
         sim_curr_write = st.slider("Current Writing Score:", 0, 100, 62, 1)
-        sim_curr_prev = st.slider("Previous Term Exam Score:", 0, 100, 65, 1)
+        sim_curr_prev = st.slider("Previous Exam Marks:", 0, 100, 65, 1)
         
         cs1, cs2 = st.columns(2)
         with cs1:
             sim_study_hours = st.slider("Weekly Study Hours:", 1.0, 40.0, 12.0, 0.5)
             sim_attendance = st.slider("Attendance Rate (%):", 50.0, 100.0, 85.0, 1.0)
-            sim_prep = st.selectbox("Test Prep Course", ["none", "completed"], key="sim_p")
+            sim_prep = st.selectbox("Exam Prep Course", ["none", "completed"], format_func=lambda x: "Completed" if x=="completed" else "None", key="sim_p")
         with cs2:
-            sim_screen = st.slider("Screen Time (Hours/Day):", 0.5, 10.0, 3.0, 0.5, key="sim_sc")
+            sim_screen = st.slider("Daily Screen Time (Hours):", 0.5, 10.0, 3.0, 0.5, key="sim_sc")
             sim_sleep = st.slider("Sleep (Hours/Day):", 4.0, 11.0, 7.5, 0.5)
-            sim_tutoring = st.selectbox("Tutoring Support", ["none", "peer_tutoring", "private_tutor"], index=0, key="sim_tut")
-            sim_gender = st.selectbox("Gender", ["female", "male"], key="sim_g")
+            sim_tutoring = st.selectbox("Tutoring Support", ["none", "peer_tutoring", "private_tutor"], index=0, format_func=lambda x: x.replace('_', ' ').title(), key="sim_tut")
+            sim_gender = st.selectbox("Gender", ["female", "male"], format_func=lambda x: x.title(), key="sim_g")
             
         sim_lunch = "standard"
         sim_internet = "yes"
@@ -1273,7 +1292,7 @@ with tab_goal:
         sim_failures = 0
 
     with col_sim2:
-        st.markdown("#### 2. Simulation Results & Quest Roadmap")
+        st.markdown("#### 3. AI Goal Roadmap & Quest Steps")
         sim_profile = {
             "gender": sim_gender,
             "race/ethnicity": "group C",
@@ -1301,7 +1320,7 @@ with tab_goal:
             if gap <= 0:
                 st.success(f"🎉 **Target Already Reached!** Current projected score is **{sim_res['current_predicted_math']:.1f} / 100**.")
             else:
-                st.warning(f"🎯 **Target:** `{sim_target_score}` | **Current:** `{sim_res['current_predicted_math']:.1f}` | **Gap:** `+{gap:.1f} marks`")
+                st.warning(f"🎯 **Target:** `{sim_target_score}` | **Current:** `{sim_res['current_predicted_math']:.1f}` | **Gap to Close:** `+{gap:.1f} marks`")
                 
             st.markdown(f"**Feasibility:** <span style='color:{sim_res['badge_color']}; font-weight:bold;'>{sim_res['feasibility']}</span>", unsafe_allow_html=True)
             st.info(sim_res["advice"])
@@ -1309,7 +1328,7 @@ with tab_goal:
             fig_traj = create_goal_trajectory_chart(sim_res["current_predicted_math"], sim_res["test_prep_benefit"], sim_target_score)
             st.plotly_chart(fig_traj, use_container_width=True)
             
-            st.markdown("#### 🗺️ Multi-Lever Quest Roadmap:")
+            st.markdown("#### 🗺️ 4-Step Quest Roadmap to Reach Target:")
             
             q_col1, q_col2 = st.columns(2)
             with q_col1:
@@ -1317,8 +1336,8 @@ with tab_goal:
                     st.markdown(f"""
                     <div class="roadmap-card">
                         <b>⚔️ Quest 1: Academic Boosters</b><br/>
-                        <span style="color:#0284C7; font-weight:600;">Gain: <b>+{sim_res['test_prep_benefit']:.1f} Marks</b></span><br/>
-                        <span style="font-size: 0.78rem; color: #64748B;">Complete test prep & attend weekly tutoring.</span>
+                        <span style="color:#0284C7; font-weight:600;">Potential Gain: <b>+{sim_res['test_prep_benefit']:.1f} Marks</b></span><br/>
+                        <span style="font-size: 0.78rem; color: #64748B;">Complete exam prep module & join weekly tutoring.</span>
                     </div>
                     """, unsafe_allow_html=True)
                 else:
@@ -1333,8 +1352,8 @@ with tab_goal:
                 att_diff = sim_res['required_attendance'] - sim_attendance
                 st.markdown(f"""
                 <div class="roadmap-card">
-                    <b>⏱️ Quest 2: Study Habits & Attendance</b><br/>
-                    • Study: <b>{sim_res['required_study_hours']:.1f} hrs/wk</b> {'(+'+str(round(study_diff, 1))+')' if study_diff > 0 else '✅'}<br/>
+                    <b>⏱️ Quest 2: Study Time & Attendance</b><br/>
+                    • Study Target: <b>{sim_res['required_study_hours']:.1f} hrs/wk</b> {'(+'+str(round(study_diff, 1))+')' if study_diff > 0 else '✅'}<br/>
                     • Attendance: <b>{sim_res['required_attendance']:.0f}%</b> {'(+'+str(round(att_diff, 0))+'%)' if att_diff > 0 else '✅'}
                 </div>
                 """, unsafe_allow_html=True)
@@ -1342,31 +1361,32 @@ with tab_goal:
             with q_col2:
                 st.markdown(f"""
                 <div class="roadmap-card">
-                    <b>📖 Quest 3: Prerequisite Exams</b><br/>
-                    • Reading: <b>{sim_res['required_reading_score']} / 100</b> (+{sim_res['reading_delta']})<br/>
-                    • Writing: <b>{sim_res['required_writing_score']} / 100</b> (+{sim_res['writing_delta']})
+                    <b>📖 Quest 3: Literacy Practice</b><br/>
+                    • Reading Target: <b>{sim_res['required_reading_score']} / 100</b> (+{sim_res['reading_delta']})<br/>
+                    • Writing Target: <b>{sim_res['required_writing_score']} / 100</b> (+{sim_res['writing_delta']})
                 </div>
                 """, unsafe_allow_html=True)
                 
                 st.markdown(f"""
                 <div class="roadmap-card">
-                    <b>🏆 Quest 4: Final Victory</b><br/>
-                    Delivers projected target of <b>{sim_target_score}+ marks</b> (Verified by ML).
+                    <b>🏆 Quest 4: Target Achieved</b><br/>
+                    Achieves target of <b>{sim_target_score}+ marks</b> (Verified by AI).
                 </div>
                 """, unsafe_allow_html=True)
 
 # =========================================================
-# TAB 5: AI INSIGHTS & EXPLORATORY DATA ANALYSIS (EDA)
+# TAB 5: WHAT DRIVES SCORES? & DATA CHARTS
 # =========================================================
 with tab_xai:
     xai_sub1, xai_sub2 = st.tabs([
-        "🧠 AI Decision Factor Breakdown",
-        "📈 Exploratory Data Analysis (EDA)"
+        "🧠 What Habits Drive Scores Most?",
+        "📈 Explore Dataset Charts"
     ])
     
     plots_dir = os.path.join(os.path.dirname(__file__), "plots")
     
     with xai_sub1:
+        st.info("💡 **Understand What Matters:** Our machine learning models measure which factors have the strongest positive or negative impact on exam scores.")
         feat_csv = os.path.join(os.path.dirname(__file__), "artifacts", "feature_importance.csv")
         if os.path.exists(feat_csv):
             f_df = pd.read_csv(feat_csv)
@@ -1375,14 +1395,15 @@ with tab_xai:
                 fig_imp = create_global_importance_plotly(f_df)
                 st.plotly_chart(fig_imp, use_container_width=True)
             with col_x2:
-                st.markdown("#### 2. Directional Factor Attribution")
+                st.markdown("#### 2. Positive vs Negative Score Drivers")
                 p11 = os.path.join(plots_dir, "11_shap_directional_impact.png")
                 if os.path.exists(p11):
-                    st.image(p11, caption="Positive drivers (Green) vs Penalties (Red)", use_container_width=True)
-            st.markdown("#### 📋 Feature Importance Table:")
+                    st.image(p11, caption="Green bars increase marks; Red bars decrease marks.", use_container_width=True)
+            st.markdown("#### 📋 Complete Factor Importance Ranking:")
             st.dataframe(f_df, use_container_width=True, hide_index=True)
 
     with xai_sub2:
+        st.info("💡 **Data Explorations:** Visual distributions showing relationships between study habits, background factors, and test marks across 2,000 students.")
         if not raw_df.empty:
             col_a, col_b = st.columns(2)
             with col_a:
@@ -1397,32 +1418,33 @@ with tab_xai:
                 st.plotly_chart(fig_box_edu, use_container_width=True)
 
 # =========================================================
-# TAB 6: MODELS, STATISTICAL BENCHMARKS & ARCHITECTURE
+# TAB 6: AI MODELS & ACCURACY BENCHMARKS
 # =========================================================
 with tab_models:
     mod_sub1, mod_sub2, mod_sub3, mod_sub4 = st.tabs([
-        "🏆 Model Leaderboards & ROC",
-        "🔬 Statistical Uncertainty & Clustering",
-        "⚙️ Model Tuning Benchmarks",
-        "📖 System Architecture"
+        "🏆 Model Leaderboards",
+        "🔬 Statistical Uncertainty & Personas",
+        "⚙️ Model Tuning Results",
+        "📖 Simple Architecture Guide"
     ])
     
     with mod_sub1:
+        st.info("💡 **Model Benchmarks:** Comparison of 10+ trained machine learning algorithms evaluated on unseen test data.")
         metrics_path = os.path.join(os.path.dirname(__file__), "artifacts", "model_metrics.csv")
         if os.path.exists(metrics_path):
             m_df = pd.read_csv(metrics_path)
             fig_model_comp = create_model_comparison_plotly(m_df)
             st.plotly_chart(fig_model_comp, use_container_width=True)
-            st.markdown("#### A. Regression Leaderboard (Continuous Score Prediction)")
+            st.markdown("#### A. Score Forecasting Model Leaderboard (Accuracy & Error)")
             st.dataframe(m_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
             
-        st.markdown("#### B. Classification Leaderboard (Pass / Fail Risk)")
+        st.markdown("#### B. Pass / Fail Risk Classifier Leaderboard")
         clf_path = os.path.join(os.path.dirname(__file__), "artifacts", "classifier_metrics.csv")
         if os.path.exists(clf_path):
             c_df = pd.read_csv(clf_path)
             st.dataframe(c_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
         
-        st.markdown("#### 📈 Interactive Model Diagnostic Curves:")
+        st.markdown("#### 📈 Visual Model Diagnostic Curves:")
         col_v1, col_v2 = st.columns(2)
         with col_v1:
             fig_cm = create_interactive_confusion_matrix()
@@ -1432,27 +1454,27 @@ with tab_models:
             st.plotly_chart(fig_roc, use_container_width=True)
 
     with mod_sub2:
-        st.markdown("### 🔬 Conformal Prediction Intervals & Unsupervised Archetypes")
-        st.markdown("Mathematical verification of non-parametric uncertainty margins, joint multi-subject forecasting, and behavioral cluster profiling:")
+        st.markdown("### 🔬 Confidence Margins & Learning Personas")
+        st.info("💡 **Safe Margins:** Conformal prediction ensures that student scores fall within mathematically guaranteed confidence intervals.")
         
         stat_c1, stat_c2 = st.columns(2)
         with stat_c1:
-            st.markdown("#### A. 🛡️ Conformal Prediction Residual Margins (α-Coverage):")
+            st.markdown("#### A. 🛡️ Confidence Margins (Safe Prediction Windows):")
             calib_data = [
-                {"Confidence Level": "80% Coverage", "Error Margin": f"± {uncertainty_dict.get('q80_margin', 5.8):.2f} marks", "Interpretation": "Standard confidence window"},
-                {"Confidence Level": "90% Coverage", "Error Margin": f"± {uncertainty_dict.get('q90_margin', 7.3):.2f} marks", "Interpretation": "High precision academic threshold"},
-                {"Confidence Level": "95% Coverage (Default)", "Error Margin": f"± {uncertainty_dict.get('q95_margin', 8.5):.2f} marks", "Interpretation": "Statistically verified certainty bound"},
-                {"Confidence Level": "99% Coverage", "Error Margin": f"± {uncertainty_dict.get('q99_margin', 11.0):.2f} marks", "Interpretation": "Extreme anomaly ceiling/floor"}
+                {"Confidence Level": "80% Coverage", "Error Margin": f"± {uncertainty_dict.get('q80_margin', 4.0):.2f} marks", "Interpretation": "Standard daily study estimate"},
+                {"Confidence Level": "90% Coverage", "Error Margin": f"± {uncertainty_dict.get('q90_margin', 5.0):.2f} marks", "Interpretation": "High precision academic threshold"},
+                {"Confidence Level": "95% Coverage (Default)", "Error Margin": f"± {uncertainty_dict.get('q95_margin', 6.03):.2f} marks", "Interpretation": "Statistically verified safety bound"},
+                {"Confidence Level": "99% Coverage", "Error Margin": f"± {uncertainty_dict.get('q99_margin', 8.5):.2f} marks", "Interpretation": "Extreme edge-case ceiling/floor"}
             ]
             st.dataframe(pd.DataFrame(calib_data), use_container_width=True, hide_index=True)
             
             multi_csv = os.path.join(os.path.dirname(__file__), "artifacts", "multi_subject_metrics.csv")
             if os.path.exists(multi_csv):
-                st.markdown("#### B. 📚 Multi-Subject Joint Forecast Model Performance:")
+                st.markdown("#### B. 📚 3-Subject Joint Model Performance:")
                 st.dataframe(pd.read_csv(multi_csv), use_container_width=True, hide_index=True)
                 
         with stat_c2:
-            st.markdown("#### C. 🧬 Discovered Behavioral Student Archetypes:")
+            st.markdown("#### C. 🧬 Discovered Student Learning Personas (Archetypes):")
             arch_summary_csv = os.path.join(os.path.dirname(__file__), "artifacts", "archetype_summary.csv")
             if os.path.exists(arch_summary_csv):
                 st.dataframe(pd.read_csv(arch_summary_csv), use_container_width=True, hide_index=True)
@@ -1465,28 +1487,27 @@ with tab_models:
             st.dataframe(t_df.drop(columns=["Filename"], errors="ignore"), use_container_width=True, hide_index=True)
 
     with mod_sub4:
-        st.markdown("### 📖 Multi-Engine Machine Learning Architecture")
+        st.markdown("### 📖 Simple 3-Tier System Architecture")
         st.markdown("""
         ```
-        1. 14-Feature Input (Single Student Profile or Classroom Bulk CSV)
-           └── Preprocessed & Engineered via 38-Feature Synergy Pipeline (RobustScaler + OneHotEncoder)
+        1. 📝 Input (18 Dimensions: Prior Exam, Reading, Writing, Study Time, Screen Time, Habits)
+           └── Automatically calculated 43 synergy and interaction metrics
         
-        2. Production ML & Statistical Engines:
-           ├── Regression Champion: Optimized ElasticNet (R² 90.07%, MAE ±3.47 marks)
-           ├── Classification Champion: Support Vector Classifier (Accuracy 97.00%, ROC-AUC 0.9853)
-           ├── Uncertainty Quantifier: Conformal Prediction 95% Confidence Bounds (±8.50 marks)
-           ├── Behavioral Archetype Clusterer: K-Means (k=4) + 2D PCA Decomposition
-           ├── Tri-Axis Multi-Subject Engine: Joint Math, Reading & Writing Regressor
-           ├── Side-by-Side Simulator: Before vs After Growth & Head-to-Head Peer Comparison
-           ├── Prescriptive Diagnostic Engine: 6-dimensional clinical weakness detection
-           └── Explainable AI (XAI): Permutation Importance & SHAP Waterfall Attributions
+        2. ⚡ AI Forecasting Engines:
+           ├── Score Forecaster: Super-Stacking Meta-Regressor (95.75% R² Accuracy, ±2.54 marks MAE)
+           ├── Pass / Fail Classifier: Gradient Boosting (98.00% Accuracy, 0.995 ROC-AUC)
+           ├── Uncertainty Engine: 95% Confidence Interval (±6.03 marks safe bounds)
+           ├── Learning Styles: 4 Discovered Student Personas via K-Means Clustering
+           ├── Growth Simulator: Before vs After Habit Transformation
+           ├── Goal Planner: Reverse-Engineers Exact Quests for Any Target Score
+           └── Action Engine: Generates Personalized Timetable & Study Steps
         
-        3. Deliverables:
-           ├── Exact Point Score with 95% Confidence Interval [Lower – Upper]
-           ├── Before vs After Competency Growth Radar & Head-to-Head Peer Charts
-           ├── Behavioral Archetype Profile & 2D PCA Cohort Position Map
-           ├── Pass Probability & Early Risk Tier
-           ├── 12-Week Growth Milestones & Prescriptive Study Schedule
-           └── Verified PDF Performance Certificate & Classroom Executive Report
+        3. 📄 User Deliverables:
+           ├── Predicted Marks out of 100 with Letter Grade
+           ├── Passing Likelihood & Early Support Alert
+           ├── Top Positive & Negative Habit Drivers
+           ├── 12-Week Milestone Action Plan
+           └── Downloadable Ready-to-Print Official PDF Report Card
         ```
         """)
+

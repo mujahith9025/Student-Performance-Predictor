@@ -1,4 +1,4 @@
-# 🎓 Student Performance & Dropout Risk Predictor (14-Feature Multi-Dimensional Dual ML)
+# 🎓 Student Performance & Academic Growth Predictor
 
 [![Live Web App](https://img.shields.io/badge/Live_Demo-Streamlit_Cloud-FF4B4B?logo=streamlit&logoColor=white)](https://student-performance-predictor-k475y5vl7pvyx99qeabrtu.streamlit.app/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
@@ -9,142 +9,142 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 > ### 🌐 Live Web Application
-> Experience the full interactive dashboard live in your browser:  
+> Test the interactive dashboard live directly in your browser:  
 > 🔗 **[https://student-performance-predictor-k475y5vl7pvyx99qeabrtu.streamlit.app/](https://student-performance-predictor-k475y5vl7pvyx99qeabrtu.streamlit.app/)**
 
 ---
 
-An end-to-end Machine Learning system engineered with **14-Feature Multi-Dimensional Educational & Behavioral Profiling** (38 Total Synergy Features), **Robust Outlier Normalization**, and **Dual-Task AI Models** to forecast student examination marks, classify **Academic Pass / Fail & Dropout Risk**, process **Entire Classroom Batches via Bulk CSV Upload**, generate **Verified PDF Performance Certificates**, explain predictions via **Explainable AI (SHAP & Permutation Importance)**, and reverse-engineer milestone pathways via a **"What-If" Gamified Goal Simulator**.
+## 🌟 What is this Project?
+
+**EduPredict AI** is a simple, smart, and accurate AI web app designed for students, teachers, parents, and school counselors. It analyzes **18 key student habits and academic dimensions** (such as study hours, prior exam scores, screen time, attendance, and study methods) to:
+
+1. **🎯 Predict Exam Marks & Passing Likelihood** with **95.8% accuracy** ($\pm 2.5$ marks average error).
+2. **🛡️ Provide 95% Certainty Bounds** (so you know the safe upper and lower score range).
+3. **🛠️ Generate a Personalized Study Action Plan** with weekly study hour timetables and customized tips.
+4. **🔄 Simulate Habit Improvements** (see how much marks increase when you add 2 extra hours of study or reduce screen time).
+5. **🗺️ Reverse-Engineer Dream Targets** (set a goal like 85 or 95 marks, and get the exact study quest to reach it).
+6. **📂 Analyze Whole Classrooms in Bulk** (upload a roster CSV to see class averages, risk alerts, and student groups).
+7. **📄 Download Certified PDF Report Cards** (single student certificates and whole-class executive dossiers).
 
 ---
 
-## 📌 1. Multi-Engine Capabilities Summary
+## 💡 Quick 3-Step Beginner Guide
 
-1. **Task A (Continuous Score Forecasting):** Predicts exact mathematical marks ($0 - 100$) using **Optimized ElasticNet & Super-Stacking Meta-Ensembles** (**$90.07\%$ $R^2$ accuracy**, $\pm 3.47$ marks MAE).
-2. **Task B (Classification & Risk Alert):** Forecasts **Pass / Fail & Early Dropout Risk** using **Support Vector Classifiers** (**$97.00\%$ Accuracy, $0.9853$ ROC-AUC score**).
-3. **Task C (AI Prescriptive Solution & Intervention Engine):** Clinical diagnostic algorithm predicting personalized study plans, weekly subject study hour allocations, milestone timelines, and projected score uplifts.
-4. **Task D (Classroom Batch CSV Hub & Synthetic Generator):** 5 pre-built benchmark classroom CSV files + dynamic generator for custom cohort sizes (10 to 500 students) with AI clustered intervention cohorts.
-5. **Task E ('What-If' Goal Simulator):** Reverse-engineers the minimum required reading and writing milestone scores, study hours, and attendance habits to achieve any target grade.
-6. **Task F (Explainable AI):** Provides **Global Permutation Feature Importance (50 Shuffles)** and **Local Real-Time SHAP Attributions** explaining exact points added or deducted.
-7. **Task G (Verified Reporting):** Generates and downloads verified, styled **PDF Academic Performance Reports** (Single Student & Whole Classroom Executive Summaries).
+```
+Step 1: 📝 Enter or choose a student profile (or click a 1-click preset button).
+Step 2: ⚡ Click "Predict Student Score" to see expected marks, letter grade, and passing chance.
+Step 3: 🛠️ Follow the tailored study plan or click "Download PDF Report Card".
+```
 
 ---
 
-## ⚡ 2. 14-Feature Multi-Dimensional Profile & Advanced Engineering
+## ⚡ 18 Student Input Dimensions
 
-The system collects **14 comprehensive student attributes across 4 core educational pillars**:
+The AI models evaluate **18 balanced student factors**:
 
-* **📚 Academic Literacy & Deliberate Study:**
-  * `reading score` (0 - 100): Reading comprehension and textual literacy.
-  * `writing score` (0 - 100): Written synthesis and problem structure.
-  * `attendance_rate` (50% - 100%): Classroom attendance continuity and lecture engagement.
-  * `weekly_study_hours` (1 - 40 hrs): Self-study and deliberate homework practice.
-  * `past_failures` (0 - 4): Prior subject backlogs and historical concept fragility.
-* **👤 Demographics, Household & Digital Capital:**
-  * `gender`: Demographic baseline profile.
-  * `race/ethnicity`: Background student cohort.
-  * `parental level of education`: Household academic attainment gradient.
-  * `lunch`: Nutritional security plan (standard / free/reduced).
-  * `internet_access`: Home high-speed digital connection for online portals.
-* **🌱 Lifestyle, Curricular & Support Services:**
-  * `sleep_hours_per_day` (4.0 - 10.0 hrs): Daily sleep balance and cognitive fatigue avoidance.
-  * `test preparation course`: Standardized exam preparation completion.
-  * `extracurricular_activities`: Balanced extracurricular participation.
-  * `tutoring_support`: Active tutoring assistance (none, peer tutoring, private tutor).
-
-From these 14 raw inputs, the pipeline engineers **38 domain synergy, interaction, curvature, and behavioral indices**:
-* `verbal_average`, `verbal_differential`, `verbal_synergy`, `verbal_ratio`
-* `reading_squared`, `writing_squared` (quadratic power curves)
-* `study_attendance_synergy`, `academic_effort_index`
-* `academic_risk_friction`, `wellness_lifestyle_score`, `socio_readiness_index`
-* Cross-interaction terms (`prep_x_reading`, `lunch_x_writing`, `study_x_attendance`, `tutor_x_study`).
+| Category | Factors Collected | Plain-English Explanation |
+| :--- | :--- | :--- |
+| **📚 Academics & Literacy** | `previous_term_score`, `reading_score`, `writing_score`, `past_failures` | Previous exam baseline, reading test score, writing ability, past backlogs |
+| **⏱️ Daily Study Habits** | `weekly_study_hours`, `attendance_rate`, `study_method` | Self-study time, class attendance %, study technique (Active Recall, Spaced Repetition, Group) |
+| **📱 Lifestyle & Balance** | `daily_screen_time_hours`, `sleep_hours_per_day` | Phone/social media screen time, daily sleep duration |
+| **👥 Mentorship & Support** | `parental_involvement`, `tutoring_support`, `test_preparation_course` | Home guidance, extra tutoring sessions, exam prep course status |
+| **👤 Demographics & Environment** | `parental_level_of_education`, `lunch`, `internet_access`, `extracurricular_activities`, `gender`, `race/ethnicity` | Home learning environment, meal support, home internet, sports/clubs |
 
 ---
 
-## 🏆 3. Model Leaderboards
+## 🏆 Model Accuracy & Benchmarks
 
-### **A. Regression Leaderboard (Continuous Marks Forecast)**
-
-| Rank | Model Name | Architecture | Test $R^2$ | Test MAE | Test RMSE |
-| :---: | :--- | :--- | :---: | :---: | :---: |
-| 🥇 | **Optimized ElasticNet** | L1+L2 Regularized with 38 Features | **90.07%** | **$\pm$ 3.47** | **4.36** |
-| 🥈 | **Super-Stacking Meta-Regressor** | Ridge Stacking of Huber, HistGB, RF | **90.06%** | $\pm$ 3.47 | 4.36 |
-| 🥉 | **Optimized Ridge Regression** | $\text{L2 Shrinkage } (\alpha=10.0)$ | **89.94%** | $\pm$ 3.51 | 4.38 |
-| 4 | **Optimized Huber Regressor** | Outlier-Robust Loss | **89.84%** | $\pm$ 3.53 | 4.41 |
-| 5 | **Optimized HistGradientBoosting** | Histogram Gradient Boosting | **89.45%** | $\pm$ 3.55 | 4.49 |
-
----
-
-### **B. Classification Leaderboard (Pass / Fail & Dropout Risk)**
-
-| Rank | Classifier Name | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: |
-| 🥇 | **Support Vector Classifier (SVC)** | **97.00%** | **98.12%** | **98.41%** | **0.9826** | **0.9853** |
-| 🥈 | **Logistic Regression (Tuned)** | **97.25%** | **98.15%** | **98.68%** | **0.9841** | **0.9849** |
-| 🥉 | **Gradient Boosting Classifier** | **96.75%** | **97.89%** | **98.41%** | **0.9815** | **0.9825** |
+### **A. Exam Marks Prediction ($0 - 100$)**
+| Rank | Model Name | Architecture | Test $R^2$ Accuracy | Average Error (MAE) |
+| :---: | :--- | :--- | :---: | :---: |
+| 🥇 | **Super-Stacking Meta-Regressor** | Ridge Stacking of Huber, HistGB & Random Forest | **95.75%** | **$\pm$ 2.54 marks** |
+| 🥈 | **Optimized ElasticNet** | L1+L2 Regularized with 54 features | **95.74%** | $\pm$ 2.54 marks |
+| 🥉 | **Optimized Ridge Regression** | L2 Shrinkage Regularization | **95.68%** | $\pm$ 2.56 marks |
+| 4 | **Optimized HistGradientBoosting** | Histogram Gradient Boosting Trees | **95.22%** | $\pm$ 2.68 marks |
+| 5 | **Optimized Random Forest** | Multi-Tree Ensemble (150 trees) | **94.88%** | $\pm$ 2.76 marks |
 
 ---
 
-## 📂 4. Directory Structure
+### **B. Passing Likelihood & Risk Classifier ($50+$ marks)**
+| Rank | Classifier Name | Accuracy | Precision | Recall | ROC-AUC |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| 🥇 | **Gradient Boosting Classifier** | **98.00%** | **98.68%** | **98.94%** | **0.9950** |
+| 🥈 | **Optimized Random Forest Classifier** | **97.75%** | **98.42%** | **98.94%** | **0.9942** |
+| 🥉 | **Support Vector Classifier (SVC)** | **97.50%** | **98.15%** | **98.94%** | **0.9928** |
+
+---
+
+## 📱 6 Interactive Dashboard Workspaces
+
+1. **🎯 Student Predictor:** 1-click presets, customizable habit sliders, 4-tile bento summary, and 1-click PDF download.
+2. **📂 Classroom Analytics:** Upload custom roster CSV or load sample classes (50, 100, 200 students) with automatic intervention group clusters.
+3. **🔄 Growth Simulator:** Real-time Before vs After slider comparisons showing the exact mark boost from habit changes.
+4. **🗺️ Goal Planner:** Pick Bronze (50), Silver (70), Gold (85), or Diamond (95) to reverse-engineer the required study quests.
+5. **🔍 What Drives Scores?:** Visual factor rankings and dataset charts explaining what habits help or lower scores the most.
+6. **⚙️ AI Models & Accuracy:** Full accuracy leaderboards, 95% confidence intervals, and architecture flowcharts.
+
+---
+
+## 📂 Project Structure
 
 ```
 student-performance-predictor/
+├── app.py                         # Clean, simple & user-friendly Streamlit web app
+├── run_app.bat                    # 1-click Windows launcher
+├── requirements.txt               # Dependencies list
+├── README.md                      # Project documentation
 │
-├── artifacts/                     # Serialized preprocessors & ML models
-│   ├── best_model.joblib          # Champion Regression Model (Optimized ElasticNet)
-│   ├── best_classifier.joblib     # Champion Risk Classifier (Optimized SVC)
-│   ├── preprocessor.joblib        # 38-Feature Robust Preprocessor
-│   ├── feature_importance.csv     # XAI Permutation Importance Table
-│   ├── model_metrics.csv          # Regression metrics table
-│   ├── classifier_metrics.csv     # Classification metrics table
-│   └── models/                    # Trained model checkpoints
+├── artifacts/                     # Trained ML models and preprocessors
+│   ├── best_model.joblib          # Champion Super-Stacking Meta-Regressor (95.8% R²)
+│   ├── best_classifier.joblib     # Champion Risk Classifier (98.0% Accuracy)
+│   ├── preprocessor.joblib        # 54-column feature preprocessor
+│   ├── uncertainty_model.joblib   # 95% Conformal Prediction uncertainty margins
+│   ├── archetype_clusterer.joblib # 4-Cluster K-Means Learning Persona model
+│   └── models/                    # All individual trained model checkpoints
 │
 ├── data/
-│   ├── StudentsPerformance.csv    # Benchmark dataset
-│   ├── sample_classrooms/         # 5 Pre-built bulk CSV datasets
-│   └── processed/                 # ML-ready train/test numpy matrices
+│   ├── StudentsPerformance.csv    # 2,000-student benchmark dataset
+│   └── sample_classrooms/         # Pre-built benchmark classroom CSV files
 │
 ├── plots/                         # High-resolution visual charts
 │
-├── src/                           # Pipeline source code
-│   ├── advanced_feature_engineering.py # 38-Feature Synergy & Robust Preprocessing
-│   ├── optimize_models.py         # Advanced Stacking, Boosting & Super-Ensemble Training
-│   ├── train_classifier.py        # SVC & Ensemble Risk Classifier Pipeline
-│   ├── batch_predictor.py         # Classroom Batch CSV processing engine
-│   ├── goal_simulator.py          # 'What-If' Academic Goal Simulator
-│   ├── explainability.py          # Explainable AI (XAI) & SHAP attributions
-│   ├── prescriptive_solutions.py  # Clinical diagnostic & action planning engine
-│   ├── sample_generator.py        # Dynamic synthetic classroom generator
-│   ├── plotly_charts.py           # Interactive Plotly chart builders
-│   ├── pdf_generator.py           # ReportLab PDF Report Card generator
-│   └── verify_all.py              # System-wide automated verification suite
-│
-├── app.py                         # Streamlined 5-Tab Bento Grid Streamlit Web App
-├── run_app.bat                    # 1-click Windows launcher
-├── requirements.txt               # Dependencies
-└── README.md                      # Project Documentation
+└── src/                           # Backend Python engines
+    ├── advanced_feature_engineering.py # 43 interaction & synergy metrics
+    ├── advanced_ml_statistical.py      # Conformal prediction & K-Means clustering
+    ├── batch_predictor.py              # Bulk classroom CSV processing engine
+    ├── goal_simulator.py               # 'What-If' Academic Goal Simulator
+    ├── explainability.py               # Feature importance & point drivers
+    ├── prescriptive_solutions.py       # Personalized study action plan engine
+    ├── pdf_generator.py                # Official certified PDF report generator
+    ├── plotly_charts.py                # Interactive charts
+    ├── sample_generator.py             # Synthetic classroom cohort generator
+    └── verify_all.py                   # Automated 10-engine verification test
 ```
 
 ---
 
-## 🚀 5. Installation & How to Run Locally
+## 🚀 How to Run Locally
 
+### 1. Clone the Repository
 ```bash
-# 1. Clone Repository
 git clone https://github.com/mujahith9025/Student-Performance-Predictor.git
 cd Student-Performance-Predictor
-
-# 2. Install Dependencies
-python -m pip install -r requirements.txt
-
-# 3. Launch Web App
-python -m streamlit run app.py
 ```
-*(Or double-click `run_app.bat` on Windows).*
+
+### 2. Install Required Packages
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Launch the Web Application
+```bash
+streamlit run app.py
+```
+*(On Windows, you can simply double-click **`run_app.bat`**).*
 
 ---
 
-## 🌐 6. Live Streamlit Cloud Deployment
+## 🌐 Live Streamlit Cloud Deployment
 
-Access the live cloud deployment anytime at:  
+Visit the live app anytime at:  
 👉 **[https://student-performance-predictor-k475y5vl7pvyx99qeabrtu.streamlit.app/](https://student-performance-predictor-k475y5vl7pvyx99qeabrtu.streamlit.app/)**
