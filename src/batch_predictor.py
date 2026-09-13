@@ -5,37 +5,50 @@ import numpy as np
 from src.advanced_feature_engineering import engineer_features
 from src.sample_generator import generate_synthetic_classroom
 
-# Core required columns
-BASE_REQUIRED_COLUMNS = [
-    "gender",
-    "race/ethnicity",
-    "parental level of education",
-    "lunch",
-    "test preparation course",
-    "reading score",
-    "writing score"
-]
+# Column standard name aliases mapping
+COLUMN_ALIASES = {
+    "reading_score": "reading score",
+    "reading": "reading score",
+    "writing_score": "writing score",
+    "writing": "writing score",
+    "math_score": "math score",
+    "math": "math score",
+    "parental_level_of_education": "parental level of education",
+    "parent_education": "parental level of education",
+    "parental_education": "parental level of education",
+    "race_ethnicity": "race/ethnicity",
+    "ethnicity": "race/ethnicity",
+    "test_preparation_course": "test preparation course",
+    "test_prep": "test preparation course",
+    "study_hours": "weekly_study_hours",
+    "attendance": "attendance_rate",
+    "screen_time": "daily_screen_time_hours",
+    "failures": "past_failures",
+    "previous_score": "previous_term_score",
+    "prior_score": "previous_term_score",
+    "prior_term_score": "previous_term_score"
+}
 
-ALL_18_COLUMNS = [
-    "gender",
-    "race/ethnicity",
-    "parental level of education",
-    "lunch",
-    "test preparation course",
-    "internet_access",
-    "extracurricular_activities",
-    "tutoring_support",
-    "study_method",
-    "parental_involvement",
-    "previous_term_score",
-    "attendance_rate",
-    "weekly_study_hours",
-    "sleep_hours_per_day",
-    "daily_screen_time_hours",
-    "past_failures",
-    "reading score",
-    "writing score"
-]
+ALL_18_DEFAULTS = {
+    "gender": "female",
+    "race/ethnicity": "group C",
+    "parental level of education": "some college",
+    "lunch": "standard",
+    "test preparation course": "none",
+    "reading score": 65.0,
+    "writing score": 65.0,
+    "internet_access": "yes",
+    "extracurricular_activities": "no",
+    "tutoring_support": "none",
+    "study_method": "spaced_repetition",
+    "parental_involvement": "medium",
+    "previous_term_score": 65.0,
+    "attendance_rate": 85.0,
+    "weekly_study_hours": 12.0,
+    "sleep_hours_per_day": 7.5,
+    "daily_screen_time_hours": 3.0,
+    "past_failures": 0
+}
 
 def generate_sample_csv_template():
     """
@@ -105,31 +118,54 @@ def load_or_create_sample_cohort(cohort_type="balanced", n_students=50, seed=42)
 def process_batch_predictions(df, preprocessor, reg_model, clf_model):
     """
     Processes an entire classroom DataFrame across all 18 features and returns the enriched DataFrame + summary analytics.
+    Gracefully cleans column headers and imputes defaults for missing columns to prevent user crashes.
     """
-    # Check minimum required base columns
-    missing_cols = [c for c in BASE_REQUIRED_COLUMNS if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Uploaded CSV is missing mandatory columns: {missing_cols}")
+    if df is None or len(df) == 0:
+        raise ValueError("Uploaded CSV is empty. Please upload a file with student rows.")
 
     processed_df = df.copy()
 
-    # Impute defaults for any new 18-feature columns if legacy CSV was uploaded
-    defaults = {
-        "internet_access": "yes",
-        "extracurricular_activities": "no",
-        "tutoring_support": "none",
-        "study_method": "spaced_repetition",
-        "parental_involvement": "medium",
-        "previous_term_score": 65.0,
-        "attendance_rate": 85.0,
-        "weekly_study_hours": 12.0,
-        "sleep_hours_per_day": 7.5,
-        "daily_screen_time_hours": 3.0,
-        "past_failures": 0
-    }
-    for col, d_val in defaults.items():
+    # 1. Normalize Column Headers
+    rename_dict = {}
+    for col in processed_df.columns:
+        clean_col = str(col).strip().lower()
+        if clean_col in COLUMN_ALIASES:
+            rename_dict[col] = COLUMN_ALIASES[clean_col]
+        else:
+            rename_dict[col] = str(col).strip()
+    processed_df = processed_df.rename(columns=rename_dict)
+
+    # 2. Impute IDs and Names if missing
+    if "student_id" not in processed_df.columns:
+        processed_df["student_id"] = [f"STU-{1001 + i}" for i in range(len(processed_df))]
+    if "student_name" not in processed_df.columns:
+        processed_df["student_name"] = [f"Student {i + 1}" for i in range(len(processed_df))]
+
+    # 3. Impute defaults for any missing features
+    for col, default_val in ALL_18_DEFAULTS.items():
         if col not in processed_df.columns:
-            processed_df[col] = d_val
+            processed_df[col] = default_val
+        else:
+            # Handle empty / NaN values in existing columns
+            if pd.api.types.is_numeric_dtype(type(default_val)):
+                processed_df[col] = pd.to_numeric(processed_df[col], errors='coerce').fillna(default_val)
+            else:
+                processed_df[col] = processed_df[col].fillna(default_val).astype(str)
+
+    # Coerce numeric bounds
+    numeric_bounds = {
+        "reading score": (0.0, 100.0),
+        "writing score": (0.0, 100.0),
+        "previous_term_score": (0.0, 100.0),
+        "attendance_rate": (0.0, 100.0),
+        "weekly_study_hours": (0.0, 60.0),
+        "sleep_hours_per_day": (1.0, 14.0),
+        "daily_screen_time_hours": (0.0, 24.0),
+        "past_failures": (0, 10)
+    }
+    for col, (low, high) in numeric_bounds.items():
+        if col in processed_df.columns:
+            processed_df[col] = np.clip(pd.to_numeric(processed_df[col], errors='coerce').fillna(ALL_18_DEFAULTS[col]), low, high)
 
     # Apply feature engineering
     feature_df_eng = engineer_features(processed_df)

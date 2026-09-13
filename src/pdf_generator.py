@@ -1,9 +1,20 @@
 import io
+import html
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+
+def _clean_str(val):
+    """
+    Safely escapes HTML/XML special characters for ReportLab Paragraph markup.
+    """
+    if val is None:
+        return ""
+    # Convert to string and escape XML/HTML characters
+    text = str(val).strip()
+    return html.escape(text, quote=False)
 
 def generate_student_pdf_report(
     student_name,
@@ -114,19 +125,22 @@ def generate_student_pdf_report(
 
     # 2. Student Metadata & Engagement Table
     current_date = datetime.now().strftime("%B %d, %Y")
-    prob_text = f"<b>Pass Probability:</b> {pass_prob:.1f}% ({risk_level})" if pass_prob is not None else "Verified"
-    tutor_display = tutoring_support.replace('_', ' ').title() if tutoring_support != "none" else "None"
-    method_display = study_method.replace('_', ' ').title()
-    involvement_display = parental_involvement.title()
+    prob_text = f"<b>Pass Probability:</b> {pass_prob:.1f}% ({_clean_str(risk_level)})" if pass_prob is not None else "Verified"
+    tutor_display = _clean_str(str(tutoring_support).replace('_', ' ').title() if tutoring_support != "none" else "None")
+    method_display = _clean_str(str(study_method).replace('_', ' ').title())
+    involvement_display = _clean_str(str(parental_involvement).title())
     
+    clean_name = _clean_str(student_name)
+    clean_id = _clean_str(student_id)
+
     metadata_data = [
         [
-            Paragraph("<b>Student Name:</b> " + str(student_name), body_style),
-            Paragraph("<b>Student ID / Roll:</b> " + str(student_id), body_style)
+            Paragraph(f"<b>Student Name:</b> {clean_name}", body_style),
+            Paragraph(f"<b>Student ID / Roll:</b> {clean_id}", body_style)
         ],
         [
-            Paragraph("<b>Date of Evaluation:</b> " + current_date, body_style),
-            Paragraph("<b>Academic Risk Status:</b> " + prob_text, body_style)
+            Paragraph(f"<b>Date of Evaluation:</b> {current_date}", body_style),
+            Paragraph(f"<b>Academic Risk Status:</b> {prob_text}", body_style)
         ],
         [
             Paragraph(f"<b>Attendance:</b> {attendance_rate:.1f}% • <b>Study Effort:</b> {weekly_study_hours:.1f}h/wk • <b>Method:</b> {method_display}", body_style),
@@ -149,6 +163,7 @@ def generate_student_pdf_report(
     # 3. Subject Examination & Prediction Breakdown Table
     story.append(Paragraph("1. Subject Competency & Predicted Marks", section_heading))
     
+    clean_grade = _clean_str(grade.split()[0] if grade else "P")
     score_data = [
         [
             Paragraph("<b>Exam Subject</b>", bold_body),
@@ -184,7 +199,7 @@ def generate_student_pdf_report(
             Paragraph("<b>Cumulative 3-Subject Average</b>", bold_body),
             Paragraph("Composite Profile", bold_body),
             Paragraph(f"<b>{overall_avg:.1f} / 100</b>", bold_body),
-            Paragraph(f"<b>Grade: {grade.split()[0]}</b>", bold_body)
+            Paragraph(f"<b>Grade: {clean_grade}</b>", bold_body)
         ]
     ]
 
@@ -242,10 +257,16 @@ def generate_student_pdf_report(
         ]]
         
         for item in prescriptive_solution.get("interventions", [])[:4]:
+            p_prio = _clean_str(item.get('priority', 'P1'))
+            p_time = _clean_str(item.get('timeline', 'Immediate'))
+            p_title = _clean_str(item.get('title', ''))
+            p_act = _clean_str(item.get('action', ''))
+            p_uplift = _clean_str(item.get('est_uplift', '+3 pts'))
+            
             action_data.append([
-                Paragraph(f"<b>{item.get('priority', 'P1')}</b><br/>{item.get('timeline', 'Immediate')}", body_style),
-                Paragraph(f"<b>{item.get('title', '')}</b><br/>{item.get('action', '')}", body_style),
-                Paragraph(f"<b>{item.get('est_uplift', '+3 pts')}</b>", bold_body)
+                Paragraph(f"<b>{p_prio}</b><br/>{p_time}", body_style),
+                Paragraph(f"<b>{p_title}</b><br/>{p_act}", body_style),
+                Paragraph(f"<b>{p_uplift}</b>", bold_body)
             ])
             
         action_table = Table(action_data, colWidths=[130, 340, 70])
@@ -265,7 +286,8 @@ def generate_student_pdf_report(
 
     # 5. Counselor / Advisor Signature
     story.append(Paragraph("3. Academic Advisor Certification", section_heading))
-    sig_note = custom_counselor_note if custom_counselor_note else "Student profile evaluated using multi-dimensional Machine Learning decision support. Prescriptive actions verified for exam preparation."
+    raw_sig_note = custom_counselor_note if custom_counselor_note else "Student profile evaluated using multi-dimensional Machine Learning decision support. Prescriptive actions verified for exam preparation."
+    sig_note = _clean_str(raw_sig_note)
     
     sig_data = [
         [
@@ -288,10 +310,24 @@ def generate_student_pdf_report(
     buffer.seek(0)
     return buffer.getvalue()
 
-def generate_classroom_pdf_report(classroom_df, summary_metrics, class_name="Section A Cohort"):
+def generate_classroom_pdf_report(
+    classroom_df,
+    summary=None,
+    summary_metrics=None,
+    cohort_name="Section A Cohort",
+    class_name=None,
+    custom_counselor_notes=None,
+    intervention_matrix=None,
+    **kwargs
+):
     """
     Generates a Classroom Executive Analytics PDF report for institutional leadership.
     """
+    # Normalize aliases
+    metrics = summary if summary is not None else (summary_metrics if summary_metrics is not None else {})
+    c_name = _clean_str(cohort_name if cohort_name else (class_name if class_name else "Classroom Cohort"))
+    notes = _clean_str(custom_counselor_notes if custom_counselor_notes else "Classroom evaluated with multi-model AI forecasting.")
+
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -330,17 +366,22 @@ def generate_classroom_pdf_report(classroom_df, summary_metrics, class_name="Sec
     
     bold_body = ParagraphStyle("ClassBold", parent=body_style, fontName="Helvetica-Bold")
     
-    story.append(Paragraph(f"EDUPREDICT AI • CLASSROOM ANALYTICS DOSSIER ({class_name})", title_style))
+    story.append(Paragraph(f"EDUPREDICT AI • CLASSROOM ANALYTICS DOSSIER ({c_name})", title_style))
     story.append(Spacer(1, 4))
     story.append(HRFlowable(width="100%", thickness=2, color=secondary_color, spaceAfter=6))
     
     # Executive KPI Summary Grid
+    total_st = metrics.get('total_students', len(classroom_df))
+    pass_rt = metrics.get('pass_rate', 0)
+    avg_m = metrics.get('class_avg_math', 0)
+    at_risk_c = metrics.get('at_risk_count', 0)
+
     kpi_data = [
         [
-            Paragraph(f"<b>Total Enrolled:</b> {summary_metrics.get('total_students', len(classroom_df))}", body_style),
-            Paragraph(f"<b>Projected Pass Rate:</b> {summary_metrics.get('pass_rate', 0):.1f}%", bold_body),
-            Paragraph(f"<b>Average Math:</b> {summary_metrics.get('class_avg_math', 0):.1f}", body_style),
-            Paragraph(f"<b>At-Risk Cohort:</b> {summary_metrics.get('at_risk_count', 0)} Students", body_style)
+            Paragraph(f"<b>Total Enrolled:</b> {total_st}", body_style),
+            Paragraph(f"<b>Projected Pass Rate:</b> {pass_rt:.1f}%", bold_body),
+            Paragraph(f"<b>Average Math:</b> {avg_m:.1f}", body_style),
+            Paragraph(f"<b>At-Risk Cohort:</b> {at_risk_c} Students", body_style)
         ]
     ]
     kpi_table = Table(kpi_data, colWidths=[135, 135, 135, 135])
@@ -366,13 +407,20 @@ def generate_classroom_pdf_report(classroom_df, summary_metrics, class_name="Sec
     ]]
     
     for _, row in classroom_df.head(25).iterrows():
+        r_id = _clean_str(row.get("student_id", f"ID-{_+1}"))
+        r_name = _clean_str(row.get("student_name", f"Student {_+1}"))
+        r_math = float(row.get('Predicted_Math_Score', 0))
+        r_prob = float(row.get('Pass_Probability_Pct', 0))
+        r_risk = _clean_str(row.get("Risk_Tier", "Safe"))
+        r_action = _clean_str(str(row.get("Prescribed_Intervention", "Standard"))[:32])
+
         roster_data.append([
-            Paragraph(str(row.get("student_id", f"ID-{_+1}")), body_style),
-            Paragraph(str(row.get("student_name", f"Student {_+1}")), body_style),
-            Paragraph(f"{row.get('Predicted_Math_Score', 0):.1f}", body_style),
-            Paragraph(f"{row.get('Pass_Probability_Pct', 0):.1f}%", body_style),
-            Paragraph(str(row.get("Risk_Tier", "Safe")), body_style),
-            Paragraph(str(row.get("Prescribed_Intervention", "Standard"))[:32], body_style)
+            Paragraph(r_id, body_style),
+            Paragraph(r_name, body_style),
+            Paragraph(f"{r_math:.1f}", body_style),
+            Paragraph(f"{r_prob:.1f}%", body_style),
+            Paragraph(r_risk, body_style),
+            Paragraph(r_action, body_style)
         ])
         
     roster_table = Table(roster_data, colWidths=[65, 110, 65, 60, 85, 155])
