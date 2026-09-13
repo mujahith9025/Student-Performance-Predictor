@@ -351,18 +351,19 @@ with st.sidebar:
         active_model = best_model
         selected_model_name = "Optimized Model (Default)"
         
-    st.info("🛡️ Pass Classifier: **Support Vector Machine (97.0% Accuracy)**")
+    st.info("🛡️ Pass Classifier: **Champion Gradient Boosting (98.0% Accuracy)**")
     
     st.markdown("---")
     st.markdown("### 📊 Statistical Capabilities")
-    st.markdown("- **14 Student Input Dimensions**")
-    st.markdown("- **38 Synergy Interaction Metrics**")
-    st.markdown("- **Regression $R^2$:** **90.07%** ($\pm 3.47$ marks)")
-    st.markdown("- **95% Conformal Prediction Intervals:** **Active**")
+    st.markdown("- **18 Student Input Dimensions**")
+    st.markdown("- **43 Synergy Interaction Metrics**")
+    st.markdown("- **Regression $R^2$:** **95.75%** ($\pm 2.54$ marks)")
+    st.markdown("- **Classification Accuracy:** **98.00%** (AUC: 0.995)")
+    st.markdown("- **95% Conformal Prediction Intervals:** **Active** ($\pm 6.03$ marks)")
     st.markdown("- **Side-by-Side Growth Simulator:** **Active**")
     st.markdown("- **Unsupervised Archetypes:** **4 Discovered**")
     
-    st.caption("EduPredict AI v3.8 • Side-by-Side Suite")
+    st.caption("EduPredict AI v4.0 • 18-Dimension Suite")
 
 # ---------------------------------------------------------
 # STREAMLINED HERO HEADER
@@ -375,8 +376,8 @@ st.markdown("""
     </div>
     <div class="badge-chip-group">
         <span class="badge-chip badge-success"><span class="pulse-dot"></span> Statistical Suite Online</span>
-        <span class="badge-chip badge-primary">⚡ 14-Dimension Profile</span>
-        <span class="badge-chip badge-purple">🎯 90.1% R² Precision</span>
+        <span class="badge-chip badge-primary">⚡ 18-Dimension Profile</span>
+        <span class="badge-chip badge-purple">🎯 95.8% R² Precision</span>
         <span class="badge-chip badge-primary">🔄 Before/After Simulator</span>
         <span class="badge-chip badge-success">📄 Certified PDF Reports</span>
     </div>
@@ -410,11 +411,15 @@ with tab_pred:
     if "p_internet" not in st.session_state: st.session_state["p_internet"] = "yes"
     if "p_extra" not in st.session_state: st.session_state["p_extra"] = "yes"
     if "p_tutor" not in st.session_state: st.session_state["p_tutor"] = "peer_tutoring"
+    if "p_method" not in st.session_state: st.session_state["p_method"] = "active_problem_solving"
+    if "p_inv" not in st.session_state: st.session_state["p_inv"] = "high"
+    if "p_prev" not in st.session_state: st.session_state["p_prev"] = 80
     if "p_read" not in st.session_state: st.session_state["p_read"] = 78
     if "p_write" not in st.session_state: st.session_state["p_write"] = 82
     if "p_att" not in st.session_state: st.session_state["p_att"] = 92.0
     if "p_study" not in st.session_state: st.session_state["p_study"] = 16.0
     if "p_sleep" not in st.session_state: st.session_state["p_sleep"] = 7.5
+    if "p_screen" not in st.session_state: st.session_state["p_screen"] = 2.5
     if "p_fails" not in st.session_state: st.session_state["p_fails"] = 0
 
     # 1-Row Quick Demo Personas
@@ -431,7 +436,8 @@ with tab_pred:
                 "p_name": "Elena Rostova", "p_id": "STU-2026-HONORS", "p_gender": "female",
                 "p_race": "group E", "p_edu": "master's degree", "p_lunch": "standard",
                 "p_prep": "completed", "p_internet": "yes", "p_extra": "yes", "p_tutor": "private_tutor",
-                "p_read": 92, "p_write": 95, "p_att": 98.0, "p_study": 24.0, "p_sleep": 8.0, "p_fails": 0
+                "p_method": "active_problem_solving", "p_inv": "high", "p_prev": 92,
+                "p_read": 92, "p_write": 95, "p_att": 98.0, "p_study": 24.0, "p_sleep": 8.0, "p_screen": 1.8, "p_fails": 0
             })
             st.rerun()
     with pre_c2:
@@ -440,7 +446,8 @@ with tab_pred:
                 "p_name": "Jordan Miller", "p_id": "STU-2026-AVG", "p_gender": "male",
                 "p_race": "group C", "p_edu": "some college", "p_lunch": "standard",
                 "p_prep": "none", "p_internet": "yes", "p_extra": "no", "p_tutor": "none",
-                "p_read": 65, "p_write": 62, "p_att": 86.0, "p_study": 12.0, "p_sleep": 7.2, "p_fails": 0
+                "p_method": "spaced_repetition", "p_inv": "medium", "p_prev": 64,
+                "p_read": 65, "p_write": 62, "p_att": 86.0, "p_study": 12.0, "p_sleep": 7.2, "p_screen": 3.5, "p_fails": 0
             })
             st.rerun()
     with pre_c3:
@@ -449,7 +456,8 @@ with tab_pred:
                 "p_name": "Marcus Vance", "p_id": "STU-2026-RISK", "p_gender": "male",
                 "p_race": "group A", "p_edu": "some high school", "p_lunch": "free/reduced",
                 "p_prep": "none", "p_internet": "no", "p_extra": "no", "p_tutor": "none",
-                "p_read": 34, "p_write": 30, "p_att": 62.0, "p_study": 4.0, "p_sleep": 5.0, "p_fails": 2
+                "p_method": "passive_reading", "p_inv": "low", "p_prev": 38,
+                "p_read": 34, "p_write": 30, "p_att": 62.0, "p_study": 4.0, "p_sleep": 5.0, "p_screen": 6.5, "p_fails": 2
             })
             st.rerun()
     with pre_c4:
@@ -458,7 +466,8 @@ with tab_pred:
                 "p_name": "Sophia Chen", "p_id": "STU-2026-VERBAL", "p_gender": "female",
                 "p_race": "group D", "p_edu": "bachelor's degree", "p_lunch": "standard",
                 "p_prep": "completed", "p_internet": "yes", "p_extra": "yes", "p_tutor": "peer_tutoring",
-                "p_read": 88, "p_write": 85, "p_att": 90.0, "p_study": 14.0, "p_sleep": 7.5, "p_fails": 0
+                "p_method": "spaced_repetition", "p_inv": "high", "p_prev": 82,
+                "p_read": 88, "p_write": 85, "p_att": 90.0, "p_study": 14.0, "p_sleep": 7.5, "p_screen": 2.8, "p_fails": 0
             })
             st.rerun()
     with pre_c5:
@@ -467,7 +476,8 @@ with tab_pred:
                 "p_name": "Lucas Taylor", "p_id": "STU-2026-RISING", "p_gender": "male",
                 "p_race": "group B", "p_edu": "high school", "p_lunch": "free/reduced",
                 "p_prep": "completed", "p_internet": "yes", "p_extra": "yes", "p_tutor": "peer_tutoring",
-                "p_read": 76, "p_write": 74, "p_att": 96.0, "p_study": 20.0, "p_sleep": 7.5, "p_fails": 0
+                "p_method": "active_problem_solving", "p_inv": "high", "p_prev": 70,
+                "p_read": 76, "p_write": 74, "p_att": 96.0, "p_study": 20.0, "p_sleep": 7.5, "p_screen": 2.2, "p_fails": 0
             })
             st.rerun()
     with pre_c6:
@@ -476,7 +486,8 @@ with tab_pred:
                 "p_name": "Amara Patel", "p_id": "STU-2026-BORDER", "p_gender": "female",
                 "p_race": "group C", "p_edu": "some college", "p_lunch": "free/reduced",
                 "p_prep": "none", "p_internet": "yes", "p_extra": "no", "p_tutor": "none",
-                "p_read": 52, "p_write": 49, "p_att": 78.0, "p_study": 7.0, "p_sleep": 6.0, "p_fails": 1
+                "p_method": "group_study", "p_inv": "medium", "p_prev": 49,
+                "p_read": 52, "p_write": 49, "p_att": 78.0, "p_study": 7.0, "p_sleep": 6.0, "p_screen": 4.5, "p_fails": 1
             })
             st.rerun()
 
@@ -489,31 +500,44 @@ with tab_pred:
             student_id = st.text_input("Student Roll / ID:", value=st.session_state["p_id"])
 
         st.markdown("#### ⚡ Essential Academic & Habit Levers")
-        c_in1, c_in2, c_in3, c_in4 = st.columns(4)
+        c_in1, c_in2, c_in3, c_in4, c_in5 = st.columns(5)
         with c_in1:
-            reading_score = st.slider("Reading Score (0-100):", 0, 100, int(st.session_state["p_read"]), 1)
+            previous_term_score = st.slider("Prior Term Exam (0-100):", 0, 100, int(st.session_state["p_prev"]), 1, help="Previous semester baseline / term exam marks")
         with c_in2:
-            writing_score = st.slider("Writing Score (0-100):", 0, 100, int(st.session_state["p_write"]), 1)
+            reading_score = st.slider("Reading Score (0-100):", 0, 100, int(st.session_state["p_read"]), 1)
         with c_in3:
-            weekly_study_hours = st.slider("Study Hours / Week:", 1.0, 40.0, float(st.session_state["p_study"]), 0.5)
+            writing_score = st.slider("Writing Score (0-100):", 0, 100, int(st.session_state["p_write"]), 1)
         with c_in4:
+            weekly_study_hours = st.slider("Study Hours / Week:", 1.0, 40.0, float(st.session_state["p_study"]), 0.5)
+        with c_in5:
             attendance_rate = st.slider("Attendance Rate (%):", 50.0, 100.0, float(st.session_state["p_att"]), 0.5)
 
-        with st.expander("⚙️ Additional Lifestyle & Support Levers (Optional Details)", expanded=False):
+        with st.expander("⚙️ Additional Lifestyle, Study Technique & Support Levers", expanded=False):
             adv_c1, adv_c2, adv_c3 = st.columns(3)
             with adv_c1:
+                method_opts = ["active_problem_solving", "spaced_repetition", "group_study", "passive_reading"]
+                study_method = st.selectbox(
+                    "Study Technique & Method:", 
+                    method_opts, 
+                    index=method_opts.index(st.session_state["p_method"]),
+                    format_func=lambda x: x.replace('_', ' ').title(),
+                    help="Active recall & practice questions provide the highest retention efficiency"
+                )
+                daily_screen_time_hours = st.slider("Daily Screen Time (Hours/Day):", 0.5, 10.0, float(st.session_state["p_screen"]), 0.2, help="Hours spent on phone/social media/digital leisure")
                 sleep_hours_per_day = st.slider("Sleep (Hours/Day):", 4.0, 10.0, float(st.session_state["p_sleep"]), 0.2)
                 past_failures = st.selectbox("Prior Course Failures:", [0, 1, 2, 3, 4], index=[0, 1, 2, 3, 4].index(st.session_state["p_fails"]))
-                tut_opts = ["none", "peer_tutoring", "private_tutor"]
-                tutoring_support = st.selectbox("Tutoring Support:", tut_opts, index=tut_opts.index(st.session_state["p_tutor"]), format_func=lambda x: x.replace('_', ' ').title())
             with adv_c2:
+                inv_opts = ["high", "medium", "low"]
+                parental_involvement = st.selectbox("Parental Involvement:", inv_opts, index=inv_opts.index(st.session_state["p_inv"]), format_func=lambda x: x.title(), help="Level of parental mentorship and academic engagement")
                 prep_opts = ["none", "completed"]
                 test_prep = st.selectbox("Test Prep Course:", prep_opts, index=prep_opts.index(st.session_state["p_prep"]))
+                tut_opts = ["none", "peer_tutoring", "private_tutor"]
+                tutoring_support = st.selectbox("Tutoring Support:", tut_opts, index=tut_opts.index(st.session_state["p_tutor"]), format_func=lambda x: x.replace('_', ' ').title())
                 lunch_opts = ["standard", "free/reduced"]
                 lunch = st.selectbox("Lunch Program:", lunch_opts, index=lunch_opts.index(st.session_state["p_lunch"]))
+            with adv_c3:
                 net_opts = ["yes", "no"]
                 internet_access = st.selectbox("Home Internet Access:", net_opts, index=net_opts.index(st.session_state["p_internet"]))
-            with adv_c3:
                 edu_opts = ["some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree"]
                 parental_education = st.selectbox("Parental Education:", edu_opts, index=edu_opts.index(st.session_state["p_edu"]))
                 extra_opts = ["yes", "no"]
@@ -538,9 +562,13 @@ with tab_pred:
                 "internet_access": [internet_access],
                 "extracurricular_activities": [extracurricular_activities],
                 "tutoring_support": [tutoring_support],
+                "study_method": [study_method],
+                "parental_involvement": [parental_involvement],
+                "previous_term_score": [previous_term_score],
                 "attendance_rate": [attendance_rate],
                 "weekly_study_hours": [weekly_study_hours],
                 "sleep_hours_per_day": [sleep_hours_per_day],
+                "daily_screen_time_hours": [daily_screen_time_hours],
                 "past_failures": [past_failures],
                 "reading score": [reading_score],
                 "writing score": [writing_score]
@@ -682,7 +710,8 @@ with tab_pred:
                     </div>
                     """, unsafe_allow_html=True)
                     
-                fig_study = create_prescriptive_study_hours_chart(prescriptive_sol["study_hours"])
+                study_alloc_dict = prescriptive_sol.get("weekly_study_allocation", prescriptive_sol.get("study_hours", {}))
+                fig_study = create_prescriptive_study_hours_chart(study_alloc_dict)
                 st.plotly_chart(fig_study, use_container_width=True)
 
             # --- BENTO TILE 4: CERTIFIED PDF REPORT CARD EXPORT ---
@@ -707,6 +736,7 @@ with tab_pred:
                 if pass_prob < 50: tips.append("🚨 High Risk Alert: Immediate remedial sessions recommended in Mathematics.")
                 if test_prep == "none": tips.append("📌 Test Prep Course: Statistically provides a +9.4 mark boost.")
                 if reading_score < 60: tips.append("📌 Reading Focus: Enhancing reading comprehension reinforces mathematical problem solving.")
+                if daily_screen_time_hours > 4.5: tips.append("📱 Digital Diet: Capping recreational screen time under 2.5h/day restores attention span.")
                 if not tips: tips.append("🌟 Optimal Academic Standing across all subjects.")
 
                 pdf_bytes = generate_student_pdf_report(
@@ -733,7 +763,11 @@ with tab_pred:
                     sleep_hours_per_day=sleep_hours_per_day,
                     past_failures=past_failures,
                     tutoring_support=tutoring_support,
-                    internet_access=internet_access
+                    internet_access=internet_access,
+                    previous_term_score=previous_term_score,
+                    study_method=study_method,
+                    daily_screen_time_hours=daily_screen_time_hours,
+                    parental_involvement=parental_involvement
                 )
                 clean_filename = f"Official_Academic_Report_{student_id.replace('/', '_')}.pdf"
                 
@@ -765,7 +799,9 @@ with tab_pred:
                         attendance=attendance_rate,
                         study_hours=weekly_study_hours,
                         sleep_hours=sleep_hours_per_day,
-                        prep_status=test_prep
+                        prep_status=test_prep,
+                        prev_score=previous_term_score,
+                        screen_hours=daily_screen_time_hours
                     )
                     st.plotly_chart(fig_radar, use_container_width=True)
                     
@@ -786,7 +822,7 @@ with tab_pred:
                     for ms in prescriptive_sol["milestones"]:
                         st.markdown(f"""
                         <div style="background:#F8FAFC; border-left:3px solid #2563EB; border-radius:6px; padding:0.55rem 0.8rem; margin-bottom:0.4rem;">
-                            <b>{ms['week']}</b> (Target: <span style="color:#059669; font-weight:700;">{ms['target']}</span>): {ms['milestone']}
+                            <b>{ms.get('phase', 'Phase')}</b> (Target: <span style="color:#059669; font-weight:700;">{ms.get('target', '')}</span>): {ms.get('focus', '')}
                         </div>
                         """, unsafe_allow_html=True)
 
@@ -1014,22 +1050,27 @@ with tab_compare:
     
     with cmp_sub1:
         st.markdown("### 🔄 Before vs After Intervention Simulator")
-        st.markdown("Simulate how targeted academic and lifestyle boosters transform a student's baseline performance, grade, and pass probability:")
+        st.markdown("Simulate how targeted academic, study technique, and lifestyle boosters transform a student's baseline performance, grade, and pass probability:")
         
         sim_c1, sim_c2 = st.columns([1.1, 1.2])
         
         with sim_c1:
             st.markdown("#### 1. Configure Current Baseline Profile:")
+            b_prev = st.slider("Prior Term Exam:", 0, 100, 55, 1, key="b_pr")
             b_read = st.slider("Reading Score:", 0, 100, 58, 1, key="b_r")
             b_write = st.slider("Writing Score:", 0, 100, 54, 1, key="b_w")
             b_study = st.slider("Study Hours / Week:", 1.0, 40.0, 6.0, 0.5, key="b_s")
+            b_screen = st.slider("Daily Screen Time (Hours/Day):", 0.5, 10.0, 5.5, 0.2, key="b_sc")
             b_att = st.slider("Attendance Rate (%):", 50.0, 100.0, 78.0, 1.0, key="b_a")
+            b_method = st.selectbox("Study Technique:", ["active_problem_solving", "spaced_repetition", "group_study", "passive_reading"], index=3, format_func=lambda x: x.replace('_', ' ').title(), key="b_m")
             b_prep = st.selectbox("Test Prep Status:", ["none", "completed"], index=0, key="b_p")
             b_tut = st.selectbox("Tutoring Support:", ["none", "peer_tutoring", "private_tutor"], index=0, key="b_t")
             
             st.markdown("#### 2. Apply Targeted Intervention Boosters:")
-            boost_prep = st.checkbox("⚔️ Complete Exam Preparation Course (+9.4 pts)", value=True)
-            boost_tut = st.selectbox("👥 Enroll in Tutoring Program:", ["none", "peer_tutoring (+6.5 pts)", "private_tutor (+8.2 pts)"], index=1)
+            boost_prep = st.checkbox("⚔️ Complete Exam Preparation Course (+5.5 pts)", value=True)
+            boost_method = st.selectbox("🧠 Upgrade Study Technique:", ["Keep Current", "active_problem_solving (+4.2 pts)", "spaced_repetition (+2.8 pts)"], index=1)
+            boost_screen = st.slider("📱 Reduce Daily Screen Time (Target Hours/Day):", 0.5, 6.0, 2.0, 0.2)
+            boost_tut = st.selectbox("👥 Enroll in Tutoring Program:", ["none", "peer_tutoring (+4.0 pts)", "private_tutor (+6.0 pts)"], index=1)
             boost_study = st.slider("⏱️ Add Weekly Study Hours (+ hrs/wk):", 0.0, 15.0, 8.0, 0.5)
             boost_att = st.slider("📅 Improve Attendance Rate (+%):", 0.0, 20.0, 12.0, 1.0)
             boost_read = st.slider("📖 Improve Reading Comprehension (+ marks):", 0, 25, 12, 1)
@@ -1038,14 +1079,16 @@ with tab_compare:
         base_dict = {
             "gender": "female", "race/ethnicity": "group C", "parental level of education": "some college",
             "lunch": "standard", "test preparation course": b_prep, "internet_access": "yes",
-            "extracurricular_activities": "no", "tutoring_support": b_tut, "reading score": b_read,
+            "extracurricular_activities": "no", "tutoring_support": b_tut, "study_method": b_method,
+            "parental_involvement": "medium", "previous_term_score": b_prev, "reading score": b_read,
             "writing score": b_write, "attendance_rate": b_att, "weekly_study_hours": b_study,
-            "sleep_hours_per_day": 7.0, "past_failures": 1
+            "sleep_hours_per_day": 7.0, "daily_screen_time_hours": b_screen, "past_failures": 1
         }
         
         # Post-Intervention Data Preparation
         tut_applied = "peer_tutoring" if "peer" in boost_tut else ("private_tutor" if "private" in boost_tut else b_tut)
         prep_applied = "completed" if boost_prep else b_prep
+        method_applied = "active_problem_solving" if "active" in boost_method else ("spaced_repetition" if "spaced" in boost_method else b_method)
         post_read = min(100, b_read + boost_read)
         post_write = min(100, b_write + int(boost_read * 0.9))
         post_study = min(40.0, b_study + boost_study)
@@ -1054,9 +1097,10 @@ with tab_compare:
         post_dict = {
             "gender": "female", "race/ethnicity": "group C", "parental level of education": "some college",
             "lunch": "standard", "test preparation course": prep_applied, "internet_access": "yes",
-            "extracurricular_activities": "yes", "tutoring_support": tut_applied, "reading score": post_read,
+            "extracurricular_activities": "yes", "tutoring_support": tut_applied, "study_method": method_applied,
+            "parental_involvement": "high", "previous_term_score": b_prev, "reading score": post_read,
             "writing score": post_write, "attendance_rate": post_att, "weekly_study_hours": post_study,
-            "sleep_hours_per_day": 7.5, "past_failures": 0
+            "sleep_hours_per_day": 7.5, "daily_screen_time_hours": boost_screen, "past_failures": 0
         }
         
         if preprocessor is not None and active_model is not None:
@@ -1087,7 +1131,7 @@ with tab_compare:
                         <div style="font-size:0.8rem; font-weight:700; color:#DC2626; text-transform:uppercase;">🔴 Current Baseline</div>
                         <div style="font-size:2.2rem; font-weight:900; color:#DC2626; font-family:var(--font-heading);">{score_b:.1f}</div>
                         <div style="font-size:0.82rem; color:#475569;">Pass Prob: <b>{prob_b:.1f}%</b></div>
-                        <div style="font-size:0.8rem; color:#64748B; margin-top:0.2rem;">Study: {b_study:.1f}h • Att: {b_att:.0f}%</div>
+                        <div style="font-size:0.8rem; color:#64748B; margin-top:0.2rem;">Prior: {b_prev:.0f} • Screen: {b_screen:.1f}h • Study: {b_study:.1f}h</div>
                     </div>
                     """, unsafe_allow_html=True)
                     
@@ -1097,7 +1141,7 @@ with tab_compare:
                         <div style="font-size:0.8rem; font-weight:700; color:#047857; text-transform:uppercase;">🟢 Projected Post-Boost</div>
                         <div style="font-size:2.2rem; font-weight:900; color:#047857; font-family:var(--font-heading);">{score_p:.1f} <span style="font-size:1.1rem; color:#059669;">(+{delta_score:.1f})</span></div>
                         <div style="font-size:0.82rem; color:#475569;">Pass Prob: <b>{prob_p:.1f}%</b> (+{delta_prob:.1f}%)</div>
-                        <div style="font-size:0.8rem; color:#059669; margin-top:0.2rem;">Study: {post_study:.1f}h • Att: {post_att:.0f}%</div>
+                        <div style="font-size:0.8rem; color:#059669; margin-top:0.2rem;">Method: {method_applied.replace('_', ' ').title()} • Screen: {boost_screen:.1f}h</div>
                     </div>
                     """, unsafe_allow_html=True)
                     
@@ -1117,22 +1161,23 @@ with tab_compare:
             a_preset = st.selectbox("Select Preset A:", ["🌟 Honors Candidate (90+)", "⚖️ Average Profile (65+)", "🚨 At-Risk Alert (<40)", "📖 Verbal Focus", "🚀 Rising Star"], index=0, key="preset_a")
             
             if "Honors" in a_preset:
-                sa_read, sa_write, sa_study, sa_att, sa_name = 92, 95, 24.0, 98.0, "Elena Rostova (Honors)"
+                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 92, 95, 24.0, 98.0, "Elena Rostova (Honors)", 92, 1.8, "active_problem_solving"
             elif "Average" in a_preset:
-                sa_read, sa_write, sa_study, sa_att, sa_name = 65, 62, 12.0, 86.0, "Jordan Miller (Average)"
+                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 65, 62, 12.0, 86.0, "Jordan Miller (Average)", 64, 3.5, "spaced_repetition"
             elif "At-Risk" in a_preset:
-                sa_read, sa_write, sa_study, sa_att, sa_name = 34, 30, 4.0, 62.0, "Marcus Vance (At-Risk)"
+                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 34, 30, 4.0, 62.0, "Marcus Vance (At-Risk)", 38, 6.5, "passive_reading"
             elif "Verbal" in a_preset:
-                sa_read, sa_write, sa_study, sa_att, sa_name = 88, 85, 14.0, 90.0, "Sophia Chen (Verbal Focus)"
+                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 88, 85, 14.0, 90.0, "Sophia Chen (Verbal Focus)", 82, 2.8, "spaced_repetition"
             else:
-                sa_read, sa_write, sa_study, sa_att, sa_name = 76, 74, 20.0, 96.0, "Lucas Taylor (Rising Star)"
+                sa_read, sa_write, sa_study, sa_att, sa_name, sa_prev, sa_screen, sa_meth = 76, 74, 20.0, 96.0, "Lucas Taylor (Rising Star)", 70, 2.2, "active_problem_solving"
                 
             stud_a_dict = {
                 "gender": "female", "race/ethnicity": "group C", "parental level of education": "bachelor's degree",
                 "lunch": "standard", "test preparation course": "completed", "internet_access": "yes",
-                "extracurricular_activities": "yes", "tutoring_support": "peer_tutoring", "reading score": sa_read,
+                "extracurricular_activities": "yes", "tutoring_support": "peer_tutoring", "study_method": sa_meth,
+                "parental_involvement": "high", "previous_term_score": sa_prev, "reading score": sa_read,
                 "writing score": sa_write, "attendance_rate": sa_att, "weekly_study_hours": sa_study,
-                "sleep_hours_per_day": 7.5, "past_failures": 0
+                "sleep_hours_per_day": 7.5, "daily_screen_time_hours": sa_screen, "past_failures": 0
             }
             
         with peer_col2:
@@ -1140,22 +1185,23 @@ with tab_compare:
             b_preset = st.selectbox("Select Preset B:", ["🌟 Honors Candidate (90+)", "⚖️ Average Profile (65+)", "🚨 At-Risk Alert (<40)", "📖 Verbal Focus", "🚀 Rising Star"], index=2, key="preset_b")
             
             if "Honors" in b_preset:
-                sb_read, sb_write, sb_study, sb_att, sb_name = 92, 95, 24.0, 98.0, "Elena Rostova (Honors)"
+                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 92, 95, 24.0, 98.0, "Elena Rostova (Honors)", 92, 1.8, "active_problem_solving"
             elif "Average" in b_preset:
-                sb_read, sb_write, sb_study, sb_att, sb_name = 65, 62, 12.0, 86.0, "Jordan Miller (Average)"
+                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 65, 62, 12.0, 86.0, "Jordan Miller (Average)", 64, 3.5, "spaced_repetition"
             elif "At-Risk" in b_preset:
-                sb_read, sb_write, sb_study, sb_att, sb_name = 34, 30, 4.0, 62.0, "Marcus Vance (At-Risk)"
+                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 34, 30, 4.0, 62.0, "Marcus Vance (At-Risk)", 38, 6.5, "passive_reading"
             elif "Verbal" in b_preset:
-                sb_read, sb_write, sb_study, sb_att, sb_name = 88, 85, 14.0, 90.0, "Sophia Chen (Verbal Focus)"
+                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 88, 85, 14.0, 90.0, "Sophia Chen (Verbal Focus)", 82, 2.8, "spaced_repetition"
             else:
-                sb_read, sb_write, sb_study, sb_att, sb_name = 76, 74, 20.0, 96.0, "Lucas Taylor (Rising Star)"
+                sb_read, sb_write, sb_study, sb_att, sb_name, sb_prev, sb_screen, sb_meth = 76, 74, 20.0, 96.0, "Lucas Taylor (Rising Star)", 70, 2.2, "active_problem_solving"
                 
             stud_b_dict = {
                 "gender": "male", "race/ethnicity": "group A", "parental level of education": "some high school",
                 "lunch": "free/reduced", "test preparation course": "none", "internet_access": "no",
-                "extracurricular_activities": "no", "tutoring_support": "none", "reading score": sb_read,
+                "extracurricular_activities": "no", "tutoring_support": "none", "study_method": sb_meth,
+                "parental_involvement": "low", "previous_term_score": sb_prev, "reading score": sb_read,
                 "writing score": sb_write, "attendance_rate": sb_att, "weekly_study_hours": sb_study,
-                "sleep_hours_per_day": 6.0, "past_failures": 2
+                "sleep_hours_per_day": 6.0, "daily_screen_time_hours": sb_screen, "past_failures": 2
             }
             
         if preprocessor is not None and active_model is not None:
@@ -1208,6 +1254,7 @@ with tab_goal:
         
         sim_curr_read = st.slider("Current Reading Score:", 0, 100, 65, 1)
         sim_curr_write = st.slider("Current Writing Score:", 0, 100, 62, 1)
+        sim_curr_prev = st.slider("Previous Term Exam Score:", 0, 100, 65, 1)
         
         cs1, cs2 = st.columns(2)
         with cs1:
@@ -1215,8 +1262,9 @@ with tab_goal:
             sim_attendance = st.slider("Attendance Rate (%):", 50.0, 100.0, 85.0, 1.0)
             sim_prep = st.selectbox("Test Prep Course", ["none", "completed"], key="sim_p")
         with cs2:
+            sim_screen = st.slider("Screen Time (Hours/Day):", 0.5, 10.0, 3.0, 0.5, key="sim_sc")
             sim_sleep = st.slider("Sleep (Hours/Day):", 4.0, 11.0, 7.5, 0.5)
-            sim_tutoring = st.selectbox("Tutoring Support", ["none", "peer_tutoring", "private_tutor", "school_program"], index=0, key="sim_tut")
+            sim_tutoring = st.selectbox("Tutoring Support", ["none", "peer_tutoring", "private_tutor"], index=0, key="sim_tut")
             sim_gender = st.selectbox("Gender", ["female", "male"], key="sim_g")
             
         sim_lunch = "standard"
@@ -1235,11 +1283,15 @@ with tab_goal:
             "internet_access": sim_internet,
             "extracurricular_activities": "no",
             "tutoring_support": sim_tutoring,
+            "study_method": "spaced_repetition",
+            "parental_involvement": "medium",
+            "previous_term_score": sim_curr_prev,
             "reading score": sim_curr_read,
             "writing score": sim_curr_write,
             "attendance_rate": sim_attendance,
             "weekly_study_hours": sim_study_hours,
             "sleep_hours_per_day": sim_sleep,
+            "daily_screen_time_hours": sim_screen,
             "past_failures": sim_failures
         }
         

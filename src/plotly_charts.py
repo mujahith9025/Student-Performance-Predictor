@@ -43,29 +43,29 @@ def create_score_gauge(score, grade):
     )
     return fig
 
-def create_radar_chart(reading, writing, predicted_math, socio_index, attendance=85.0, study_hours=12.0, sleep_hours=7.5, prep_status="none"):
+def create_radar_chart(reading, writing, predicted_math, socio_index, attendance=85.0, study_hours=12.0, sleep_hours=7.5, prep_status="none", prev_score=65.0, screen_hours=3.0):
     """
     8-Axis Student Multidimensional Competency Radar Chart comparing student vs cohort benchmark.
     """
     categories = [
         'Reading Score', 'Writing Score', 'Math (Pred)',
-        'Attendance %', 'Study Effort', 'Sleep Wellness',
-        'Socio-Readiness', 'Test Readiness'
+        'Prior Baseline', 'Attendance %', 'Study Effort',
+        'Digital Focus', 'Test Readiness'
     ]
     
     # Scale each dimension to 0 - 100 for radar uniformity
     att_scaled = min(100.0, float(attendance))
     study_scaled = min(100.0, (float(study_hours) / 20.0) * 100.0)
-    sleep_scaled = min(100.0, (float(sleep_hours) / 8.0) * 100.0)
-    socio_scaled = min(100.0, float(socio_index) * 12.0)
+    focus_scaled = min(100.0, max(10.0, (10.0 - float(screen_hours)) * 10.0))
+    prev_scaled = min(100.0, float(prev_score))
     prep_scaled = 95.0 if prep_status == "completed" else 35.0
     
     student_values = [
         reading, writing, predicted_math,
-        att_scaled, study_scaled, sleep_scaled,
-        socio_scaled, prep_scaled
+        prev_scaled, att_scaled, study_scaled,
+        focus_scaled, prep_scaled
     ]
-    benchmark_values = [68.0, 68.0, 67.5, 85.0, 60.0, 90.0, 65.0, 50.0]
+    benchmark_values = [68.0, 68.0, 67.5, 67.0, 85.0, 60.0, 70.0, 50.0]
     
     fig = go.Figure()
     fig.add_trace(go.Scatterpolar(
@@ -685,20 +685,21 @@ def create_before_after_radar_chart(base_dict, post_dict, base_name="Current Bas
     """
     categories = [
         'Reading', 'Writing', 'Math (Pred)',
-        'Attendance %', 'Study Effort', 'Sleep Rest',
-        'Socio-Readiness', 'Prep Active'
+        'Prior Baseline', 'Attendance %', 'Study Effort',
+        'Digital Focus', 'Prep Active'
     ]
     
     def get_values(d):
         r = float(d.get("reading score", 65))
         w = float(d.get("writing score", 65))
         m = float(d.get("predicted_math", 65))
+        prev = min(100.0, float(d.get("previous_term_score", 65)))
         att = min(100.0, float(d.get("attendance_rate", 85)))
         study = min(100.0, (float(d.get("weekly_study_hours", 12)) / 20.0) * 100.0)
-        sleep = min(100.0, (float(d.get("sleep_hours_per_day", 7.5)) / 8.0) * 100.0)
-        socio = min(100.0, float(d.get("socio_readiness_index", 5.0)) * 12.0)
+        screen = float(d.get("daily_screen_time_hours", 3.0))
+        focus = min(100.0, max(10.0, (10.0 - screen) * 10.0))
         prep = 95.0 if d.get("test preparation course", "none") == "completed" else 35.0
-        return [r, w, m, att, study, sleep, socio, prep]
+        return [r, w, m, prev, att, study, focus, prep]
 
     base_vals = get_values(base_dict)
     post_vals = get_values(post_dict)
@@ -737,11 +738,12 @@ def create_before_after_radar_chart(base_dict, post_dict, base_name="Current Bas
 
 def create_peer_comparison_bar_chart(stud_a, stud_b, name_a="Student A", name_b="Student B"):
     """
-    Side-by-side comparative bar chart between two students.
+    Side-by-side comparative bar chart between two students across 6 key metrics.
     """
-    metrics = ["Predicted Math", "Reading Score", "Writing Score", "Attendance %", "Study Hrs/Wk"]
+    metrics = ["Predicted Math", "Prior Term", "Reading Score", "Writing Score", "Attendance %", "Study Effort"]
     vals_a = [
         float(stud_a.get("predicted_math", 65)),
+        float(stud_a.get("previous_term_score", 65)),
         float(stud_a.get("reading score", 65)),
         float(stud_a.get("writing score", 65)),
         float(stud_a.get("attendance_rate", 85)),
@@ -749,6 +751,7 @@ def create_peer_comparison_bar_chart(stud_a, stud_b, name_a="Student A", name_b=
     ]
     vals_b = [
         float(stud_b.get("predicted_math", 65)),
+        float(stud_b.get("previous_term_score", 65)),
         float(stud_b.get("reading score", 65)),
         float(stud_b.get("writing score", 65)),
         float(stud_b.get("attendance_rate", 85)),

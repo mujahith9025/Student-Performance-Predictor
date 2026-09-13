@@ -1,5 +1,12 @@
 import os
 import sys
+from pathlib import Path
+
+# Ensure project root is on sys.path for direct CLI execution
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import io
 import pandas as pd
 import numpy as np
@@ -22,7 +29,7 @@ def verify_entire_system():
     except Exception:
         pass
     print("=" * 75)
-    print("     RUNNING SYSTEM-WIDE VERIFICATION SUITE (ALL 10 ENGINES)     ")
+    print("     RUNNING SYSTEM-WIDE VERIFICATION SUITE (ALL 10 ENGINES - 18 FEATURES)     ")
     print("=" * 75)
     
     # 1. Load Artifacts
@@ -31,7 +38,7 @@ def verify_entire_system():
     clf_model = joblib.load("artifacts/best_classifier.joblib")
     print("[1/8] Artifacts loaded successfully.")
     
-    # 2. Test Single Student Inference with 14 Features
+    # 2. Test Single Student Inference with 18 Features
     sample_student = pd.DataFrame({
         "gender": ["female"],
         "race/ethnicity": ["group B"],
@@ -41,9 +48,13 @@ def verify_entire_system():
         "internet_access": ["yes"],
         "extracurricular_activities": ["yes"],
         "tutoring_support": ["peer_tutoring"],
+        "study_method": ["active_problem_solving"],
+        "parental_involvement": ["high"],
+        "previous_term_score": [84],
         "attendance_rate": [94.0],
         "weekly_study_hours": [18.0],
         "sleep_hours_per_day": [7.8],
+        "daily_screen_time_hours": [2.2],
         "past_failures": [0],
         "reading score": [82],
         "writing score": [85]
@@ -66,21 +77,23 @@ def verify_entire_system():
     
     # 5. Test AI Prescriptive Solutions Engine
     sol_res = generate_prescriptive_solution(profile, predicted_math=score, pass_prob=prob, grade="A (Excellent)")
-    assert "study_hours" in sol_res
+    assert "weekly_study_allocation" in sol_res
     assert "interventions" in sol_res
     assert "projected_score" in sol_res
-    print(f"[5/8] Prescriptive Solutions Verified: Projected Score = {sol_res['projected_score']:.1f}, Weekly Hours = {sol_res['total_study_hours']:.1f}h")
+    print(f"[5/8] Prescriptive Solutions Verified: Projected Score = {sol_res['projected_score']:.1f}, Prescribed Weekly Hours = {sol_res['total_prescribed_hours']:.1f}h")
     
-    # 6. Test Synthetic Classroom Generator (14 Features)
+    # 6. Test Synthetic Classroom Generator (18 Features)
     syn_df = generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
     assert len(syn_df) == 50
     assert "student_name" in syn_df.columns
-    assert "attendance_rate" in syn_df.columns
-    print(f"[6/8] Dynamic Synthetic Cohort Generator Verified: {len(syn_df)} students with 14 features generated.")
+    assert "previous_term_score" in syn_df.columns
+    assert "study_method" in syn_df.columns
+    assert "daily_screen_time_hours" in syn_df.columns
+    print(f"[6/8] Dynamic Synthetic Cohort Generator Verified: {len(syn_df)} students with 18 features generated.")
     
     # 7. Test Batch Classroom & Intervention Matrix
     proc_batch, summary = process_batch_predictions(syn_df, preprocessor, reg_model, clf_model)
-    matrix = generate_classroom_intervention_matrix(proc_batch)
+    matrix_df, matrix_cluster = generate_classroom_intervention_matrix(proc_batch)
     assert len(proc_batch) == 50
     assert "Prescribed_Intervention" in proc_batch.columns
     print(f"[7/8] Batch Analytics & Intervention Matrix Verified: {summary['total_students']} students processed, Pass Rate = {summary['pass_rate']}%, At-Risk = {summary['at_risk_count']}")
@@ -109,15 +122,18 @@ def verify_entire_system():
         sleep_hours_per_day=7.8,
         past_failures=0,
         tutoring_support="peer_tutoring",
-        internet_access="yes"
+        internet_access="yes",
+        previous_term_score=84,
+        study_method="active_problem_solving",
+        daily_screen_time_hours=2.2,
+        parental_involvement="high"
     )
     assert len(pdf_single) > 1000
     
     pdf_class = generate_classroom_pdf_report(
         classroom_df=proc_batch,
-        summary=summary,
-        cohort_name="Verification Synthetic Cohort",
-        intervention_matrix=matrix
+        summary_metrics=summary,
+        class_name="Verification Synthetic Cohort"
     )
     assert len(pdf_class) > 1000
     print(f"[8/10] Verified PDF Suite: Single Cert = {len(pdf_single)} bytes, Class Report = {len(pdf_class)} bytes.")
@@ -142,4 +158,3 @@ def verify_entire_system():
 
 if __name__ == "__main__":
     verify_entire_system()
-

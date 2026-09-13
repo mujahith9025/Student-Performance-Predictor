@@ -26,7 +26,7 @@ LAST_NAMES = [
 def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42):
     """
     Generates a realistic synthetic classroom dataset with student_id, student_name,
-    and all 14 multi-dimensional academic, behavioral, lifestyle, and socioeconomic features.
+    and all 18 multi-dimensional academic, behavioral, lifestyle, and socioeconomic features.
     """
     random.seed(seed)
     np.random.seed(seed)
@@ -35,6 +35,8 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
     race_ethnicity = ['group A', 'group B', 'group C', 'group D', 'group E']
     race_weights = [0.09, 0.19, 0.32, 0.26, 0.14]
     parental_education = ["some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree"]
+    study_methods = ['active_problem_solving', 'spaced_repetition', 'group_study', 'passive_reading']
+    parental_involvements = ['high', 'medium', 'low']
     
     if cohort_type == "honors_advanced":
         edu_weights = [0.03, 0.07, 0.20, 0.25, 0.30, 0.15]
@@ -42,10 +44,13 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
         prep_weights = [0.20, 0.80]
         internet_weights = [0.95, 0.05]
         tutor_weights = [0.40, 0.35, 0.25]
+        method_weights = [0.55, 0.35, 0.08, 0.02]
+        inv_weights = [0.65, 0.30, 0.05]
         base_mean = 84.0
         base_std = 7.5
         att_mean = 94.0
         study_mean = 20.0
+        screen_mean = 2.0
         fails_rate = 0.05
     elif cohort_type == "at_risk_focus":
         edu_weights = [0.35, 0.30, 0.20, 0.10, 0.04, 0.01]
@@ -53,10 +58,13 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
         prep_weights = [0.80, 0.20]
         internet_weights = [0.65, 0.35]
         tutor_weights = [0.80, 0.15, 0.05]
+        method_weights = [0.10, 0.15, 0.30, 0.45]
+        inv_weights = [0.10, 0.40, 0.50]
         base_mean = 48.0
         base_std = 9.0
         att_mean = 72.0
         study_mean = 6.0
+        screen_mean = 5.5
         fails_rate = 1.2
     else:  # balanced or large_cohort
         edu_weights = [0.18, 0.20, 0.23, 0.22, 0.12, 0.05]
@@ -64,10 +72,13 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
         prep_weights = [0.55, 0.45]
         internet_weights = [0.85, 0.15]
         tutor_weights = [0.60, 0.25, 0.15]
+        method_weights = [0.30, 0.30, 0.25, 0.15]
+        inv_weights = [0.35, 0.45, 0.20]
         base_mean = 68.0
         base_std = 11.5
         att_mean = 86.0
         study_mean = 13.0
+        screen_mean = 3.2
         fails_rate = 0.35
         
     records = []
@@ -91,18 +102,23 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
         internet = random.choices(['yes', 'no'], weights=internet_weights)[0]
         extra = random.choices(['yes', 'no'], weights=[0.50, 0.50])[0]
         tutoring = random.choices(['none', 'peer_tutoring', 'private_tutor'], weights=tutor_weights)[0]
+        method = random.choices(study_methods, weights=method_weights)[0]
+        involvement = random.choices(parental_involvements, weights=inv_weights)[0]
         
         att = round(float(np.clip(np.random.normal(att_mean, 7.0), 50.0, 100.0)), 1)
         study = round(float(np.clip(np.random.normal(study_mean, 4.0), 2.0, 36.0)), 1)
         sleep = round(float(np.clip(np.random.normal(7.3, 1.0), 4.5, 9.5)), 1)
+        screen = round(float(np.clip(np.random.normal(screen_mean, 1.2), 0.5, 10.0)), 1)
         fails = int(np.clip(np.random.poisson(fails_rate), 0, 4))
         
         base = np.random.normal(base_mean, base_std)
+        prev_score = int(np.clip(round(base - (fails * 4.0) + np.random.normal(0, 4.0)), 15, 100))
+        
         g_read = -2.5 if gender == 'male' else 2.5
         g_write = -3.5 if gender == 'male' else 3.5
         
-        reading = int(np.clip(round(base + g_read + np.random.normal(0, 4.0)), 15, 100))
-        writing = int(np.clip(round((reading * 0.65) + (base + g_write) * 0.35 + np.random.normal(0, 2.5)), 15, 100))
+        reading = int(np.clip(round(base * 0.6 + prev_score * 0.4 + g_read + np.random.normal(0, 3.5)), 15, 100))
+        writing = int(np.clip(round((reading * 0.60) + (prev_score * 0.20) + (base + g_write) * 0.20 + np.random.normal(0, 2.5)), 15, 100))
         
         records.append({
             "student_id": student_id,
@@ -115,9 +131,13 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
             "internet_access": internet,
             "extracurricular_activities": extra,
             "tutoring_support": tutoring,
+            "study_method": method,
+            "parental_involvement": involvement,
+            "previous_term_score": prev_score,
             "attendance_rate": att,
             "weekly_study_hours": study,
             "sleep_hours_per_day": sleep,
+            "daily_screen_time_hours": screen,
             "past_failures": fails,
             "reading score": reading,
             "writing score": writing
@@ -128,7 +148,7 @@ def generate_synthetic_classroom(n_students=50, cohort_type="balanced", seed=42)
 
 def generate_and_save_sample_files():
     """
-    Generates sample classroom CSV files with 14 features and saves them to data/sample_classrooms/
+    Generates sample classroom CSV files with 18 features and saves them to data/sample_classrooms/
     """
     output_dir = os.path.join("data", "sample_classrooms")
     os.makedirs(output_dir, exist_ok=True)
@@ -147,7 +167,7 @@ def generate_and_save_sample_files():
         filepath = os.path.join(output_dir, filename)
         df.to_csv(filepath, index=False)
         generated_paths.append(filepath)
-        print(f" Generated: {filepath} ({len(df)} rows, 14 features)")
+        print(f" Generated: {filepath} ({len(df)} rows, 18 features)")
         
     return generated_paths
 

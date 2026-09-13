@@ -16,22 +16,26 @@ RAW_CATEGORICAL_COLS = [
     "test preparation course",
     "internet_access",
     "extracurricular_activities",
-    "tutoring_support"
+    "tutoring_support",
+    "study_method",
+    "parental_involvement"
 ]
 
 RAW_NUMERICAL_COLS = [
     "reading score",
     "writing score",
+    "previous_term_score",
     "attendance_rate",
     "weekly_study_hours",
     "sleep_hours_per_day",
+    "daily_screen_time_hours",
     "past_failures"
 ]
 
 def engineer_features(df):
     """
     Creates rich domain-specific interaction features, behavioral engagement scores,
-    and non-linear synergy metrics across 14 input dimensions.
+    and non-linear synergy metrics across 18 input dimensions.
     """
     df_feat = df.copy()
     
@@ -45,11 +49,15 @@ def engineer_features(df):
         "internet_access": "yes",
         "extracurricular_activities": "no",
         "tutoring_support": "none",
+        "study_method": "spaced_repetition",
+        "parental_involvement": "medium",
+        "previous_term_score": 67.0,
         "reading score": 65.0,
         "writing score": 65.0,
         "attendance_rate": 85.0,
         "weekly_study_hours": 12.0,
         "sleep_hours_per_day": 7.5,
+        "daily_screen_time_hours": 3.0,
         "past_failures": 0
     }
     for col, default_val in defaults.items():
@@ -58,9 +66,11 @@ def engineer_features(df):
             
     r = df_feat["reading score"].astype(float)
     w = df_feat["writing score"].astype(float)
+    prev = df_feat["previous_term_score"].astype(float)
     att = df_feat["attendance_rate"].astype(float)
     study = df_feat["weekly_study_hours"].astype(float)
     sleep = df_feat["sleep_hours_per_day"].astype(float)
+    screen = df_feat["daily_screen_time_hours"].astype(float)
     fails = df_feat["past_failures"].astype(float)
     
     # 2. Verbal Domain Synergies & Ratios
@@ -69,11 +79,17 @@ def engineer_features(df):
     df_feat["verbal_synergy"] = np.sqrt(np.maximum(0, r * w))
     df_feat["verbal_ratio"] = r / (w + 1.0)
     
-    # 3. Non-Linear Curvature Transformations
+    # 3. Longitudinal Momentum & Prior Baseline
+    df_feat["prior_vs_current_verbal_momentum"] = df_feat["verbal_average"] - prev
+    df_feat["prior_reading_differential"] = r - prev
+    df_feat["prior_synergy_ratio"] = prev / (df_feat["verbal_average"] + 1.0)
+    
+    # 4. Non-Linear Curvature Transformations
     df_feat["reading_squared"] = (r / 100.0) ** 2 * 100.0
     df_feat["writing_squared"] = (w / 100.0) ** 2 * 100.0
+    df_feat["prev_term_squared"] = (prev / 100.0) ** 2 * 100.0
     
-    # 4. Ordinal Parent Education Rank
+    # 5. Ordinal Rank Mappings
     edu_map = {
         "some high school": 1,
         "high school": 2,
@@ -84,7 +100,19 @@ def engineer_features(df):
     }
     df_feat["parental_edu_rank"] = df_feat["parental level of education"].map(edu_map).fillna(3).astype(float)
     
-    # 5. Engagement & Academic Effort Metrics
+    involve_map = {"low": 1.0, "medium": 2.0, "high": 3.0}
+    df_feat["parental_involvement_rank"] = df_feat["parental_involvement"].map(involve_map).fillna(2.0).astype(float)
+    
+    method_weights = {
+        "active_problem_solving": 4.0,
+        "spaced_repetition": 3.0,
+        "group_study": 2.0,
+        "passive_reading": 1.0
+    }
+    method_val = df_feat["study_method"].map(method_weights).fillna(2.0).astype(float)
+    df_feat["study_method_rank"] = method_val
+    
+    # 6. Engagement, Focus & Academic Effort Metrics
     prep_val = (df_feat["test preparation course"] == "completed").astype(float)
     lunch_val = (df_feat["lunch"] == "standard").astype(float)
     net_val = (df_feat["internet_access"] == "yes").astype(float)
@@ -97,27 +125,30 @@ def engineer_features(df):
     }
     tutor_val = df_feat["tutoring_support"].map(tutor_weight).fillna(0.0).astype(float)
     
-    # Study & Attendance Synergy
+    # Digital Focus & Distraction Metric
+    weekly_screen_time = screen * 7.0
+    df_feat["effective_focus_ratio"] = study / (weekly_screen_time + 1.0)
     df_feat["study_attendance_synergy"] = (study / 20.0) * (att / 100.0) * 10.0
-    df_feat["academic_effort_index"] = (study * 0.5) + (att * 0.1) + (prep_val * 3.0) + (tutor_val * 2.0)
+    df_feat["academic_effort_index"] = (study * 0.4) + (att * 0.1) + (prep_val * 2.5) + (tutor_val * 1.8) + (method_val * 1.2)
     
-    # 6. Behavioral Risk & Friction Metric
-    df_feat["academic_risk_friction"] = (fails * 4.0) + np.maximum(0.0, 75.0 - att) * 0.25
+    # 7. Behavioral Risk & Friction Metric
+    df_feat["academic_risk_friction"] = (fails * 4.0) + np.maximum(0.0, 75.0 - att) * 0.25 + np.maximum(0.0, screen - 4.5) * 1.2
     
-    # 7. Wellness & Lifestyle Balance
-    # Optimal sleep between 7.0 and 8.5 hours
+    # 8. Wellness & Lifestyle Balance
     sleep_balance = np.where(
         sleep < 6.0, (sleep - 6.0) * 2.0,
-        np.where(sleep > 9.0, -1.0, 1.5)
+        np.where(sleep > 9.0, -0.8, 1.2)
     )
-    df_feat["wellness_lifestyle_score"] = sleep_balance + (lunch_val * 2.0) + (extra_val * 1.0)
+    df_feat["wellness_lifestyle_score"] = sleep_balance + (lunch_val * 1.8) + (extra_val * 0.8) - np.maximum(0.0, screen - 4.0) * 0.9
     
-    # 8. Socioeconomic Readiness Composite
-    df_feat["socio_readiness_index"] = (lunch_val * 2.0) + (net_val * 1.5) + (df_feat["parental_edu_rank"] * 0.8)
+    # 9. Socioeconomic & Home Mentorship Readiness Composite
+    df_feat["socio_readiness_index"] = (lunch_val * 1.8) + (net_val * 1.2) + (df_feat["parental_edu_rank"] * 0.7) + (df_feat["parental_involvement_rank"] * 1.0)
     
-    # 9. Cross-Interaction Terms
+    # 10. Cross-Interaction Terms
     df_feat["prep_x_reading"] = prep_val * r
     df_feat["lunch_x_writing"] = lunch_val * w
+    df_feat["prev_x_study"] = prev * (study / 20.0)
+    df_feat["method_x_study"] = method_val * (study / 10.0)
     df_feat["study_x_attendance"] = study * (att / 100.0)
     df_feat["tutor_x_study"] = tutor_val * study
     
@@ -125,7 +156,7 @@ def engineer_features(df):
 
 def run_advanced_preprocessing():
     print("=" * 75)
-    print("    STUDENT PERFORMANCE PREDICTOR - ADVANCED 14-FEATURE PIPELINE     ")
+    print("    STUDENT PERFORMANCE PREDICTOR - ENHANCED 18-FEATURE PIPELINE     ")
     print("=" * 75)
     sys.stdout.flush()
 
@@ -141,7 +172,7 @@ def run_advanced_preprocessing():
     X = df_engineered.drop(columns=[target_column])
     y = df_engineered[target_column]
     
-    print(f"[2] Engineered Features Generated: {X.shape[1]} features (from 14 raw features)")
+    print(f"[2] Engineered Features Generated: {X.shape[1]} features (from 18 raw input dimensions)")
 
     # 3. Identify Columns
     cat_cols = RAW_CATEGORICAL_COLS
@@ -187,7 +218,7 @@ def run_advanced_preprocessing():
     np.save(os.path.join(processed_dir, "y_train.npy"), y_train.to_numpy())
     np.save(os.path.join(processed_dir, "y_test.npy"), y_test.to_numpy())
     
-    print("\n[OK] Advanced 14-Feature Preprocessing Completed Successfully!")
+    print("\n[OK] Enhanced 18-Feature Preprocessing Completed Successfully!")
     sys.stdout.flush()
 
 if __name__ == "__main__":

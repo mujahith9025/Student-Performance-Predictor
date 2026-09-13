@@ -1,201 +1,201 @@
-student_id,student_name,gender,race/ethnicity,parental level of education,lunch,test preparation course,internet_access,extracurricular_activities,tutoring_support,attendance_rate,weekly_study_hours,sleep_hours_per_day,past_failures,reading score,writing score
-STU-2026-1001,Isabella Moore,female,group C,some high school,free/reduced,none,yes,yes,private_tutor,78.4,17.0,7.6,1,43,46
-STU-2026-1002,Abigail Rodriguez,female,group C,high school,standard,none,yes,no,none,94.9,9.5,6.6,0,66,69
-STU-2026-1003,Scarlett Campbell,female,group E,some high school,standard,completed,yes,no,none,86.9,7.8,9.5,1,82,82
-STU-2026-1004,David Walker,male,group D,high school,free/reduced,none,yes,no,peer_tutoring,78.3,7.4,6.6,0,54,52
-STU-2026-1005,Scarlett Smith,female,group D,some college,free/reduced,completed,yes,no,none,84.2,2.0,5.5,0,72,69
-STU-2026-1006,Isaac White,male,group D,associate's degree,free/reduced,none,yes,yes,none,83.6,10.1,8.3,0,64,63
-STU-2026-1007,Ellie Sanchez,male,group D,some college,free/reduced,none,yes,no,none,100.0,14.7,8.3,0,88,85
-STU-2026-1008,Anthony Anderson,female,group C,associate's degree,standard,none,yes,no,peer_tutoring,91.4,14.5,9.4,0,78,79
-STU-2026-1009,Adrian Walker,male,group B,some college,standard,none,yes,yes,none,80.6,16.2,7.6,0,51,53
-STU-2026-1010,Anthony Baker,female,group C,some college,standard,none,yes,yes,none,94.9,21.4,7.1,0,72,68
-STU-2026-1011,Liam Wright,female,group C,associate's degree,standard,none,no,yes,none,71.1,17.2,6.9,0,75,71
-STU-2026-1012,Isaac Thompson,female,group D,some high school,free/reduced,none,no,yes,peer_tutoring,89.6,18.8,6.5,0,73,71
-STU-2026-1013,Ava Green,female,group C,some college,standard,completed,no,no,none,100.0,13.7,8.5,1,55,58
-STU-2026-1014,Harper Wright,male,group C,associate's degree,free/reduced,none,yes,yes,peer_tutoring,78.4,7.5,7.7,0,70,70
-STU-2026-1015,Chloe Lewis,male,group D,master's degree,free/reduced,none,yes,yes,none,85.1,13.0,6.6,0,56,51
-STU-2026-1016,Addison Allen,male,group C,some high school,free/reduced,none,yes,yes,private_tutor,83.0,18.0,6.6,0,71,69
-STU-2026-1017,Jackson Wilson,male,group B,some high school,standard,completed,yes,no,private_tutor,84.3,7.4,6.4,0,67,68
-STU-2026-1018,Olivia Gonzalez,female,group B,some college,standard,completed,yes,no,private_tutor,97.3,11.9,8.1,0,73,77
-STU-2026-1019,Aiden Walker,female,group C,some high school,free/reduced,completed,no,yes,private_tutor,93.5,8.0,7.6,1,54,52
-STU-2026-1020,Lillian Rodriguez,male,group A,associate's degree,standard,completed,yes,no,peer_tutoring,88.6,19.0,7.5,1,57,57
-STU-2026-1021,Layla Robinson,female,group D,some college,standard,completed,yes,no,peer_tutoring,96.8,14.8,7.0,0,55,57
-STU-2026-1022,Sebastian Harris,male,group A,some college,standard,completed,yes,no,none,89.9,10.9,8.7,0,67,66
-STU-2026-1023,Samuel Davis,male,group C,some college,standard,none,yes,yes,none,76.5,14.5,6.5,0,83,82
-STU-2026-1024,Luke Thomas,male,group B,some college,standard,none,yes,no,private_tutor,78.7,12.7,6.6,0,63,64
-STU-2026-1025,Joseph Perez,male,group B,some high school,free/reduced,completed,yes,yes,private_tutor,93.2,18.1,4.6,1,68,69
-STU-2026-1026,Evelyn Lee,male,group E,high school,free/reduced,none,no,no,peer_tutoring,92.2,11.2,7.0,1,51,48
-STU-2026-1027,Mila Rivera,male,group E,high school,standard,completed,yes,yes,none,72.1,13.1,7.1,2,71,69
-STU-2026-1028,Nora Williams,male,group C,some high school,standard,none,yes,no,peer_tutoring,86.0,12.2,7.2,1,57,57
-STU-2026-1029,Aria Young,male,group C,high school,standard,none,yes,yes,none,84.1,7.3,6.6,0,84,84
-STU-2026-1030,Mia Green,male,group C,associate's degree,standard,completed,yes,yes,none,86.1,6.0,6.7,0,49,48
-STU-2026-1031,Nathan Rodriguez,female,group B,high school,standard,completed,yes,no,none,92.7,7.3,6.4,0,57,51
-STU-2026-1032,Luke Scott,female,group E,high school,free/reduced,completed,yes,no,none,88.3,8.4,8.2,0,55,54
-STU-2026-1033,Mila Nelson,male,group C,some college,free/reduced,completed,yes,yes,none,93.2,12.2,7.9,0,62,62
-STU-2026-1034,Andrew Sanchez,male,group C,master's degree,standard,none,yes,no,private_tutor,85.5,12.5,7.0,0,70,73
-STU-2026-1035,Harper Davis,female,group E,some college,standard,none,yes,yes,private_tutor,99.0,16.3,6.6,0,52,54
-STU-2026-1036,Oliver Allen,male,group D,some college,standard,none,yes,no,none,86.6,15.5,7.1,0,65,63
-STU-2026-1037,Harper Walker,female,group E,some high school,free/reduced,none,yes,yes,none,92.9,11.6,7.9,0,72,76
-STU-2026-1038,Benjamin Nelson,female,group A,some high school,free/reduced,none,yes,yes,peer_tutoring,77.8,6.6,6.6,0,91,86
-STU-2026-1039,Elizabeth Thomas,female,group C,associate's degree,standard,none,yes,yes,peer_tutoring,79.9,10.3,6.0,2,57,59
-STU-2026-1040,Lucas Brown,male,group B,high school,standard,completed,yes,no,private_tutor,82.6,11.7,6.5,0,54,59
-STU-2026-1041,Adrian Taylor,male,group E,some college,standard,none,yes,yes,none,76.7,14.1,6.2,0,75,78
-STU-2026-1042,Scarlett Hall,male,group D,some college,standard,none,yes,yes,none,89.7,5.0,7.9,0,72,68
-STU-2026-1043,Oliver Campbell,male,group D,high school,standard,none,yes,yes,peer_tutoring,81.4,15.4,7.2,1,82,81
-STU-2026-1044,Mila Adams,male,group E,some high school,standard,completed,yes,no,peer_tutoring,94.2,15.7,6.3,0,75,76
-STU-2026-1045,Ella White,female,group B,associate's degree,standard,none,no,yes,private_tutor,89.3,12.4,5.5,0,68,66
-STU-2026-1046,Layla Rodriguez,female,group B,high school,free/reduced,completed,yes,yes,private_tutor,89.7,11.3,5.5,1,66,71
-STU-2026-1047,Mila Green,male,group E,high school,free/reduced,none,yes,no,private_tutor,82.4,12.8,7.2,1,68,62
-STU-2026-1048,Riley Harris,male,group E,high school,free/reduced,completed,yes,yes,none,82.4,11.2,8.2,0,62,61
-STU-2026-1049,Emma Clark,female,group D,some high school,standard,none,no,no,none,82.1,17.0,9.0,0,57,57
-STU-2026-1050,Noah Davis,male,group C,some college,standard,none,yes,yes,none,79.7,9.3,6.1,1,57,63
-STU-2026-1051,Carter Johnson,male,group C,bachelor's degree,standard,none,yes,yes,peer_tutoring,72.8,8.5,6.9,0,74,69
-STU-2026-1052,Alexander Hernandez,male,group C,bachelor's degree,standard,completed,yes,no,peer_tutoring,83.8,17.6,7.8,0,69,69
-STU-2026-1053,Andrew Rivera,male,group C,bachelor's degree,free/reduced,none,yes,no,none,70.2,10.6,8.4,0,70,67
-STU-2026-1054,Noah Wilson,male,group B,associate's degree,standard,completed,yes,no,private_tutor,85.1,12.4,5.9,1,73,72
-STU-2026-1055,Leah Harris,female,group B,associate's degree,free/reduced,completed,yes,yes,none,84.4,12.4,8.6,0,80,80
-STU-2026-1056,Aiden Rivera,male,group C,some college,free/reduced,none,yes,no,peer_tutoring,73.6,11.4,7.0,0,68,70
-STU-2026-1057,Ellie Garcia,male,group E,bachelor's degree,standard,none,yes,no,peer_tutoring,80.3,15.8,8.4,0,62,64
-STU-2026-1058,Lily Adams,female,group D,some college,standard,none,yes,yes,peer_tutoring,73.7,10.3,7.3,1,79,81
-STU-2026-1059,Aubrey Carter,male,group C,associate's degree,standard,none,yes,no,none,93.1,6.2,8.0,0,74,69
-STU-2026-1060,Dylan Carter,female,group B,some high school,free/reduced,none,yes,no,none,84.8,12.0,6.4,0,66,70
-STU-2026-1061,Charlotte Carter,male,group E,associate's degree,free/reduced,completed,yes,yes,peer_tutoring,81.9,13.6,6.2,0,90,88
-STU-2026-1062,Isaac Carter,male,group B,associate's degree,standard,none,yes,yes,none,77.9,16.2,9.5,1,87,89
-STU-2026-1063,Evelyn White,male,group B,associate's degree,standard,completed,yes,yes,none,86.4,10.8,7.5,0,85,82
-STU-2026-1064,Jackson Allen,male,group B,master's degree,standard,none,yes,yes,peer_tutoring,86.9,7.9,5.9,0,62,60
-STU-2026-1065,Riley Anderson,female,group D,bachelor's degree,standard,none,yes,yes,none,82.3,13.1,7.7,0,58,60
-STU-2026-1066,Luke Lewis,female,group B,associate's degree,standard,none,yes,no,peer_tutoring,92.9,12.3,8.2,2,77,79
-STU-2026-1067,Christian Walker,male,group D,associate's degree,free/reduced,none,yes,yes,peer_tutoring,96.8,16.0,8.8,0,57,57
-STU-2026-1068,Eleanor Ramirez,male,group A,bachelor's degree,free/reduced,none,no,no,peer_tutoring,79.3,12.0,4.7,0,78,78
-STU-2026-1069,Chloe Wilson,male,group B,some high school,standard,completed,yes,yes,none,85.4,17.2,6.6,0,87,87
-STU-2026-1070,Ella Lopez,female,group C,some college,standard,none,yes,no,none,78.6,15.3,7.8,0,68,67
-STU-2026-1071,Sofia Garcia,male,group C,high school,free/reduced,none,yes,no,private_tutor,87.8,19.5,8.9,0,49,49
-STU-2026-1072,Andrew Lewis,male,group C,some high school,standard,none,yes,no,none,74.1,12.0,7.7,0,60,64
-STU-2026-1073,Chloe Jones,female,group B,some high school,standard,none,yes,no,none,85.1,13.1,8.0,1,58,58
-STU-2026-1074,Mila Martinez,female,group C,high school,free/reduced,none,yes,yes,none,82.9,10.9,8.5,1,85,87
-STU-2026-1075,Eleanor Scott,female,group C,associate's degree,standard,none,yes,no,none,86.5,13.9,7.9,1,92,95
-STU-2026-1076,Avery Ramirez,male,group C,associate's degree,free/reduced,completed,no,no,none,94.2,11.0,8.6,0,48,47
-STU-2026-1077,Stella Torres,male,group B,associate's degree,standard,none,yes,no,none,85.1,16.6,7.2,0,56,58
-STU-2026-1078,Luna Roberts,female,group E,high school,free/reduced,completed,no,no,none,85.1,19.2,7.8,2,49,52
-STU-2026-1079,Dylan Robinson,male,group E,master's degree,standard,completed,yes,no,none,98.0,18.2,6.3,1,72,71
-STU-2026-1080,Lily Moore,male,group D,high school,standard,completed,yes,yes,private_tutor,95.3,13.9,8.6,0,77,75
-STU-2026-1081,Ella Flores,female,group B,associate's degree,standard,completed,yes,yes,none,78.6,16.2,8.1,1,46,45
-STU-2026-1082,Daniel Garcia,female,group C,some high school,free/reduced,none,yes,yes,none,96.9,13.6,7.3,0,99,100
-STU-2026-1083,Alexander Thomas,male,group B,associate's degree,standard,completed,no,no,none,87.2,14.1,6.7,0,44,48
-STU-2026-1084,Andrew Campbell,male,group E,some high school,standard,completed,yes,no,private_tutor,82.7,14.2,7.7,1,85,89
-STU-2026-1085,Aaron Hall,male,group B,some college,standard,completed,yes,yes,none,77.0,13.7,7.3,0,68,66
-STU-2026-1086,Olivia Young,male,group D,associate's degree,standard,completed,yes,no,private_tutor,82.7,17.2,6.7,3,63,61
-STU-2026-1087,Ethan Moore,female,group C,high school,standard,none,yes,no,private_tutor,84.1,8.4,6.5,0,55,58
-STU-2026-1088,Zoey Allen,female,group C,high school,standard,none,yes,yes,none,86.7,9.3,6.2,0,56,50
-STU-2026-1089,Noah Martinez,female,group B,associate's degree,free/reduced,completed,yes,yes,private_tutor,86.7,16.2,8.8,0,54,56
-STU-2026-1090,Dylan Davis,female,group C,bachelor's degree,standard,completed,yes,yes,peer_tutoring,75.3,12.7,8.2,0,68,64
-STU-2026-1091,Dylan Lewis,female,group B,high school,standard,none,yes,no,peer_tutoring,87.5,11.4,8.1,0,69,71
-STU-2026-1092,Ellie Thomas,male,group C,high school,standard,completed,yes,no,none,95.1,7.7,6.5,0,57,58
-STU-2026-1093,Andrew Baker,male,group D,high school,standard,completed,yes,no,none,84.8,19.6,8.9,1,84,80
-STU-2026-1094,Leah Lee,male,group A,some college,standard,completed,yes,yes,peer_tutoring,94.5,11.3,7.3,0,80,74
-STU-2026-1095,Sebastian Young,female,group D,bachelor's degree,standard,none,yes,no,none,88.6,16.2,8.5,0,87,90
-STU-2026-1096,Lucas Harris,male,group B,associate's degree,free/reduced,completed,yes,no,none,87.4,9.6,5.7,0,69,63
-STU-2026-1097,Aria Garcia,male,group B,some college,free/reduced,none,yes,no,none,77.5,8.7,8.1,1,86,84
-STU-2026-1098,Evelyn Robinson,male,group B,some college,standard,completed,yes,no,none,88.9,14.0,6.2,1,35,39
-STU-2026-1099,Harper Gonzalez,female,group D,some high school,standard,none,yes,yes,peer_tutoring,82.4,11.0,6.9,0,82,83
-STU-2026-1100,Ella Lee,male,group D,associate's degree,standard,none,yes,no,none,80.3,10.5,7.6,0,66,68
-STU-2026-1101,Ella Green,male,group B,some college,standard,completed,yes,yes,none,94.4,17.2,8.4,0,65,65
-STU-2026-1102,Dylan Green,female,group C,associate's degree,free/reduced,completed,yes,no,peer_tutoring,84.4,27.3,6.9,0,65,66
-STU-2026-1103,James Adams,male,group E,associate's degree,standard,none,yes,no,private_tutor,85.1,8.9,5.9,0,47,47
-STU-2026-1104,Aria Adams,female,group C,associate's degree,standard,none,no,no,peer_tutoring,85.6,12.4,7.1,0,88,86
-STU-2026-1105,Sofia Green,female,group C,high school,standard,none,yes,yes,none,92.1,16.3,6.0,1,58,61
-STU-2026-1106,Isabella Nelson,female,group D,associate's degree,standard,none,yes,yes,peer_tutoring,81.3,12.1,7.5,0,67,65
-STU-2026-1107,David Thomas,female,group E,some college,standard,none,yes,no,peer_tutoring,94.6,7.4,5.7,0,48,41
-STU-2026-1108,Eli Anderson,male,group D,high school,free/reduced,none,yes,yes,none,81.7,4.8,7.8,0,37,32
-STU-2026-1109,Mia Wright,male,group D,some college,free/reduced,none,yes,yes,none,84.3,13.2,5.7,0,65,68
-STU-2026-1110,Aubrey Campbell,male,group D,high school,standard,none,yes,no,none,82.9,12.9,8.3,0,47,45
-STU-2026-1111,Nathan Johnson,male,group D,some college,standard,completed,yes,no,private_tutor,81.2,12.8,6.1,0,71,66
-STU-2026-1112,Luna Gonzalez,male,group C,some high school,standard,none,yes,no,peer_tutoring,82.6,12.1,5.4,0,63,63
-STU-2026-1113,Nathan Mitchell,female,group E,associate's degree,standard,none,yes,no,peer_tutoring,85.2,5.0,6.4,0,68,69
-STU-2026-1114,Ethan Martinez,male,group C,high school,standard,none,yes,yes,private_tutor,87.3,14.6,7.0,0,69,68
-STU-2026-1115,Landon Martin,female,group B,associate's degree,standard,none,no,yes,private_tutor,76.1,19.5,8.4,0,68,67
-STU-2026-1116,Liam Jones,male,group D,some high school,free/reduced,none,yes,yes,none,82.4,9.2,9.1,0,75,72
-STU-2026-1117,Penelope Robinson,male,group B,some college,standard,completed,yes,yes,private_tutor,77.7,17.4,6.1,2,79,76
-STU-2026-1118,Grace Gonzalez,male,group D,associate's degree,standard,none,yes,no,peer_tutoring,95.1,9.9,7.1,1,36,37
-STU-2026-1119,Alexander Rodriguez,male,group D,some college,standard,completed,yes,no,none,96.0,14.2,7.1,2,67,66
-STU-2026-1120,Julian Johnson,male,group B,some college,standard,completed,yes,yes,none,82.2,13.9,6.6,0,67,68
-STU-2026-1121,Joshua Nelson,female,group E,associate's degree,standard,completed,yes,no,private_tutor,74.6,15.1,6.2,0,67,68
-STU-2026-1122,Nathan Green,male,group E,bachelor's degree,standard,completed,yes,yes,none,73.9,13.6,7.6,0,46,47
-STU-2026-1123,Eleanor Thomas,female,group B,some college,standard,completed,yes,no,peer_tutoring,86.7,10.0,8.1,1,78,76
-STU-2026-1124,Ellie Nguyen,male,group A,some college,standard,none,yes,yes,private_tutor,88.7,15.1,6.1,0,65,69
-STU-2026-1125,Joshua Campbell,male,group E,high school,free/reduced,none,yes,no,private_tutor,86.6,11.0,8.3,0,73,70
-STU-2026-1126,Carter Rodriguez,female,group D,high school,standard,completed,yes,yes,none,79.3,12.2,7.4,1,45,44
-STU-2026-1127,Dylan Ramirez,male,group D,high school,free/reduced,none,yes,yes,none,88.4,13.3,7.7,2,77,77
-STU-2026-1128,Daniel Baker,female,group E,high school,standard,none,yes,no,none,78.3,14.5,8.3,1,75,72
-STU-2026-1129,Julian Carter,female,group C,associate's degree,free/reduced,none,yes,no,none,84.0,12.5,7.2,0,52,50
-STU-2026-1130,Lucas Campbell,male,group E,bachelor's degree,standard,completed,yes,no,none,84.9,12.6,8.4,0,64,65
-STU-2026-1131,Nora Mitchell,male,group E,some high school,free/reduced,completed,yes,no,none,89.0,10.2,8.3,1,62,65
-STU-2026-1132,Emily Scott,male,group E,bachelor's degree,standard,completed,yes,no,peer_tutoring,86.6,14.0,5.9,1,70,64
-STU-2026-1133,Ryan Allen,female,group D,bachelor's degree,standard,completed,no,no,none,83.5,12.1,7.8,1,66,69
-STU-2026-1134,Gabriel Hill,male,group D,some college,standard,none,no,no,none,78.2,8.0,8.3,2,80,75
-STU-2026-1135,Leo Rodriguez,female,group C,master's degree,standard,completed,yes,no,peer_tutoring,76.9,15.0,7.9,1,60,62
-STU-2026-1136,Natalie Walker,male,group E,bachelor's degree,standard,completed,yes,yes,private_tutor,87.8,20.3,7.2,0,57,56
-STU-2026-1137,Zoey Williams,male,group D,associate's degree,standard,completed,no,yes,none,88.5,8.3,7.0,1,62,64
-STU-2026-1138,Victoria Davis,male,group D,high school,free/reduced,none,yes,no,peer_tutoring,98.0,6.7,7.3,1,53,52
-STU-2026-1139,Ryan Mitchell,female,group B,high school,free/reduced,completed,yes,yes,none,96.4,15.9,7.0,2,72,73
-STU-2026-1140,Andrew Nelson,female,group C,some college,free/reduced,completed,yes,yes,none,98.9,4.3,7.2,0,55,58
-STU-2026-1141,Joshua Roberts,male,group C,master's degree,free/reduced,completed,no,no,none,76.8,5.3,6.9,0,70,72
-STU-2026-1142,Isabella Hall,male,group A,some college,standard,completed,no,yes,peer_tutoring,95.4,16.0,6.8,0,60,54
-STU-2026-1143,Aaron Carter,female,group B,some college,standard,completed,yes,yes,none,84.6,8.5,6.5,1,53,55
-STU-2026-1144,Noah Adams,female,group A,associate's degree,free/reduced,completed,yes,yes,private_tutor,87.8,12.5,9.5,0,69,67
-STU-2026-1145,Caleb Hall,male,group C,some high school,standard,none,yes,no,none,89.7,12.4,7.7,0,73,72
-STU-2026-1146,Daniel Torres,female,group C,some high school,free/reduced,none,yes,no,none,80.9,13.7,8.4,0,78,78
-STU-2026-1147,Sophia Gonzalez,female,group E,high school,standard,none,yes,yes,none,88.9,13.3,8.2,2,75,75
-STU-2026-1148,James Davis,male,group D,some college,free/reduced,none,yes,no,private_tutor,80.7,10.3,5.9,0,70,68
-STU-2026-1149,Jackson Walker,female,group C,bachelor's degree,free/reduced,none,no,no,peer_tutoring,87.2,9.8,7.7,0,80,72
-STU-2026-1150,Chloe Mitchell,female,group C,some college,free/reduced,completed,yes,no,none,88.2,10.2,5.4,0,78,82
-STU-2026-1151,Aubrey Jackson,male,group E,some high school,standard,none,no,yes,private_tutor,83.2,13.6,7.2,1,80,80
-STU-2026-1152,Layla Rivera,female,group D,bachelor's degree,standard,none,no,no,none,88.6,17.9,6.3,0,85,83
-STU-2026-1153,Riley Hall,female,group E,high school,free/reduced,none,yes,no,none,88.1,18.8,7.5,1,70,71
-STU-2026-1154,Ellie Hernandez,male,group B,some high school,free/reduced,completed,yes,yes,none,69.5,14.0,7.9,0,64,66
-STU-2026-1155,Isabella Rodriguez,female,group B,some college,free/reduced,completed,yes,no,none,72.8,14.5,5.5,0,72,75
-STU-2026-1156,Olivia Scott,male,group A,some high school,free/reduced,completed,yes,yes,none,90.9,14.3,6.7,0,85,85
-STU-2026-1157,Matthew Jones,male,group A,some college,free/reduced,none,yes,no,none,91.7,17.1,7.3,1,58,61
-STU-2026-1158,Samuel Hill,female,group C,some college,standard,none,yes,yes,peer_tutoring,75.4,25.6,7.0,1,69,62
-STU-2026-1159,Luna Davis,male,group C,some college,standard,none,yes,no,peer_tutoring,89.2,6.5,6.8,0,72,69
-STU-2026-1160,Victoria Mitchell,female,group C,some college,standard,none,yes,yes,none,85.2,15.8,7.0,0,78,73
-STU-2026-1161,Noah Lopez,female,group D,high school,standard,none,yes,yes,peer_tutoring,78.0,15.1,6.7,0,47,49
-STU-2026-1162,Christopher Anderson,male,group C,high school,standard,none,yes,no,peer_tutoring,66.5,14.6,7.6,0,75,73
-STU-2026-1163,Carter Torres,male,group E,bachelor's degree,standard,none,yes,yes,none,91.7,21.9,8.4,2,60,60
-STU-2026-1164,Emma Lewis,female,group B,some college,standard,completed,yes,yes,private_tutor,93.4,14.4,7.1,0,75,72
-STU-2026-1165,Alexander Torres,female,group E,high school,free/reduced,completed,yes,no,none,87.6,8.5,9.2,0,90,88
-STU-2026-1166,Daniel Wright,female,group D,some high school,free/reduced,none,yes,no,none,79.3,7.7,6.9,0,71,72
-STU-2026-1167,Elijah Anderson,male,group D,some high school,free/reduced,none,yes,no,none,87.1,10.0,6.7,1,61,59
-STU-2026-1168,Scarlett Ramirez,female,group A,bachelor's degree,standard,none,yes,no,peer_tutoring,80.9,8.2,6.8,1,56,53
-STU-2026-1169,Anthony Nguyen,female,group D,high school,standard,completed,yes,yes,peer_tutoring,93.8,16.5,6.1,1,80,74
-STU-2026-1170,Isaac Hernandez,female,group C,associate's degree,standard,none,yes,no,none,88.7,16.7,6.3,0,80,78
-STU-2026-1171,Sofia Scott,male,group D,bachelor's degree,standard,none,no,no,none,88.6,10.1,6.4,2,62,64
-STU-2026-1172,Dylan Baker,female,group D,some college,standard,none,yes,yes,peer_tutoring,83.3,21.2,7.4,0,54,56
-STU-2026-1173,Abigail Miller,male,group D,some college,standard,none,no,no,none,87.5,10.7,7.9,1,57,57
-STU-2026-1174,Amelia Sanchez,male,group B,high school,standard,none,yes,no,peer_tutoring,80.3,9.6,6.6,0,70,74
-STU-2026-1175,Luna Rivera,male,group D,associate's degree,free/reduced,none,yes,yes,none,88.5,10.5,7.1,1,77,77
-STU-2026-1176,Lillian Moore,male,group E,some college,standard,none,yes,no,peer_tutoring,74.6,15.5,8.0,0,60,58
-STU-2026-1177,Olivia Lee,female,group C,some college,free/reduced,none,yes,no,private_tutor,87.2,6.6,7.1,0,74,75
-STU-2026-1178,Riley Smith,female,group D,associate's degree,free/reduced,completed,yes,no,none,79.1,15.6,8.8,0,77,78
-STU-2026-1179,Leah Walker,male,group C,high school,free/reduced,none,yes,yes,none,86.5,15.6,6.4,1,48,50
-STU-2026-1180,Joseph Carter,male,group D,associate's degree,standard,completed,yes,yes,peer_tutoring,88.5,13.2,8.6,0,69,69
-STU-2026-1181,Scarlett Miller,male,group D,associate's degree,free/reduced,completed,yes,no,none,82.3,2.0,7.6,0,48,46
-STU-2026-1182,Leah Hernandez,male,group B,high school,standard,completed,yes,no,none,89.7,12.2,7.1,0,62,64
-STU-2026-1183,Zoey Mitchell,female,group A,bachelor's degree,standard,none,yes,no,none,78.3,7.4,9.5,0,76,78
-STU-2026-1184,Aiden Torres,female,group B,some high school,standard,none,yes,no,none,81.6,15.1,8.3,0,51,52
-STU-2026-1185,Amelia Nguyen,female,group B,high school,standard,none,no,no,none,93.6,13.4,7.5,0,57,56
-STU-2026-1186,Matthew Taylor,male,group B,some college,standard,completed,no,yes,none,88.2,12.2,6.9,1,77,76
-STU-2026-1187,Charlotte Martin,female,group A,some college,standard,completed,yes,yes,none,100.0,12.7,8.6,2,67,63
-STU-2026-1188,Ethan Jones,female,group C,high school,standard,none,yes,yes,none,91.4,7.6,7.3,1,86,82
-STU-2026-1189,Nathan Anderson,female,group D,associate's degree,standard,none,yes,yes,none,84.7,13.6,6.0,1,58,62
-STU-2026-1190,Riley Adams,female,group C,high school,standard,none,yes,yes,private_tutor,80.4,11.5,8.3,1,67,67
-STU-2026-1191,Amelia Perez,female,group E,high school,standard,completed,yes,yes,none,84.7,14.4,7.1,0,57,55
-STU-2026-1192,Charlotte Martinez,male,group C,associate's degree,free/reduced,none,yes,yes,none,82.5,10.2,8.1,1,73,69
-STU-2026-1193,Amelia Davis,male,group C,some high school,standard,completed,yes,yes,none,89.8,10.1,8.1,0,71,69
-STU-2026-1194,Emma Moore,male,group B,high school,standard,completed,yes,yes,peer_tutoring,84.6,11.7,6.6,0,76,73
-STU-2026-1195,Grace Robinson,male,group E,high school,standard,none,yes,yes,none,76.8,15.1,7.5,0,64,62
-STU-2026-1196,James Ramirez,female,group D,associate's degree,free/reduced,none,yes,no,none,92.9,4.8,7.4,1,77,80
-STU-2026-1197,Nathan Lopez,female,group B,associate's degree,free/reduced,none,no,no,none,81.8,15.8,8.6,0,80,79
-STU-2026-1198,David Sanchez,male,group C,some high school,standard,none,yes,no,none,89.5,9.9,8.1,0,51,52
-STU-2026-1199,Carter Nguyen,female,group C,some college,standard,completed,no,yes,peer_tutoring,81.9,17.1,9.2,1,85,88
-STU-2026-1200,Oliver Moore,male,group D,associate's degree,free/reduced,none,yes,no,none,78.3,15.2,7.7,0,70,74
+student_id,student_name,gender,race/ethnicity,parental level of education,lunch,test preparation course,internet_access,extracurricular_activities,tutoring_support,study_method,parental_involvement,previous_term_score,attendance_rate,weekly_study_hours,sleep_hours_per_day,daily_screen_time_hours,past_failures,reading score,writing score
+STU-2026-1001,Isabella Moore,female,group C,some high school,free/reduced,none,yes,yes,private_tutor,active_problem_solving,high,34,78.4,17.0,7.6,1.4,1,45,40
+STU-2026-1002,Penelope Hall,female,group A,some college,standard,completed,yes,yes,none,passive_reading,high,64,81.2,12.6,8.8,2.4,0,77,75
+STU-2026-1003,Evelyn Rodriguez,male,group A,bachelor's degree,standard,none,yes,no,none,group_study,high,51,89.3,15.9,8.8,4.1,0,53,48
+STU-2026-1004,Eli Green,male,group D,high school,standard,completed,yes,no,peer_tutoring,group_study,low,53,85.0,9.6,7.0,0.5,0,63,60
+STU-2026-1005,Hannah King,male,group C,some high school,free/reduced,none,yes,no,peer_tutoring,active_problem_solving,high,72,83.6,10.1,8.3,2.9,0,78,76
+STU-2026-1006,Grace Jones,male,group C,associate's degree,standard,completed,yes,yes,private_tutor,passive_reading,medium,78,92.9,22.0,6.0,2.0,0,82,80
+STU-2026-1007,Lillian Campbell,male,group A,high school,standard,completed,yes,no,private_tutor,active_problem_solving,medium,62,98.6,18.0,8.2,3.8,0,59,56
+STU-2026-1008,Victoria Carter,female,group A,some college,standard,completed,yes,no,peer_tutoring,active_problem_solving,medium,64,95.9,16.2,7.3,2.9,0,63,67
+STU-2026-1009,Caleb Thompson,male,group A,bachelor's degree,free/reduced,none,yes,no,none,spaced_repetition,low,63,89.7,20.4,8.0,3.0,1,69,65
+STU-2026-1010,Sophia Carter,male,group C,some high school,standard,none,no,yes,private_tutor,active_problem_solving,medium,55,89.6,18.8,6.5,3.8,0,63,60
+STU-2026-1011,Ava Green,female,group C,some college,standard,completed,no,no,none,active_problem_solving,low,46,94.1,7.9,7.5,4.6,1,56,54
+STU-2026-1012,Addison Davis,male,group D,some college,standard,none,yes,yes,private_tutor,group_study,low,57,90.5,5.1,8.0,6.3,0,60,59
+STU-2026-1013,Julian Martin,female,group D,some high school,standard,none,yes,yes,none,group_study,high,81,95.4,14.1,8.8,2.4,0,78,79
+STU-2026-1014,Stella Perez,female,group E,high school,free/reduced,none,yes,no,private_tutor,spaced_repetition,medium,81,99.7,4.9,7.0,2.5,1,90,89
+STU-2026-1015,Olivia Gonzalez,female,group B,some college,standard,completed,yes,no,private_tutor,active_problem_solving,low,69,89.3,10.7,6.3,1.9,0,74,75
+STU-2026-1016,Nathan Campbell,female,group A,associate's degree,free/reduced,completed,yes,no,peer_tutoring,passive_reading,medium,84,72.6,5.6,7.7,5.0,0,88,86
+STU-2026-1017,Emma Hill,male,group C,associate's degree,standard,none,no,yes,peer_tutoring,spaced_repetition,medium,53,89.2,19.2,7.1,3.4,2,63,56
+STU-2026-1018,Julian Perez,male,group B,master's degree,standard,completed,yes,yes,none,passive_reading,low,73,84.3,11.8,7.2,4.8,1,68,71
+STU-2026-1019,Victoria White,female,group C,bachelor's degree,standard,completed,yes,yes,none,active_problem_solving,medium,56,80.3,18.8,7.3,3.2,0,56,57
+STU-2026-1020,Luke Thomas,male,group B,some college,standard,none,yes,no,private_tutor,active_problem_solving,low,40,88.8,18.9,7.6,2.5,0,35,39
+STU-2026-1021,Sebastian Davis,female,group D,associate's degree,standard,none,no,yes,private_tutor,passive_reading,high,70,76.6,12.7,8.2,2.6,0,73,72
+STU-2026-1022,Sophia Robinson,female,group E,some college,free/reduced,completed,no,yes,peer_tutoring,active_problem_solving,low,64,87.4,2.0,7.0,3.1,0,67,67
+STU-2026-1023,Sofia Jackson,female,group C,some college,standard,none,yes,yes,none,group_study,low,63,86.2,14.5,7.6,3.2,0,68,68
+STU-2026-1024,Ella Martin,female,group E,high school,standard,none,yes,no,peer_tutoring,spaced_repetition,low,76,90.1,15.3,7.0,1.5,1,77,78
+STU-2026-1025,Grace Clark,male,group C,some high school,standard,completed,yes,yes,none,passive_reading,low,55,77.2,10.8,7.1,2.8,0,53,47
+STU-2026-1026,Sophia Thomas,male,group A,bachelor's degree,standard,completed,yes,yes,private_tutor,group_study,low,70,88.3,8.4,8.2,1.5,0,72,70
+STU-2026-1027,Andrew Hall,female,group B,some high school,free/reduced,completed,yes,yes,none,active_problem_solving,high,66,90.2,12.2,7.6,3.5,0,68,67
+STU-2026-1028,Camila Allen,male,group C,some college,standard,completed,yes,yes,none,group_study,low,93,83.7,16.6,9.5,4.9,0,86,83
+STU-2026-1029,Harper Davis,female,group E,some college,standard,none,yes,yes,private_tutor,active_problem_solving,low,66,91.2,12.7,7.9,3.3,0,71,70
+STU-2026-1030,Charlotte Nguyen,male,group D,associate's degree,standard,none,yes,no,none,passive_reading,high,62,73.9,7.9,7.5,3.9,1,55,53
+STU-2026-1031,Mason Perez,female,group B,some college,free/reduced,completed,yes,yes,none,active_problem_solving,medium,55,81.2,18.3,7.0,4.0,0,55,53
+STU-2026-1032,Anthony Lewis,male,group D,associate's degree,standard,none,yes,yes,none,spaced_repetition,medium,67,75.4,11.2,6.9,2.4,0,70,64
+STU-2026-1033,Matthew Brown,female,group A,bachelor's degree,standard,none,yes,no,peer_tutoring,group_study,low,62,90.1,9.0,6.6,2.1,1,74,73
+STU-2026-1034,Adrian Taylor,male,group E,some college,standard,none,yes,yes,none,spaced_repetition,low,72,75.8,14.8,8.1,4.1,0,64,67
+STU-2026-1035,Chloe Allen,male,group D,some high school,free/reduced,completed,yes,yes,none,group_study,high,61,88.4,12.5,8.5,4.0,0,64,66
+STU-2026-1036,Ethan Gonzalez,female,group C,associate's degree,standard,completed,no,yes,none,group_study,medium,58,89.3,12.4,5.5,3.1,0,66,64
+STU-2026-1037,Abigail Roberts,female,group B,some high school,free/reduced,none,yes,no,none,passive_reading,medium,70,73.7,11.6,7.1,3.7,1,68,69
+STU-2026-1038,Sofia Clark,female,group B,associate's degree,free/reduced,completed,yes,no,none,group_study,low,55,85.3,11.9,7.4,3.8,0,55,53
+STU-2026-1039,John Lewis,male,group A,bachelor's degree,standard,completed,yes,yes,private_tutor,passive_reading,low,80,86.2,17.5,7.5,3.1,1,77,78
+STU-2026-1040,Sebastian Rodriguez,female,group C,high school,standard,none,yes,yes,none,spaced_repetition,medium,65,84.6,11.6,6.6,1.4,0,56,56
+STU-2026-1041,Gabriel Martin,female,group A,associate's degree,standard,completed,yes,no,none,spaced_repetition,medium,69,83.2,15.7,6.9,4.0,0,70,70
+STU-2026-1042,Carter Johnson,male,group C,bachelor's degree,standard,none,yes,yes,peer_tutoring,passive_reading,high,70,85.6,16.2,8.0,0.6,1,71,71
+STU-2026-1043,Isabella Scott,female,group D,some college,free/reduced,none,yes,no,peer_tutoring,passive_reading,high,64,76.3,15.4,6.3,4.8,0,64,67
+STU-2026-1044,Daniel Garcia,female,group E,bachelor's degree,free/reduced,none,yes,no,none,passive_reading,high,56,87.8,10.2,8.2,4.6,0,66,63
+STU-2026-1045,Zoey Campbell,male,group D,high school,standard,completed,no,no,none,active_problem_solving,high,75,88.1,9.1,7.1,4.1,1,66,70
+STU-2026-1046,Aiden Rivera,male,group C,some college,free/reduced,none,yes,no,peer_tutoring,passive_reading,high,65,89.7,12.0,8.7,3.3,2,74,72
+STU-2026-1047,Emma Nguyen,male,group B,associate's degree,free/reduced,completed,yes,no,peer_tutoring,group_study,medium,52,82.3,3.2,5.9,5.2,1,53,52
+STU-2026-1048,Dylan Jackson,male,group C,associate's degree,standard,none,yes,no,peer_tutoring,spaced_repetition,high,55,86.9,19.1,6.7,3.4,0,59,58
+STU-2026-1049,Dylan Brown,male,group C,high school,standard,none,yes,no,none,spaced_repetition,low,75,77.9,16.2,9.5,5.3,1,72,71
+STU-2026-1050,Lillian Baker,male,group D,some college,standard,none,yes,no,none,passive_reading,medium,61,87.4,17.4,7.3,1.6,1,52,57
+STU-2026-1051,Isaac Carter,male,group B,associate's degree,standard,none,yes,yes,none,group_study,medium,73,91.2,7.9,8.4,3.3,0,61,63
+STU-2026-1052,James Rodriguez,female,group D,associate's degree,standard,completed,yes,no,none,group_study,medium,70,92.9,12.3,8.2,3.7,2,81,80
+STU-2026-1053,Hannah Allen,male,group C,high school,free/reduced,none,yes,yes,peer_tutoring,passive_reading,medium,56,96.2,13.3,7.1,1.3,0,45,52
+STU-2026-1054,Isabella Green,female,group C,some high school,standard,none,yes,no,none,spaced_repetition,high,60,90.2,20.9,8.4,4.4,2,60,57
+STU-2026-1055,Ellie Hall,male,group C,associate's degree,free/reduced,completed,yes,yes,none,spaced_repetition,low,55,88.1,10.1,7.2,1.5,1,58,62
+STU-2026-1056,Eleanor Ramirez,male,group A,bachelor's degree,free/reduced,none,no,no,peer_tutoring,spaced_repetition,medium,47,97.3,8.5,5.9,4.6,0,47,46
+STU-2026-1057,Elijah Scott,female,group C,some college,standard,none,yes,no,none,active_problem_solving,medium,67,99.5,11.4,6.2,3.9,0,72,69
+STU-2026-1058,Hannah Davis,female,group C,bachelor's degree,standard,none,yes,yes,none,passive_reading,medium,64,85.1,17.2,5.9,2.2,0,68,64
+STU-2026-1059,Julian Campbell,female,group C,some high school,standard,completed,no,yes,peer_tutoring,group_study,medium,70,90.8,15.3,7.8,1.5,0,74,79
+STU-2026-1060,Mia Perez,male,group B,some college,standard,none,yes,yes,peer_tutoring,active_problem_solving,medium,67,83.3,14.0,5.2,3.2,0,61,66
+STU-2026-1061,Layla Anderson,male,group E,associate's degree,free/reduced,none,yes,yes,none,spaced_repetition,medium,57,66.5,6.7,7.2,4.3,0,49,52
+STU-2026-1062,Benjamin Robinson,female,group C,associate's degree,standard,completed,yes,no,none,spaced_repetition,medium,43,85.1,19.2,7.8,1.6,2,56,56
+STU-2026-1063,Charlotte Flores,male,group C,some college,standard,none,yes,no,peer_tutoring,spaced_repetition,medium,59,79.1,15.0,7.5,4.2,0,55,54
+STU-2026-1064,Eli Thomas,male,group B,some college,free/reduced,none,yes,yes,none,active_problem_solving,medium,61,88.3,14.1,7.6,2.3,1,59,63
+STU-2026-1065,Aiden Hernandez,female,group C,some high school,free/reduced,none,yes,yes,peer_tutoring,group_study,high,63,91.3,5.3,7.6,3.8,0,72,74
+STU-2026-1066,Ella Nguyen,male,group D,high school,free/reduced,none,yes,yes,peer_tutoring,group_study,low,43,100.0,13.1,7.5,5.1,3,54,49
+STU-2026-1067,Luke Williams,female,group A,high school,standard,none,yes,no,none,group_study,high,70,94.0,9.8,7.6,2.8,0,73,77
+STU-2026-1068,Oliver Clark,male,group B,high school,standard,none,yes,yes,none,spaced_repetition,medium,72,77.0,13.7,7.3,3.2,0,69,73
+STU-2026-1069,Zoe Hernandez,male,group B,high school,free/reduced,completed,yes,no,none,passive_reading,high,65,81.8,11.5,7.3,4.3,0,62,63
+STU-2026-1070,Ryan Hernandez,female,group E,some high school,standard,none,yes,no,peer_tutoring,group_study,high,59,75.4,11.1,7.9,2.0,0,55,59
+STU-2026-1071,Matthew Flores,female,group D,bachelor's degree,free/reduced,none,yes,yes,none,active_problem_solving,high,50,75.0,9.4,8.3,0.7,0,55,56
+STU-2026-1072,Mason Clark,male,group E,some high school,standard,none,yes,yes,peer_tutoring,group_study,high,67,76.5,11.8,5.8,3.1,0,65,61
+STU-2026-1073,Penelope Rodriguez,female,group D,some college,standard,completed,yes,yes,private_tutor,active_problem_solving,medium,71,87.5,11.4,8.1,3.0,0,76,71
+STU-2026-1074,Sofia Moore,male,group B,some high school,free/reduced,none,yes,yes,none,active_problem_solving,medium,94,80.3,10.0,9.0,3.1,0,86,83
+STU-2026-1075,Elizabeth Campbell,female,group B,associate's degree,standard,completed,yes,yes,none,spaced_repetition,low,83,94.5,11.3,7.3,4.0,0,90,91
+STU-2026-1076,Grace Wright,male,group D,some high school,free/reduced,completed,yes,no,none,spaced_repetition,medium,49,94.2,18.2,6.5,3.5,0,47,47
+STU-2026-1077,Leah Lee,male,group A,some college,standard,completed,yes,yes,peer_tutoring,active_problem_solving,high,61,75.3,17.3,8.4,2.2,1,69,68
+STU-2026-1078,Abigail Thomas,male,group B,high school,standard,none,yes,yes,private_tutor,group_study,high,48,84.2,16.1,8.9,2.6,0,42,42
+STU-2026-1079,Aiden Jones,female,group D,master's degree,standard,none,yes,no,none,group_study,medium,72,83.5,17.3,6.6,2.2,0,77,77
+STU-2026-1080,Christopher Flores,female,group B,some college,standard,none,yes,no,peer_tutoring,group_study,medium,69,91.4,8.4,6.9,5.4,1,72,81
+STU-2026-1081,Harper Gonzalez,female,group D,some high school,standard,none,yes,yes,peer_tutoring,active_problem_solving,low,62,83.2,12.8,4.9,4.5,0,62,60
+STU-2026-1082,Benjamin King,male,group D,some high school,free/reduced,completed,yes,yes,private_tutor,active_problem_solving,medium,82,85.3,10.6,8.3,2.6,0,75,79
+STU-2026-1083,Grace Lee,female,group B,bachelor's degree,standard,completed,yes,yes,none,group_study,medium,59,93.9,10.8,8.8,2.4,0,63,62
+STU-2026-1084,Stella Williams,male,group C,associate's degree,free/reduced,completed,yes,yes,peer_tutoring,passive_reading,high,42,76.8,10.1,6.0,1.7,0,35,36
+STU-2026-1085,Zoey Thomas,female,group D,high school,standard,completed,yes,no,none,group_study,medium,55,70.8,12.9,5.1,1.9,0,65,62
+STU-2026-1086,Natalie White,female,group C,some high school,standard,completed,yes,no,none,spaced_repetition,high,59,86.1,11.5,6.8,1.5,1,67,62
+STU-2026-1087,Penelope Johnson,female,group B,bachelor's degree,standard,none,yes,no,none,group_study,low,55,78.8,10.4,7.2,2.2,0,53,56
+STU-2026-1088,Mia Mitchell,male,group C,associate's degree,free/reduced,completed,yes,yes,private_tutor,spaced_repetition,high,77,78.6,18.3,7.3,2.2,0,69,69
+STU-2026-1089,Grace Sanchez,male,group E,some college,standard,completed,no,no,peer_tutoring,spaced_repetition,high,72,100.0,11.3,7.6,2.3,0,70,75
+STU-2026-1090,Anthony Wright,male,group C,some high school,free/reduced,completed,yes,no,peer_tutoring,active_problem_solving,high,67,92.6,14.5,5.9,5.2,0,62,61
+STU-2026-1091,Lucas Sanchez,female,group D,some high school,standard,none,yes,yes,none,active_problem_solving,high,64,82.4,9.2,9.1,4.2,0,65,69
+STU-2026-1092,Daniel Walker,female,group B,some high school,free/reduced,completed,yes,no,none,spaced_repetition,medium,54,77.4,17.0,6.8,4.5,1,65,63
+STU-2026-1093,Chloe Nelson,male,group B,some college,standard,completed,yes,yes,none,passive_reading,high,57,96.1,16.6,7.1,2.7,1,54,54
+STU-2026-1094,Landon Martin,female,group B,associate's degree,standard,none,no,yes,private_tutor,active_problem_solving,high,71,82.2,13.9,6.6,3.4,0,66,69
+STU-2026-1095,Joseph Garcia,male,group D,associate's degree,standard,none,no,no,private_tutor,active_problem_solving,medium,64,78.5,12.3,6.6,3.2,0,55,58
+STU-2026-1096,Sophia Jones,male,group A,some high school,free/reduced,none,yes,no,peer_tutoring,active_problem_solving,medium,66,88.1,7.8,6.9,1.0,0,68,69
+STU-2026-1097,Elizabeth Thompson,male,group B,master's degree,free/reduced,completed,yes,no,peer_tutoring,passive_reading,high,60,85.4,8.5,7.7,3.8,0,57,62
+STU-2026-1098,Julian Johnson,male,group B,some college,standard,completed,yes,yes,none,spaced_repetition,high,50,86.6,11.0,8.3,4.4,0,48,49
+STU-2026-1099,Landon Wright,male,group D,some college,standard,none,yes,no,private_tutor,passive_reading,high,73,87.0,3.3,7.9,5.3,0,71,71
+STU-2026-1100,Camila Adams,female,group A,some college,free/reduced,none,yes,yes,none,group_study,medium,66,89.7,14.0,6.2,3.6,0,67,70
+STU-2026-1101,Joseph Nelson,male,group C,associate's degree,free/reduced,none,yes,yes,private_tutor,active_problem_solving,medium,59,88.4,14.9,7.2,4.6,1,66,63
+STU-2026-1102,Joshua Campbell,male,group E,high school,free/reduced,none,yes,no,private_tutor,spaced_repetition,high,83,84.9,12.6,8.4,2.6,0,80,78
+STU-2026-1103,Andrew Jackson,female,group E,bachelor's degree,free/reduced,completed,yes,yes,peer_tutoring,active_problem_solving,low,50,92.7,11.7,7.3,4.8,1,50,54
+STU-2026-1104,Camila Jackson,female,group C,some college,standard,completed,yes,no,none,spaced_repetition,high,64,84.7,4.1,6.9,2.9,1,56,58
+STU-2026-1105,Leo Thompson,male,group C,associate's degree,standard,none,yes,no,private_tutor,active_problem_solving,medium,70,78.2,8.0,8.3,4.2,2,70,73
+STU-2026-1106,Samuel Martin,female,group E,some high school,free/reduced,completed,no,yes,private_tutor,spaced_repetition,low,74,90.5,11.1,6.5,4.6,0,73,74
+STU-2026-1107,Evelyn Ramirez,male,group D,bachelor's degree,standard,none,yes,yes,peer_tutoring,active_problem_solving,high,58,73.0,8.1,7.0,2.8,0,57,55
+STU-2026-1108,Ellie Scott,male,group D,some high school,free/reduced,none,no,no,private_tutor,group_study,medium,69,75.3,19.9,6.3,3.5,0,66,66
+STU-2026-1109,Anthony Lopez,male,group E,some high school,free/reduced,completed,yes,yes,peer_tutoring,group_study,high,66,96.4,15.9,7.0,3.2,2,74,66
+STU-2026-1110,Lillian Torres,female,group B,high school,standard,none,yes,no,none,spaced_repetition,low,45,85.5,8.2,8.1,2.6,0,51,52
+STU-2026-1111,Aubrey Robinson,male,group D,associate's degree,free/reduced,completed,yes,yes,none,active_problem_solving,medium,68,93.5,9.4,7.8,1.9,1,72,67
+STU-2026-1112,Olivia Wilson,female,group E,associate's degree,standard,completed,yes,no,peer_tutoring,passive_reading,medium,58,84.6,8.5,6.5,1.7,1,63,62
+STU-2026-1113,Camila Wilson,male,group B,some college,standard,none,yes,yes,none,group_study,low,73,100.0,9.6,7.3,2.7,0,73,73
+STU-2026-1114,Ryan Mitchell,female,group B,high school,free/reduced,completed,yes,yes,none,spaced_repetition,high,80,92.8,13.4,6.7,2.2,0,79,80
+STU-2026-1115,Luke Nelson,female,group E,bachelor's degree,standard,none,yes,yes,peer_tutoring,spaced_repetition,high,65,93.6,17.8,7.7,2.8,1,76,76
+STU-2026-1116,Sebastian Garcia,male,group D,high school,free/reduced,none,no,yes,none,active_problem_solving,medium,75,79.8,9.9,6.5,2.4,0,69,66
+STU-2026-1117,Charlotte Anderson,female,group C,associate's degree,standard,none,yes,yes,private_tutor,active_problem_solving,high,76,88.1,11.6,7.5,2.2,0,83,75
+STU-2026-1118,Gabriel Johnson,male,group C,high school,standard,none,yes,yes,none,passive_reading,low,66,88.2,10.2,5.4,4.2,0,59,61
+STU-2026-1119,Leah Robinson,male,group B,high school,standard,none,yes,no,private_tutor,active_problem_solving,medium,73,85.2,17.1,6.8,4.1,1,67,72
+STU-2026-1120,Olivia Hernandez,male,group C,some college,free/reduced,none,yes,yes,none,group_study,medium,69,77.8,12.6,8.8,3.2,0,68,69
+STU-2026-1121,Dylan Lee,male,group E,bachelor's degree,free/reduced,none,yes,no,none,passive_reading,high,76,69.5,14.0,7.9,2.9,0,64,68
+STU-2026-1122,Ella Allen,male,group E,associate's degree,standard,none,yes,no,private_tutor,active_problem_solving,low,77,73.6,12.7,8.8,2.9,0,72,77
+STU-2026-1123,Nathan Carter,male,group E,some college,standard,none,no,no,peer_tutoring,passive_reading,medium,81,91.3,14.1,7.5,3.3,0,76,75
+STU-2026-1124,Aubrey Jackson,male,group E,some high school,standard,none,no,yes,private_tutor,group_study,medium,55,82.7,18.5,6.9,4.4,0,48,56
+STU-2026-1125,Daniel Thompson,female,group B,bachelor's degree,free/reduced,none,yes,no,none,passive_reading,high,55,74.3,14.4,9.0,3.8,0,59,59
+STU-2026-1126,Daniel King,female,group A,associate's degree,free/reduced,none,yes,yes,none,spaced_repetition,low,63,99.3,8.7,8.9,1.9,0,66,67
+STU-2026-1127,Luna Walker,male,group C,high school,standard,completed,no,yes,none,passive_reading,medium,61,79.7,12.6,7.6,4.0,0,60,59
+STU-2026-1128,Aubrey Jones,female,group D,some high school,standard,completed,yes,no,none,active_problem_solving,high,97,77.6,14.9,6.8,1.9,0,95,96
+STU-2026-1129,Henry Johnson,male,group D,bachelor's degree,standard,completed,yes,no,peer_tutoring,spaced_repetition,medium,57,75.6,10.2,8.4,3.6,0,58,55
+STU-2026-1130,Lily Walker,female,group B,some college,free/reduced,none,yes,yes,none,spaced_repetition,medium,74,87.6,8.5,9.2,5.0,0,74,72
+STU-2026-1131,Anthony Miller,male,group D,associate's degree,standard,none,yes,no,none,spaced_repetition,medium,67,82.9,14.4,7.1,2.5,0,64,63
+STU-2026-1132,Ethan Scott,female,group A,some college,free/reduced,none,yes,yes,peer_tutoring,spaced_repetition,low,53,82.8,14.0,8.7,3.5,0,62,58
+STU-2026-1133,Christopher Anderson,male,group C,high school,standard,none,yes,no,peer_tutoring,spaced_repetition,low,67,80.0,15.3,9.3,2.9,1,64,62
+STU-2026-1134,Nora Campbell,female,group D,some college,standard,none,yes,yes,none,spaced_repetition,low,56,93.8,13.7,8.6,4.4,0,57,59
+STU-2026-1135,Aiden Nelson,male,group D,some high school,standard,none,no,no,none,group_study,low,68,81.7,20.1,8.1,4.9,1,63,61
+STU-2026-1136,Nathan Martin,male,group C,high school,standard,completed,yes,no,private_tutor,group_study,high,37,82.8,22.0,8.3,3.8,1,38,38
+STU-2026-1137,Camila Flores,female,group D,associate's degree,standard,none,no,no,private_tutor,spaced_repetition,high,66,92.0,9.3,7.8,2.2,1,71,73
+STU-2026-1138,Isabella Smith,male,group C,some high school,free/reduced,completed,yes,yes,none,group_study,high,48,91.6,16.4,8.2,3.8,1,49,46
+STU-2026-1139,Mia Johnson,male,group C,high school,free/reduced,none,yes,yes,peer_tutoring,active_problem_solving,high,67,75.9,4.9,6.8,3.9,0,68,68
+STU-2026-1140,Ella Clark,female,group B,bachelor's degree,standard,completed,no,yes,none,passive_reading,medium,75,89.0,14.2,7.6,1.5,1,79,80
+STU-2026-1141,Isabella Mitchell,male,group C,some high school,free/reduced,none,yes,yes,peer_tutoring,active_problem_solving,medium,69,79.4,6.7,6.9,3.8,1,68,68
+STU-2026-1142,Abigail Miller,male,group D,some college,standard,none,no,no,none,active_problem_solving,medium,50,95.3,17.5,7.2,1.9,0,56,51
+STU-2026-1143,Benjamin Young,female,group A,some high school,standard,completed,no,no,none,spaced_repetition,medium,74,84.3,15.5,8.1,1.2,1,72,70
+STU-2026-1144,Isaac White,female,group A,associate's degree,standard,none,yes,no,peer_tutoring,active_problem_solving,low,63,100.0,15.6,8.4,2.0,0,68,63
+STU-2026-1145,Zoe Wright,female,group C,some high school,standard,none,yes,no,none,group_study,low,89,80.3,6.3,7.5,1.2,1,97,96
+STU-2026-1146,Riley Smith,female,group D,associate's degree,free/reduced,completed,yes,no,none,group_study,medium,56,88.2,12.2,6.9,4.6,1,69,65
+STU-2026-1147,Eleanor Wright,male,group D,high school,standard,completed,no,no,none,passive_reading,medium,49,95.3,10.9,8.1,3.5,1,50,50
+STU-2026-1148,Benjamin Carter,male,group C,some high school,free/reduced,completed,yes,no,peer_tutoring,group_study,medium,57,95.2,12.7,7.2,3.6,1,62,59
+STU-2026-1149,Ava Martin,female,group C,high school,free/reduced,none,yes,no,none,active_problem_solving,high,57,80.3,10.4,7.4,2.2,0,64,62
+STU-2026-1150,Anthony Martinez,male,group D,bachelor's degree,free/reduced,completed,yes,no,private_tutor,active_problem_solving,medium,57,82.4,14.6,6.3,2.3,1,56,58
+STU-2026-1151,Jaxon Wilson,male,group C,associate's degree,free/reduced,completed,yes,yes,peer_tutoring,spaced_repetition,medium,65,79.0,14.8,8.1,1.8,2,71,68
+STU-2026-1152,Penelope Jones,male,group C,associate's degree,standard,completed,yes,yes,none,passive_reading,high,55,91.9,16.0,7.7,2.9,0,54,54
+STU-2026-1153,Mila Anderson,female,group B,associate's degree,free/reduced,none,yes,yes,none,group_study,medium,55,81.2,16.4,6.2,3.2,0,57,55
+STU-2026-1154,Jackson Walker,female,group A,bachelor's degree,standard,none,yes,yes,none,passive_reading,medium,72,83.9,22.1,7.1,3.0,1,80,79
+STU-2026-1155,Nathan Anderson,female,group D,associate's degree,standard,none,yes,yes,none,spaced_repetition,medium,64,91.3,14.8,7.9,3.1,0,69,69
+STU-2026-1156,Addison Young,female,group A,some college,standard,none,no,yes,none,passive_reading,high,77,82.2,20.1,6.3,4.2,0,80,78
+STU-2026-1157,Isabella Johnson,male,group B,high school,standard,none,yes,no,peer_tutoring,passive_reading,high,70,91.3,5.7,8.1,3.4,0,61,64
+STU-2026-1158,Joshua Green,female,group C,some high school,standard,none,no,yes,none,group_study,medium,69,88.7,13.8,9.2,2.1,0,68,66
+STU-2026-1159,Henry Mitchell,female,group D,some high school,standard,none,no,yes,none,group_study,medium,71,74.6,13.7,6.8,4.2,0,82,80
+STU-2026-1160,Grace Robinson,male,group E,high school,standard,none,yes,yes,none,group_study,high,87,80.7,6.7,7.0,4.1,2,90,89
+STU-2026-1161,Victoria Hall,male,group D,bachelor's degree,standard,none,yes,no,peer_tutoring,active_problem_solving,medium,80,74.1,11.9,7.5,5.0,0,77,77
+STU-2026-1162,Gabriel Carter,female,group C,some college,standard,completed,yes,yes,peer_tutoring,spaced_repetition,high,77,85.8,12.0,7.3,3.1,1,82,84
+STU-2026-1163,Amelia Harris,male,group B,high school,standard,completed,yes,yes,none,passive_reading,medium,82,90.7,13.7,8.9,2.3,1,87,86
+STU-2026-1164,Carter Walker,male,group D,associate's degree,standard,completed,yes,no,none,spaced_repetition,high,60,81.7,11.4,9.4,2.8,0,52,54
+STU-2026-1165,Sebastian Anderson,female,group C,associate's degree,free/reduced,none,yes,no,peer_tutoring,spaced_repetition,high,63,89.4,20.0,8.9,5.2,0,69,64
+STU-2026-1166,Sofia Wright,male,group D,high school,standard,none,yes,yes,none,active_problem_solving,low,73,81.1,10.2,6.3,2.6,0,69,68
+STU-2026-1167,Leah Hall,female,group B,some high school,standard,completed,yes,no,none,group_study,medium,58,76.6,15.2,7.5,3.8,0,62,63
+STU-2026-1168,Matthew Green,male,group C,associate's degree,standard,completed,no,no,peer_tutoring,active_problem_solving,medium,81,77.3,8.2,4.8,4.2,0,79,80
+STU-2026-1169,Lily Thompson,female,group C,associate's degree,standard,completed,no,no,none,group_study,high,37,79.2,15.4,6.4,4.3,1,49,49
+STU-2026-1170,Evelyn Thomas,female,group E,bachelor's degree,free/reduced,none,no,yes,none,active_problem_solving,high,75,77.5,18.1,6.2,3.2,0,86,85
+STU-2026-1171,Mia Flores,female,group B,associate's degree,free/reduced,completed,yes,no,private_tutor,spaced_repetition,high,77,100.0,14.5,7.0,2.9,0,77,73
+STU-2026-1172,Liam Adams,male,group C,some high school,standard,none,no,yes,none,spaced_repetition,high,65,88.6,6.9,6.5,3.4,0,64,63
+STU-2026-1173,Aiden Wilson,male,group D,some college,standard,none,yes,no,none,spaced_repetition,high,97,75.9,18.7,6.9,3.8,0,91,91
+STU-2026-1174,James Ramirez,female,group D,associate's degree,standard,completed,yes,no,none,active_problem_solving,high,57,65.5,17.1,7.9,4.2,1,59,62
+STU-2026-1175,Sebastian Nguyen,female,group C,high school,standard,completed,yes,no,private_tutor,spaced_repetition,low,56,94.8,17.5,7.5,2.8,0,62,63
+STU-2026-1176,Elizabeth Walker,male,group A,associate's degree,free/reduced,none,yes,yes,none,active_problem_solving,high,64,77.7,15.5,8.4,2.6,0,58,60
+STU-2026-1177,Abigail Johnson,male,group D,some high school,standard,completed,yes,no,peer_tutoring,passive_reading,low,64,89.7,16.9,8.7,4.8,0,62,64
+STU-2026-1178,Samuel Brown,female,group E,associate's degree,free/reduced,none,yes,yes,none,passive_reading,low,64,95.2,13.5,8.6,1.7,1,71,68
+STU-2026-1179,Julian Clark,female,group C,some high school,standard,none,yes,yes,peer_tutoring,active_problem_solving,medium,70,76.1,4.8,6.3,2.3,0,77,79
+STU-2026-1180,Caleb Rivera,male,group A,bachelor's degree,free/reduced,completed,yes,yes,none,group_study,medium,16,92.9,10.8,6.6,3.6,1,15,18
+STU-2026-1181,Samuel Thompson,female,group C,some college,standard,none,yes,yes,none,active_problem_solving,medium,70,75.9,8.8,7.1,1.7,0,73,73
+STU-2026-1182,Mila Lewis,male,group C,some high school,standard,completed,yes,yes,peer_tutoring,active_problem_solving,medium,49,92.5,9.3,5.8,2.5,1,50,52
+STU-2026-1183,Julian Brown,male,group B,some college,standard,completed,yes,no,none,spaced_repetition,medium,83,74.4,3.3,7.2,1.4,0,79,80
+STU-2026-1184,Stella Rivera,male,group D,high school,standard,completed,yes,no,none,spaced_repetition,high,44,74.0,10.3,8.8,2.6,0,46,43
+STU-2026-1185,Emily Miller,female,group B,some high school,standard,completed,yes,yes,peer_tutoring,active_problem_solving,medium,45,91.0,11.5,8.6,3.6,1,47,49
+STU-2026-1186,Lucas Brown,female,group C,high school,free/reduced,none,yes,no,none,active_problem_solving,high,73,97.2,12.8,7.3,2.7,1,79,85
+STU-2026-1187,Christian Martinez,male,group C,bachelor's degree,standard,completed,yes,no,none,spaced_repetition,medium,71,100.0,12.4,9.5,1.4,0,67,67
+STU-2026-1188,Adrian Thomas,female,group D,some high school,standard,completed,yes,no,none,group_study,high,56,83.6,8.0,8.3,1.9,0,55,56
+STU-2026-1189,Ellie Walker,female,group A,some college,free/reduced,completed,yes,yes,private_tutor,active_problem_solving,medium,54,91.0,11.6,5.5,2.2,0,47,44
+STU-2026-1190,Addison Jones,female,group E,some high school,standard,completed,yes,no,none,group_study,low,60,80.3,10.6,8.8,2.6,1,70,65
+STU-2026-1191,Nathan Wilson,female,group B,some high school,standard,none,yes,yes,none,passive_reading,low,73,83.8,10.0,7.4,4.0,0,72,78
+STU-2026-1192,Zoey Moore,female,group D,high school,standard,completed,yes,yes,none,group_study,high,87,87.4,19.2,6.6,2.3,0,85,86
+STU-2026-1193,Isaac Harris,female,group E,high school,standard,completed,yes,yes,peer_tutoring,active_problem_solving,high,65,85.4,13.7,6.9,0.9,0,65,66
+STU-2026-1194,Scarlett Gonzalez,female,group D,some college,standard,none,yes,no,none,group_study,low,73,79.2,18.1,8.4,2.6,1,76,78
+STU-2026-1195,Landon Hernandez,female,group C,associate's degree,standard,none,yes,no,peer_tutoring,active_problem_solving,medium,48,91.7,7.4,6.7,3.0,2,56,54
+STU-2026-1196,Ellie Allen,male,group C,some high school,free/reduced,completed,yes,yes,none,spaced_repetition,high,79,87.3,18.9,6.3,0.5,1,85,85
+STU-2026-1197,Layla Rivera,female,group C,some college,standard,none,yes,yes,peer_tutoring,spaced_repetition,high,72,84.5,14.5,6.2,3.3,2,78,75
+STU-2026-1198,Julian Roberts,male,group B,some college,standard,none,yes,yes,none,group_study,medium,72,82.5,17.2,7.2,2.7,1,72,70
+STU-2026-1199,Henry Nelson,male,group A,master's degree,standard,none,yes,no,none,spaced_repetition,high,80,77.0,13.9,8.3,4.0,0,80,77
+STU-2026-1200,Benjamin Lewis,male,group B,bachelor's degree,standard,completed,no,yes,private_tutor,group_study,low,67,85.5,19.1,6.5,3.4,0,77,71

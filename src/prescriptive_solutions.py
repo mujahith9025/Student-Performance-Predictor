@@ -3,20 +3,24 @@ import pandas as pd
 
 def diagnose_student_weaknesses(profile, predicted_math, pass_prob=None):
     """
-    Diagnoses root academic, behavioral, lifestyle, and socioeconomic bottlenecks across 14 dimensions.
+    Diagnoses root academic, behavioral, lifestyle, and socioeconomic bottlenecks across 18 dimensions.
     """
     bottlenecks = []
     r = float(profile.get("reading score", 65))
     w = float(profile.get("writing score", 65))
+    prev = float(profile.get("previous_term_score", 65))
     att = float(profile.get("attendance_rate", 85))
     study = float(profile.get("weekly_study_hours", 12))
     sleep = float(profile.get("sleep_hours_per_day", 7.5))
+    screen = float(profile.get("daily_screen_time_hours", 3.0))
     fails = int(profile.get("past_failures", 0))
     
     prep = profile.get("test preparation course", "none")
     lunch = profile.get("lunch", "standard")
     internet = profile.get("internet_access", "yes")
     tutoring = profile.get("tutoring_support", "none")
+    method = profile.get("study_method", "spaced_repetition")
+    involvement = profile.get("parental_involvement", "medium")
     
     # 1. Critical Attendance Risk
     if att < 75.0:
@@ -34,7 +38,25 @@ def diagnose_student_weaknesses(profile, predicted_math, pass_prob=None):
             "detail": f"Attendance is {att:.1f}%. Missed classroom lectures create friction in multi-step problem solving and retention."
         })
         
-    # 2. Study Hours & Practice Deficit
+    # 2. Digital Distraction & Screen Time Load
+    if screen > 4.5:
+        bottlenecks.append({
+            "category": "High Screen Time & Digital Distraction",
+            "severity": "High",
+            "icon": "📱",
+            "detail": f"Daily screen time of {screen:.1f} hrs exceeds healthy limits. Digital media fragmentation reduces deep focus capacity and displaces deliberate practice."
+        })
+        
+    # 3. Passive Study Technique Fragility
+    if method == "passive_reading":
+        bottlenecks.append({
+            "category": "Inefficient Passive Study Method",
+            "severity": "High",
+            "icon": "📖",
+            "detail": "Relying on passive re-reading and highlighting yields low long-term retention. Transitioning to Active Recall and Practice Questions produces superior results."
+        })
+        
+    # 4. Study Hours & Practice Deficit
     if study < 6.0:
         bottlenecks.append({
             "category": "Insufficient Deliberate Study Hours",
@@ -50,7 +72,7 @@ def diagnose_student_weaknesses(profile, predicted_math, pass_prob=None):
             "detail": f"Current self-study of {study:.1f} hrs/week is below the recommended 12-16 hrs benchmark for top tier mastery."
         })
         
-    # 3. Past Course Backlogs / Failures
+    # 5. Past Course Backlogs / Failures & Prior Momentum
     if fails >= 2:
         bottlenecks.append({
             "category": "Accumulated Academic Backlogs",
@@ -66,16 +88,24 @@ def diagnose_student_weaknesses(profile, predicted_math, pass_prob=None):
             "detail": "1 past course backlog indicates localized concept fragility that must be resolved prior to final examinations."
         })
         
-    # 4. Sleep & Cognitive Fatigue Factor
+    if prev < 50.0:
+        bottlenecks.append({
+            "category": "Historical Foundation Deficit",
+            "severity": "High",
+            "icon": "📊",
+            "detail": f"Previous term performance ({prev:.0f} marks) indicates foundational concept gaps requiring systematic review before advanced topics."
+        })
+        
+    # 6. Sleep & Cognitive Fatigue Factor
     if sleep < 6.0:
         bottlenecks.append({
             "category": "Chronic Sleep Deprivation & Fatigue",
             "severity": "High",
             "icon": "😴",
-            "detail": f"Student averages only {sleep:.1f} hrs of daily sleep. Sleep deprivation degrades working memory, problem-solving speed, and exam focus by up to 25%."
+            "detail": f"Student averages only {sleep:.1f} hrs of daily sleep. Sleep deprivation degrades working memory, problem-solving speed, and exam focus."
         })
         
-    # 5. Quantitative Math Deficiency
+    # 7. Quantitative Math Deficiency
     if predicted_math < 50:
         bottlenecks.append({
             "category": "Critical Mathematics Deficit",
@@ -91,7 +121,7 @@ def diagnose_student_weaknesses(profile, predicted_math, pass_prob=None):
             "detail": f"Predicted math score ({predicted_math:.1f}) indicates good foundation but difficulty with complex multi-step problems."
         })
         
-    # 6. Verbal Comprehension Lag
+    # 8. Verbal Comprehension Lag
     if r < 60:
         bottlenecks.append({
             "category": "Reading Literacy & Word Problem Lag",
@@ -100,7 +130,7 @@ def diagnose_student_weaknesses(profile, predicted_math, pass_prob=None):
             "detail": f"Reading score ({r:.0f}) is limiting mathematical word problem interpretation and problem translation."
         })
         
-    # 7. Test Prep & Tutoring Deficit
+    # 9. Test Prep, Mentorship & Tutoring Deficit
     if prep == "none":
         bottlenecks.append({
             "category": "Uncompleted Test Prep Course",
@@ -109,7 +139,15 @@ def diagnose_student_weaknesses(profile, predicted_math, pass_prob=None):
             "detail": "Student has not completed the standardized exam prep course, missing out on ~5-8 points of empirical score boost."
         })
         
-    # 8. Digital & Nutrition Support
+    if involvement == "low":
+        bottlenecks.append({
+            "category": "Low Home Academic Engagement",
+            "severity": "Medium",
+            "icon": "🏡",
+            "detail": "Low home mentorship engagement. Scheduling structured bi-weekly academic progress check-ins creates positive accountability."
+        })
+        
+    # 10. Digital & Nutrition Support
     if internet == "no":
         bottlenecks.append({
             "category": "Digital Access Barrier",
@@ -131,18 +169,22 @@ def diagnose_student_weaknesses(profile, predicted_math, pass_prob=None):
 def generate_prescriptive_solution(profile, predicted_math, pass_prob=None, grade=None, target_score=None):
     """
     Generates actionable prescriptive solutions, study hour allocations, milestone timeline,
-    and projected score uplift across 14 student dimensions.
+    and projected score uplift across 18 student dimensions.
     """
     r = float(profile.get("reading score", 65))
     w = float(profile.get("writing score", 65))
+    prev = float(profile.get("previous_term_score", 65))
     att = float(profile.get("attendance_rate", 85))
     study = float(profile.get("weekly_study_hours", 12))
     sleep = float(profile.get("sleep_hours_per_day", 7.5))
+    screen = float(profile.get("daily_screen_time_hours", 3.0))
     fails = int(profile.get("past_failures", 0))
     prep = profile.get("test preparation course", "none")
     lunch = profile.get("lunch", "standard")
     internet = profile.get("internet_access", "yes")
     tutoring = profile.get("tutoring_support", "none")
+    method = profile.get("study_method", "spaced_repetition")
+    involvement = profile.get("parental_involvement", "medium")
     
     current_score = float(predicted_math)
     if target_score is None:
@@ -153,22 +195,48 @@ def generate_prescriptive_solution(profile, predicted_math, pass_prob=None, grad
     interventions = []
     total_uplift = 0.0
     
-    # 1. Attendance & Classroom Continuity
+    # 1. Study Technique Optimization (Active Recall & Problem Solving)
+    if method == "passive_reading" or method == "group_study":
+        uplift = 4.2 if method == "passive_reading" else 2.5
+        total_uplift += uplift
+        interventions.append({
+            "title": "Upgrade to Active Problem Solving & Spaced Recall",
+            "priority": "P1 - Cognitive Mastery",
+            "timeline": "Immediate (Daily)",
+            "est_uplift": f"+{uplift:.1f} pts",
+            "action": "Replace passive re-reading with active practice problems, timed past paper questions, and spaced flashcards.",
+            "resource": "Digital Question Bank & Spaced Recall Platform"
+        })
+        
+    # 2. Digital Distraction & Screen Time Management
+    if screen > 3.5:
+        uplift = round(min(4.0, (screen - 2.5) * 1.2), 1)
+        total_uplift += uplift
+        interventions.append({
+            "title": f"Digital Screen Diet ({screen:.1f}h -> 2.5h/day)",
+            "priority": "P1 - Focus & Attention",
+            "timeline": "Weeks 1 - 4",
+            "est_uplift": f"+{uplift:.1f} pts",
+            "action": "Implement app timers and 'Do Not Disturb' study blocks to eliminate notification fragmentation during study sessions.",
+            "resource": "Digital Focus & Screen Time Management Plan"
+        })
+        
+    # 3. Attendance & Classroom Continuity
     if att < 85.0:
-        uplift = round(min(8.0, (92.0 - att) * 0.35), 1)
+        uplift = round(min(7.5, (92.0 - att) * 0.35), 1)
         total_uplift += uplift
         interventions.append({
             "title": f"Attendance Recovery Plan ({att:.0f}% -> 92%)",
             "priority": "P1 - Critical Foundation",
             "timeline": "Immediate (Weeks 1 - 4)",
             "est_uplift": f"+{uplift:.1f} pts",
-            "action": f"Establish daily attendance tracking with automated SMS/email check-ins to bridge concept continuity gaps.",
+            "action": "Establish daily attendance tracking with automated SMS/email check-ins to bridge concept continuity gaps.",
             "resource": "Student Attendance Portal & Advisor Check-In"
         })
         
-    # 2. Tutoring & Remedial Program
+    # 4. Tutoring & Remedial Program
     if current_score < 65 or fails > 0 or tutoring == "none":
-        uplift = 6.5 if current_score < 50 else 4.5
+        uplift = 6.0 if current_score < 50 else 4.0
         total_uplift += uplift
         interventions.append({
             "title": "Enroll in 1-on-1 Peer & Teacher Tutoring (3 hrs/wk)",
@@ -179,9 +247,9 @@ def generate_prescriptive_solution(profile, predicted_math, pass_prob=None, grad
             "resource": "Math Lab & Peer Tutoring Center"
         })
         
-    # 3. Test Prep Course Completion
+    # 5. Test Prep Course Completion
     if prep == "none":
-        uplift = 5.5
+        uplift = 5.0
         total_uplift += uplift
         interventions.append({
             "title": "Complete Standardized Test Preparation Course",
@@ -192,10 +260,10 @@ def generate_prescriptive_solution(profile, predicted_math, pass_prob=None, grad
             "resource": "Online Test Prep Portal & Practice Question Bank"
         })
         
-    # 4. Weekly Study Hours Increase
+    # 6. Weekly Study Hours Increase
     if study < 14.0:
         recommended_study = min(20.0, study + 6.0)
-        uplift = round((recommended_study - study) * 0.40, 1)
+        uplift = round((recommended_study - study) * 0.38, 1)
         total_uplift += uplift
         interventions.append({
             "title": f"Expand Deliberate Study ({study:.0f}h -> {recommended_study:.0f}h/wk)",
@@ -206,9 +274,9 @@ def generate_prescriptive_solution(profile, predicted_math, pass_prob=None, grad
             "resource": "Weekly Study Timetable Planner"
         })
         
-    # 5. Sleep & Wellness Optimization
+    # 7. Sleep & Wellness Optimization
     if sleep < 6.5:
-        uplift = 3.5
+        uplift = 3.0
         total_uplift += uplift
         interventions.append({
             "title": "Sleep & Cognitive Wellness Protocol (7.5+ hrs)",
@@ -219,17 +287,17 @@ def generate_prescriptive_solution(profile, predicted_math, pass_prob=None, grad
             "resource": "Student Wellness & Sleep Hygiene Guide"
         })
         
-    # 6. Digital Access Support
-    if internet == "no":
-        uplift = 3.0
+    # 8. Home Academic Mentorship & Check-ins
+    if involvement == "low":
+        uplift = 2.8
         total_uplift += uplift
         interventions.append({
-            "title": "School Digital Library & Hotspot Lending",
-            "priority": "P3 - Resource Access",
+            "title": "Bi-Weekly Home Mentorship & Progress Review",
+            "priority": "P3 - Accountability",
             "timeline": "Ongoing",
             "est_uplift": f"+{uplift:.1f} pts",
-            "action": "Provide student with LTE hotspot lending package and after-school computer lab access.",
-            "resource": "Campus IT & Library Lending Program"
+            "action": "Schedule 20-minute bi-weekly review sessions between student, parent, and advisor to maintain momentum.",
+            "resource": "Parent-Teacher Communication Portal"
         })
         
     # Study Hours Allocation Breakdown
@@ -247,121 +315,108 @@ def generate_prescriptive_solution(profile, predicted_math, pass_prob=None, grad
     total_study_hours = sum(study_hours.values())
     
     # Projected Post-Intervention Score
-    projected_score = min(100.0, round(current_score + min(total_uplift, 26.0), 1))
+    projected_score = min(100.0, round(current_score + min(total_uplift, 28.0), 1))
+    projected_prob = min(99.9, round(pass_prob + (15.0 if pass_prob < 80 else 4.0), 1)) if pass_prob else (98.0 if projected_score >= 60 else 75.0)
     
-    def calc_grade(score):
-        if score >= 90: return "A+ (Outstanding)"
-        elif score >= 80: return "A (Excellent)"
-        elif score >= 70: return "B (Good)"
-        elif score >= 60: return "C (Satisfactory)"
-        elif score >= 50: return "D (Pass)"
-        else: return "F (Needs Remedial)"
+    # Projected Risk Tier
+    if projected_score >= 80 or projected_prob >= 85:
+        projected_risk = "Safe / Low Risk"
+    elif projected_score >= 60 or projected_prob >= 60:
+        projected_risk = "Moderate (Monitor)"
+    else:
+        projected_risk = "High Academic Risk"
         
-    projected_grade = calc_grade(projected_score)
-    
-    # 12-Week Milestone Timeline
+    # Structured 12-Week Roadmap Milestones
     milestones = [
         {
-            "week": "Weeks 1 - 2: Attendance & Diagnostics",
-            "target": f"Baseline Stabilize ({current_score:.1f} -> {min(100.0, current_score + total_uplift*0.25):.1f})",
-            "milestone": f"Achieve 95%+ attendance, resolve prior backlogs, set weekly timetable of {total_study_hours:.0f} study hours."
+            "phase": "Weeks 1 - 3: Baseline Diagnostics & Foundational Stabilization",
+            "focus": "Diagnostic quiz, attendance recovery, and study schedule setup.",
+            "target": f"Eliminate absenteeism, achieve 7.5h sleep/night, and reach {min(100.0, current_score + 4.0):.1f} marks in weekly checks."
         },
         {
-            "week": "Weeks 3 - 6: Active Tutoring & Prep",
-            "target": f"Mid-Term Checkpoint ({min(100.0, current_score + total_uplift*0.55):.1f} pts)",
-            "milestone": "Attend 8 tutoring sessions, complete 50% of test prep course, maintain 7.5h daily sleep."
+            "phase": "Weeks 4 - 8: Core Concept Reinforcement & Active Practice Drills",
+            "focus": "1-on-1 tutoring, active problem solving, and completing standardized test preparation modules.",
+            "target": f"Master quadratic equations, trigonometry, and reach {min(100.0, current_score + 9.0):.1f} marks in mid-term mocks."
         },
         {
-            "week": "Weeks 7 - 10: Mock Exams & Error Logs",
-            "target": f"Mastery Checkpoint ({min(100.0, current_score + total_uplift*0.85):.1f} pts)",
-            "milestone": "Complete 4 full-length timed mock exams with detailed error logs; score 80%+ on weekly practice quizzes."
-        },
-        {
-            "week": "Weeks 11 - 12: Final Review Sprint",
-            "target": f"Goal Attained ({projected_score:.1f} pts / {projected_grade})",
-            "milestone": "Consolidate cheat-sheets, complete final benchmark test, enter examination hall with peak readiness."
+            "phase": "Weeks 9 - 12: Timed Exam Simulation & Distinction Mastery",
+            "focus": "Full-length past paper simulations, speed drills, and exam triage strategies.",
+            "target": f"Consolidate scores to projected {projected_score:.1f} marks ({projected_risk})."
         }
     ]
     
-    teacher_guidance = [
-        f"Monitor weekly attendance log; trigger immediate notification if attendance dips below 85%.",
-        f"Provide partial credit rubrics on homework to encourage detailed written calculations.",
-        f"Conduct bi-weekly 10-minute check-ins to monitor self-study consistency and reduce test anxiety."
-    ]
-    
     return {
-        "current_score": current_score,
-        "target_score": target_score,
-        "projected_score": projected_score,
-        "projected_grade": projected_grade,
-        "total_uplift": round(projected_score - current_score, 1),
         "bottlenecks": bottlenecks,
         "interventions": interventions,
-        "study_hours": study_hours,
-        "total_study_hours": total_study_hours,
-        "milestones": milestones,
-        "teacher_guidance": teacher_guidance
+        "total_estimated_uplift": round(total_uplift, 1),
+        "current_score": current_score,
+        "projected_score": projected_score,
+        "projected_pass_prob": projected_prob,
+        "projected_risk_tier": projected_risk,
+        "weekly_study_allocation": study_hours,
+        "total_prescribed_hours": total_study_hours,
+        "milestones": milestones
     }
 
-def generate_classroom_intervention_matrix(processed_df):
+def generate_classroom_intervention_matrix(cohort_df):
     """
-    Clusters students in a classroom batch into targeted 14-feature intervention cohorts.
+    Generates prescriptive intervention matrix for a cohort of students.
     """
-    df = processed_df.copy()
+    matrix_rows = []
     
-    clusters = {
-        "Intensive Remedial (High Risk)": [],
-        "Attendance & Habit Recovery": [],
-        "Test Prep & Tutoring Bootcamp": [],
-        "Honors / Distinction Mentorship": []
-    }
+    high_risk_count = 0
+    test_prep_needed_count = 0
+    tutoring_needed_count = 0
+    screen_distracted_count = 0
+    honors_count = 0
     
-    for _, row in df.iterrows():
-        s_id = row.get("student_id", f"STU-{row.name+1}")
-        name = row.get("student_name", f"Student {row.name+1}")
-        math = row.get("Predicted_Math_Score", 65.0)
-        att = row.get("attendance_rate", 85.0)
-        study = row.get("weekly_study_hours", 12.0)
-        fails = row.get("past_failures", 0)
-        risk = row.get("Risk_Tier", "Moderate Risk")
-        prep = row.get("test preparation course", "none")
+    for _, row in cohort_df.iterrows():
+        p_dict = row.to_dict()
+        pred_math = float(p_dict.get("Predicted_Math_Score", p_dict.get("math score", 65)))
+        prob = float(p_dict.get("Pass_Probability_Pct", 95.0))
         
-        entry = {
-            "id": s_id,
-            "name": name,
-            "predicted_math": math,
-            "attendance": att,
-            "study_hours": study,
-            "past_failures": fails,
-            "risk": risk
-        }
+        # Diagnostics
+        diag = diagnose_student_weaknesses(p_dict, pred_math, prob)
         
-        if "High" in str(risk) or math < 50 or fails >= 2:
-            clusters["Intensive Remedial (High Risk)"].append(entry)
-        elif att < 80.0 or study < 8.0:
-            clusters["Attendance & Habit Recovery"].append(entry)
-        elif prep == "none" and math < 80.0:
-            clusters["Test Prep & Tutoring Bootcamp"].append(entry)
+        # Prescriptive assignment
+        if pred_math < 50 or prob < 60:
+            rec_action = "🚨 Intensive 1-on-1 Remedial & Attendance Tracking"
+            urgency = "Immediate (Week 1)"
+            high_risk_count += 1
+        elif p_dict.get("daily_screen_time_hours", 3.0) > 4.5:
+            rec_action = "📱 Digital Distraction & Focus Intervention"
+            urgency = "High (Week 1)"
+            screen_distracted_count += 1
+        elif p_dict.get("test preparation course", "none") == "none":
+            rec_action = "🎯 Test Prep Course Enrollment & Mock Drills"
+            urgency = "High (Weeks 2 - 4)"
+            test_prep_needed_count += 1
+        elif float(p_dict.get("weekly_study_hours", 12)) < 10.0:
+            rec_action = "⏱️ Expand Study Hours & Peer Study Pod"
+            urgency = "Moderate"
+            tutoring_needed_count += 1
         else:
-            clusters["Honors / Distinction Mentorship"].append(entry)
+            rec_action = "🌟 Honors / Advanced Problem-Solving Track"
+            urgency = "Routine"
+            honors_count += 1
             
-    summary = {
-        "high_risk_count": len(clusters["Intensive Remedial (High Risk)"]),
-        "attendance_habit_count": len(clusters["Attendance & Habit Recovery"]),
-        "test_prep_needed_count": len(clusters["Test Prep & Tutoring Bootcamp"]),
-        "honors_count": len(clusters["Honors / Distinction Mentorship"]),
-        "total": len(df)
+        matrix_rows.append({
+            "Student Name": p_dict.get("student_name", f"Student {_ + 1}"),
+            "Roll / ID": p_dict.get("student_id", f"ID-{_ + 101}"),
+            "Predicted Math": f"{pred_math:.1f}",
+            "Risk Level": p_dict.get("Risk_Tier", "Safe"),
+            "Primary Bottleneck": diag[0]["category"] if diag else "None Identified",
+            "Recommended Prescription": rec_action,
+            "Urgency": urgency
+        })
+        
+    cluster_summary = {
+        "high_risk_count": high_risk_count,
+        "test_prep_needed_count": test_prep_needed_count,
+        "tutoring_needed_count": tutoring_needed_count,
+        "screen_distracted_count": screen_distracted_count,
+        "honors_count": honors_count,
+        "total_students": len(cohort_df)
     }
     
-    action_plans = {
-        "Intensive Remedial (High Risk)": "Assign dedicated teacher aide for 1-on-1 tutoring 3x weekly; mandatory math clinic; parent conference.",
-        "Attendance & Habit Recovery": "Initiate automated attendance check-ins; pair with mentor; establish mandatory 10h/wk quiet study hall.",
-        "Test Prep & Tutoring Bootcamp": "Auto-enroll in 4-week weekend exam prep cohort; weekly mock exams with error log reviews.",
-        "Honors / Distinction Mentorship": "Fast-track to Advanced Placement / Math Olympiad modules; student peer mentoring leadership."
-    }
-    
-    return {
-        "clusters": clusters,
-        "summary": summary,
-        "action_plans": action_plans
-    }
+    return pd.DataFrame(matrix_rows), cluster_summary
