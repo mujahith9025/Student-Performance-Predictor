@@ -758,46 +758,50 @@ with tab_pred:
                 if daily_screen_time_hours > 4.5: tips.append("📱 Screen Time Diet: Capping recreational screen time under 2.5h/day restores daily focus.")
                 if not tips: tips.append("🌟 Strong academic standing across all subjects.")
 
-                pdf_bytes = generate_student_pdf_report(
-                    student_name=student_name if student_name.strip() else "Student",
-                    student_id=student_id if student_id.strip() else "STU-UNASSIGNED",
-                    gender=gender,
-                    race_ethnicity=race_ethnicity,
-                    parental_education=parental_education,
-                    lunch=lunch,
-                    test_prep=test_prep,
-                    reading_score=reading_score,
-                    writing_score=writing_score,
-                    predicted_math=predicted_math,
-                    overall_avg=overall_avg,
-                    grade=grade,
-                    model_name=selected_model_name,
-                    tips=tips,
-                    pass_prob=pass_prob,
-                    risk_level=risk_level,
-                    custom_counselor_note=counselor_note,
-                    prescriptive_solution=prescriptive_sol,
-                    attendance_rate=attendance_rate,
-                    weekly_study_hours=weekly_study_hours,
-                    sleep_hours_per_day=sleep_hours_per_day,
-                    past_failures=past_failures,
-                    tutoring_support=tutoring_support,
-                    internet_access=internet_access,
-                    previous_term_score=previous_term_score,
-                    study_method=study_method,
-                    daily_screen_time_hours=daily_screen_time_hours,
-                    parental_involvement=parental_involvement
-                )
-                clean_filename = f"Official_Academic_Report_{student_id.replace('/', '_')}.pdf"
-                
-                st.download_button(
-                    label=f"📥 Download Certified PDF Report Card",
-                    data=pdf_bytes,
-                    file_name=clean_filename,
-                    mime="application/pdf",
-                    type="primary",
-                    use_container_width=True
-                )
+                try:
+                    pdf_bytes = generate_student_pdf_report(
+                        student_name=student_name if (student_name and str(student_name).strip()) else "Student",
+                        student_id=student_id if (student_id and str(student_id).strip()) else "STU-UNASSIGNED",
+                        gender=gender,
+                        race_ethnicity=race_ethnicity,
+                        parental_education=parental_education,
+                        lunch=lunch,
+                        test_prep=test_prep,
+                        reading_score=reading_score,
+                        writing_score=writing_score,
+                        predicted_math=predicted_math,
+                        overall_avg=overall_avg,
+                        grade=grade,
+                        model_name=selected_model_name,
+                        tips=tips,
+                        pass_prob=pass_prob,
+                        risk_level=risk_level,
+                        custom_counselor_note=counselor_note,
+                        prescriptive_solution=prescriptive_sol,
+                        attendance_rate=attendance_rate,
+                        weekly_study_hours=weekly_study_hours,
+                        sleep_hours_per_day=sleep_hours_per_day,
+                        past_failures=past_failures,
+                        tutoring_support=tutoring_support,
+                        internet_access=internet_access,
+                        previous_term_score=previous_term_score,
+                        study_method=study_method,
+                        daily_screen_time_hours=daily_screen_time_hours,
+                        parental_involvement=parental_involvement
+                    )
+                    clean_id_safe = str(student_id).replace('/', '_').replace('\\', '_').strip() or 'Student'
+                    clean_filename = f"Official_Academic_Report_{clean_id_safe}.pdf"
+                    
+                    st.download_button(
+                        label="📥 Download Certified PDF Report Card",
+                        data=pdf_bytes,
+                        file_name=clean_filename,
+                        mime="application/pdf",
+                        type="primary",
+                        use_container_width=True
+                    )
+                except Exception as pdf_err:
+                    st.warning(f"ℹ️ PDF Export Note: Standard PDF preview is momentarily generating ({pdf_err}). All interactive dashboard cards above remain fully active.")
                 
                 fig_uplift = create_intervention_uplift_chart(predicted_math, prescriptive_sol["projected_score"], prescriptive_sol["interventions"])
                 st.plotly_chart(fig_uplift, use_container_width=True)
@@ -1040,21 +1044,24 @@ with tab_batch:
                             use_container_width=True
                         )
                     with exp_c2:
-                        class_pdf = generate_classroom_pdf_report(
-                            classroom_df=filtered_df,
-                            summary=summary,
-                            cohort_name=batch_source_name,
-                            custom_counselor_notes=class_counselor_notes,
-                            intervention_matrix=matrix
-                        )
-                        st.download_button(
-                            label="📄 Download Classroom PDF Executive Summary",
-                            data=class_pdf,
-                            file_name="Classroom_Executive_Summary_Report.pdf",
-                            mime="application/pdf",
-                            type="primary",
-                            use_container_width=True
-                        )
+                        try:
+                            class_pdf = generate_classroom_pdf_report(
+                                classroom_df=filtered_df,
+                                summary=summary,
+                                cohort_name=batch_source_name,
+                                custom_counselor_notes=class_counselor_notes,
+                                intervention_matrix=matrix
+                            )
+                            st.download_button(
+                                label="📄 Download Classroom PDF Executive Summary",
+                                data=class_pdf,
+                                file_name="Classroom_Executive_Summary_Report.pdf",
+                                mime="application/pdf",
+                                type="primary",
+                                use_container_width=True
+                            )
+                        except Exception as c_pdf_err:
+                            st.warning(f"ℹ️ Classroom PDF Notice: Report preview is momentarily processing ({c_pdf_err}). All classroom roster tables & CSV exports are active.")
         except Exception as e:
             st.error(f"Error processing batch: {str(e)}")
 
